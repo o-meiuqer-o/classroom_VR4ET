@@ -231,6 +231,14 @@
             border-left: 4px solid rgba(94, 82, 64, 0.8);
         }
 
+        /* Added for live caption */
+        .message.live {
+            background: rgba(94, 82, 64, 0.05); /* Lighter background */
+            border-left: 4px solid rgba(94, 82, 64, 0.4); /* Fainter border */
+            font-style: italic;
+            color: rgba(19, 52, 59, 0.7);
+        }
+
         @keyframes messageSlideIn {
             from { opacity: 0; transform: translateX(-10px); }
             to { opacity: 1; transform: translateX(0); }
@@ -805,27 +813,48 @@
                 statusEl.textContent = '🔴 RECORDING - Speak clearly into your microphone';
                 statusEl.style.color = '#FF6B6B';
                 statusEl.style.fontWeight = 'bold';
+
+                // Remove any old caption
+                removeLiveCaption();
             };
 
+            // UPDATED to handle interim AND final results
             recognition.onresult = function(event) {
-                // Get the final transcript
+                let interimTranscript = '';
                 let finalTranscript = '';
+                // const statusEl = document.getElementById('main-voice-status'); // No longer updating this with interim
+
+                // Loop through all results
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    const transcript = event.results[i][0].transcript;
                     if (event.results[i].isFinal) {
-                        finalTranscript += event.results[i][0].transcript;
+                        finalTranscript += transcript;
+                    } else {
+                        interimTranscript += transcript;
                     }
                 }
-                
-                finalTranscript = finalTranscript.toLowerCase().trim();
 
+                // 1. Update UI with interim results (what's being heard)
+                if (interimTranscript) {
+                    console.log('📝 Interim result:', interimTranscript);
+                    // NEW: Show live caption in conversation box
+                    addOrUpdateLiveCaption(interimTranscript);
+                }
+
+                // 2. Process the final result (if we have one)
+                finalTranscript = finalTranscript.toLowerCase().trim();
                 if (finalTranscript) {
                     console.log('Heard (final):', finalTranscript);
                     
+                    // NEW: Remove the live caption
+                    removeLiveCaption();
+
                     // Add user message to conversation
                     addMessageToConversation('You', finalTranscript);
                     
-                    // Stop recognition manually since we have a final result
-                    recognition.stop(); 
+                    // We don't need to call recognition.stop()
+                    // continuous=false means it will stop automatically,
+                    // firing the 'onend' event.
                     
                     // Process the response
                     processVoiceResponse(finalTranscript, step);
@@ -833,19 +862,6 @@
             };
             
             // Add interim results handler
-            recognition.oninterimresults = function(event) {
-                let interimTranscript = '';
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    interimTranscript += event.results[i][0].transcript;
-                }
-                if (interimTranscript) {
-                    console.log('📝 Interim result:', interimTranscript);
-                    const statusEl = document.getElementById('main-voice-status');
-                    statusEl.innerHTML = '<strong style="color: #51CF66;">📝 Hearing: "' + interimTranscript + '"</strong>';
-                }
-            };
-
-
             recognition.onend = function() {
                 console.log('Recognition ended.');
                 conversationState.isListening = false;
@@ -853,6 +869,9 @@
                 const statusEl = document.getElementById('main-voice-status');
                 voiceBtn.classList.remove('listening');
                 // Don't change text here, onresult handles it
+
+                // NEW: Remove live caption on end
+                removeLiveCaption();
             };
 
             recognition.onerror = function(event) {
@@ -872,6 +891,9 @@
                 statusEl.textContent = '❌ Error: ' + errorMsg + ' - Click button to try again';
                 statusEl.style.color = '#FF6B6B';
                 conversationState.isListening = false;
+
+                // NEW: Remove live caption on error
+                removeLiveCaption();
             };
 
             try {
@@ -887,6 +909,8 @@
                 }
             }
         }
+
+        // DELETED the broken recognition.oninterimresults block that was here
 
         // Process voice response
         function processVoiceResponse(transcript, step) {
@@ -940,6 +964,38 @@
             conversationDisplay.appendChild(messageDiv);
             conversationDisplay.scrollTop = conversationDisplay.scrollHeight;
         }
+
+        // --- NEW FUNCTIONS FOR LIVE CAPTION ---
+        // Add or update a live caption message
+        function addOrUpdateLiveCaption(text) {
+            const conversationDisplay = document.getElementById('conversation-display');
+            let captionEl = document.getElementById('live-caption');
+            
+            if (!captionEl) {
+                // Create it
+                captionEl = document.createElement('div');
+                captionEl.id = 'live-caption';
+                captionEl.className = 'message user-message live'; // Add a 'live' class
+                captionEl.innerHTML = `<strong>You (speaking):</strong> ${text}`;
+                conversationDisplay.appendChild(captionEl);
+            } else {
+                // Update it
+                captionEl.innerHTML = `<strong>You (speaking):</strong> ${text}`;
+            }
+            
+            // Ensure it's scrolled into view
+            conversationDisplay.scrollTop = conversationDisplay.scrollHeight;
+        }
+
+        // Remove the live caption
+        function removeLiveCaption() {
+            const captionEl = document.getElementById('live-caption');
+            if (captionEl) {
+                captionEl.remove();
+            }
+        }
+        // --- END NEW FUNCTIONS ---
+
 
         // Complete voice conversation and start VR
         function completeVoiceConversation() {
@@ -1129,3 +1185,5 @@
     </script>
 </body>
 </html>
+
+
