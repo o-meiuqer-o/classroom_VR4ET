@@ -308,19 +308,84 @@
             margin: 0;
             font-size: 14px;
         }
+
+        /* VR Overlay Styles */
+        .vr-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .vr-overlay.active {
+            display: flex;
+        }
+
+        .overlay-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: overlaySlideIn 0.5s ease-out;
+        }
+
+        @keyframes overlaySlideIn {
+            from { 
+                opacity: 0; 
+                transform: scale(0.9) translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: scale(1) translateY(0); 
+            }
+        }
+
+        /* Manual input overlay */
+        .manual-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .manual-overlay.active {
+            display: flex;
+        }
     </style>
 </head>
 <body>
-    <!-- Welcome Screen -->
-    <div id="screen-welcome" class="screen active">
+    <!-- Welcome Screen (hidden - now using VR overlay) -->
+    <div id="screen-welcome" class="screen">
         <div class="card">
             <div class="icon">🎓</div>
-            <h1>Virtual Lecturer's Destressing Experience</h1>
+            <h1>Virtual Lecter's Destressing Experience</h1>
             
             <div class="voice-conversation">
                 <div class="conversation-display" id="conversation-display">
                     <div class="message system-message">
-                        <strong>System:</strong> Welcome to Virtual Lecturer's Destressing Experience
+                        <strong>System:</strong> Welcome to Virtual Lecter's Destressing Experience
                     </div>
                 </div>
                 
@@ -357,8 +422,44 @@
         </div>
     </div>
 
-    <!-- Information Collection Screen -->
-    <div id="screen-info" class="screen">
+    <!-- Manual Input Overlay for Information Collection -->
+    <div id="manual-overlay" class="manual-overlay">
+        <div class="overlay-card">
+            <h2>Basic Information</h2>
+            <p>Let's collect some basic information to personalize your experience.</p>
+
+            <div class="form-group">
+                <label for="manual-name">Your Name (or Participant ID)</label>
+                <input type="text" id="manual-name" placeholder="Enter your name">
+            </div>
+
+            <div class="form-group">
+                <label for="manual-age">Age</label>
+                <input type="number" id="manual-age" placeholder="Enter your age" min="5" max="100">
+            </div>
+
+            <div class="form-group">
+                <label for="manual-anxiety">Current Anxiety Level (1-10)</label>
+                <input type="range" id="manual-anxiety" min="1" max="10" value="5" oninput="updateManualAnxietyDisplay()">
+                <div style="text-align: center; font-size: 18px; margin-top: 8px;">
+                    <strong id="manual-anxiety-display">5</strong> / 10
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="manual-goals">Session Goals</label>
+                <textarea id="manual-goals" placeholder="What would you like to work on today?"></textarea>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="closeManualOverlay()">Back</button>
+                <button class="btn btn-primary" onclick="submitManualData()" style="flex: 1;">Start VR Experience</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Information Collection Screen (deprecated) -->
+    <div id="screen-info" class="screen" style="display: none;">
         <div class="card">
             <div class="progress-container">
                 <div class="progress-bar">
@@ -470,7 +571,45 @@
     </div>
 
     <!-- VR Container -->
-    <div id="vr-container">
+    <div id="vr-container" class="active">
+        <!-- Overlay for conversation - appears on top of VR scene -->
+        <div id="vr-overlay" class="vr-overlay active">
+            <div class="overlay-card">
+                <div class="icon">🎓</div>
+                <h1>Virtual Lecter's Destressing Experience</h1>
+                
+                <div class="voice-conversation">
+                    <div class="conversation-display" id="vr-conversation-display">
+                        <div class="message system-message">
+                            <strong>System:</strong> Welcome to Virtual Lecter's Destressing Experience
+                        </div>
+                    </div>
+                    
+                    <div class="voice-controls">
+                        <button class="btn btn-voice btn-full" id="vr-voice-btn" onclick="startVRConversation()">
+                            🎤 Click to Start Voice Conversation
+                        </button>
+                        <div class="voice-status" id="vr-voice-status">Ready to begin</div>
+                    </div>
+                    
+                    <div class="conversation-info">
+                        <p><strong>How this works:</strong></p>
+                        <ul style="text-align: left; line-height: 1.6;">
+                            <li>The system will speak to you</li>
+                            <li>You respond with your voice</li>
+                            <li>Say "yes" or "thank you" to continue</li>
+                            <li>We'll collect basic information for safety</li>
+                            <li><strong>Speak within 30 seconds after listening starts</strong></li>
+                        </ul>
+                    </div>
+                    
+                    <button class="btn btn-secondary btn-full" onclick="skipToManualOverlay()" style="margin-top: 20px;">
+                        Skip Voice Mode (Use Manual Input)
+                    </button>
+                </div>
+            </div>
+        </div>
+        
         <a-scene>
             <a-sky color="#E8F4F8"></a-sky>
             <a-entity light="type: ambient; color: #BBB; intensity: 0.8"></a-entity>
@@ -543,7 +682,7 @@
         // Conversation flow
         const conversationFlow = {
             welcome: {
-                text: "Welcome to Virtual Lecturer's Destressing Experience. We will help you practice in a safe virtual classroom environment. We need to collect some basic information for emergency assistance purposes. Are you ready to begin?",
+                text: "Welcome to Virtual Lecter's Destressing Experience. We will help you practice in a safe virtual classroom environment. We need to collect some basic information for emergency assistance purposes. Are you ready to begin?",
                 nextStep: 'name',
                 expectedResponses: ['yes', 'okay', 'sure', 'ready', 'thank you']
             },
@@ -686,8 +825,10 @@
 
         // Start voice conversation
         async function startConversation() {
-            const voiceBtn = document.getElementById('main-voice-btn');
-            const statusEl = document.getElementById('main-voice-status');
+            const btnId = window.currentVoiceButton || 'main-voice-btn';
+            const statusId = window.currentStatusElement || 'main-voice-status';
+            const voiceBtn = document.getElementById(btnId);
+            const statusEl = document.getElementById(statusId);
             
             console.log('🎬 Starting/Resuming conversation...');
             
@@ -978,7 +1119,9 @@
 
         // Add message to conversation display
         function addMessageToConversation(sender, message) {
-            const conversationDisplay = document.getElementById('conversation-display');
+            const displayId = window.currentConversationDisplay || 'conversation-display';
+            const conversationDisplay = document.getElementById(displayId);
+            if (!conversationDisplay) return;
             const messageDiv = document.createElement('div');
             messageDiv.className = sender === 'System' ? 'message system-message' : 'message user-message';
             messageDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
@@ -994,8 +1137,10 @@
             sessionData.goals = 'Voice-guided session';
             sessionData.exposureLevel = 'gentle';
             
-            const voiceBtn = document.getElementById('main-voice-btn');
-            const statusEl = document.getElementById('main-voice-status');
+            const btnId = window.currentVoiceButton || 'main-voice-btn';
+            const statusId = window.currentStatusElement || 'main-voice-status';
+            const voiceBtn = document.getElementById(btnId);
+            const statusEl = document.getElementById(statusId);
             
             voiceBtn.textContent = '✅ Complete - Starting VR';
             voiceBtn.classList.remove('listening');
@@ -1003,14 +1148,62 @@
             
             console.log('Voice conversation completed:', conversationState.responses);
             
+            // Hide VR overlay to reveal the classroom
             setTimeout(() => {
-                startVRSession();
+                document.getElementById('vr-overlay').classList.remove('active');
+                speak('Welcome to the virtual classroom. Take your time and remember you can exit at any moment.');
             }, 2000);
         }
 
-        // Skip to manual mode
+        // Skip to manual mode from old welcome screen
         function skipToManualMode() {
             goToScreen('info');
+        }
+
+        // Skip to manual overlay (from VR)
+        function skipToManualOverlay() {
+            document.getElementById('manual-overlay').classList.add('active');
+        }
+
+        // Close manual overlay
+        function closeManualOverlay() {
+            document.getElementById('manual-overlay').classList.remove('active');
+        }
+
+        // Update manual anxiety display
+        function updateManualAnxietyDisplay() {
+            const value = document.getElementById('manual-anxiety').value;
+            document.getElementById('manual-anxiety-display').textContent = value;
+        }
+
+        // Submit manual data and hide overlay
+        function submitManualData() {
+            sessionData.name = document.getElementById('manual-name').value;
+            sessionData.age = document.getElementById('manual-age').value;
+            sessionData.anxietyLevel = document.getElementById('manual-anxiety').value;
+            sessionData.goals = document.getElementById('manual-goals').value;
+            sessionData.exposureLevel = 'gentle';
+            
+            console.log('Manual data submitted:', sessionData);
+            
+            document.getElementById('manual-overlay').classList.remove('active');
+            document.getElementById('vr-overlay').classList.remove('active');
+            
+            speak('Thank you. Welcome to the virtual classroom. Take your time and remember you can exit at any moment.');
+        }
+
+        // Start VR conversation (from overlay)
+        function startVRConversation() {
+            // Use same conversation logic but with VR-specific elements
+            const voiceBtn = document.getElementById('vr-voice-btn');
+            const statusEl = document.getElementById('vr-voice-status');
+            
+            // Replace conversation display target
+            window.currentConversationDisplay = 'vr-conversation-display';
+            window.currentVoiceButton = 'vr-voice-btn';
+            window.currentStatusElement = 'vr-voice-status';
+            
+            startConversation();
         }
 
         // Screen navigation
