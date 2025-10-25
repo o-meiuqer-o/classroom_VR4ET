@@ -689,8 +689,39 @@
             const voiceBtn = document.getElementById('main-voice-btn');
             const statusEl = document.getElementById('main-voice-status');
             
-            console.log('🎬 Starting conversation...');
+            console.log('🎬 Starting/Resuming conversation...');
             
+            // Check if we're resuming from a previous step
+            const currentStep = conversationState.step || 'welcome';
+            const currentFlow = conversationFlow[currentStep];
+            
+            console.log('Current step:', currentStep);
+            console.log('Conversation state:', conversationState);
+            
+            // If not at welcome, we're resuming
+            if (currentStep !== 'welcome' && conversationState.responses && Object.keys(conversationState.responses).length > 0) {
+                console.log('🔄 Resuming conversation from step:', currentStep);
+                voiceBtn.textContent = '🔊 Resuming...';
+                statusEl.textContent = 'Resuming from where we left off';
+                
+                // Re-populate conversation display with previous responses
+                Object.keys(conversationState.responses).forEach(key => {
+                    addMessageToConversation('You', conversationState.responses[key]);
+                });
+                
+                speak("Let's continue from where we left off. " + currentFlow.text, () => {
+                    voiceBtn.textContent = '🎤 Listening...';
+                    voiceBtn.classList.add('listening');
+                    statusEl.textContent = '🔴 Speak your response';
+                    statusEl.style.color = '#FF6B6B';
+                    statusEl.style.fontWeight = 'bold';
+                    startListening(currentStep);
+                });
+                return;
+            }
+            
+            // Starting fresh
+            console.log('🆕 Starting fresh conversation');
             voiceBtn.textContent = '🎤 Requesting microphone access...';
             statusEl.textContent = '⚠️ Look for permission prompt!';
             statusEl.style.color = '#FF6B6B';
@@ -742,16 +773,16 @@
                 const statusEl = document.getElementById('main-voice-status');
                 voiceBtn.classList.add('listening');
                 voiceBtn.textContent = '🔴 LISTENING NOW - SPEAK!';
-                statusEl.innerHTML = '<strong style="font-size: 18px; color: #FF6B6B;">🔴 RECORDING</strong><br>Speak clearly now! (10s timeout)';
+                statusEl.innerHTML = '<strong style="font-size: 18px; color: #FF6B6B;">🔴 RECORDING</strong><br>Speak clearly now! (30s window)';
                 
-                // Set 10-second timeout
+                // Set 30-second timeout
                 recognitionTimeout = setTimeout(() => {
                     if (conversationState.isListening && !conversationState.hasReceivedSpeech) {
-                        console.log('⏱️ 10-second timeout reached, auto-restarting...');
+                        console.log('⏱️ 30-second timeout reached, auto-restarting...');
                         recognition.stop();
                         // Auto-restart will happen in onend handler
                     }
-                }, 10000);
+                }, 30000);
             };
 
             recognition.onspeechstart = function() {
@@ -845,10 +876,13 @@
                     }, 100);
                 } else if (!statusEl.innerHTML.includes('GOT IT')) {
                     voiceBtn.classList.remove('listening');
-                    voiceBtn.textContent = '🎤 Click to Try Again';
-                    statusEl.innerHTML = '<strong>⏱️ Timed out</strong><br>Click to speak again';
+                    voiceBtn.textContent = '🔄 Click to Resume';
+                    statusEl.innerHTML = '<strong>⏱️ Timed out</strong><br>Click to resume from step: ' + conversationState.step;
                     statusEl.style.color = '#FFA500';
                     conversationState.isListening = false;
+                    
+                    // Save state for resume
+                    console.log('💾 Timeout - conversation can resume from:', conversationState.step);
                 }
             };
 
@@ -883,10 +917,13 @@
                 
                 if (!shouldRestart) {
                     voiceBtn.classList.remove('listening');
-                    voiceBtn.textContent = '❌ Error - Retry';
-                    statusEl.innerHTML = '<strong style="color: #FF6B6B;">' + errorMsg + '</strong><br>Click to try again';
+                    voiceBtn.textContent = '🔄 Click to Resume';
+                    statusEl.innerHTML = '<strong style="color: #FF6B6B;">' + errorMsg + '</strong><br>Click to resume conversation';
                     conversationState.isListening = false;
                     autoRestartEnabled = false;
+                    
+                    // Save conversation state to resume later
+                    console.log('💾 Saving conversation state for resume. Current step:', conversationState.step);
                 }
                 // If shouldRestart is true, onend handler will restart
             };
