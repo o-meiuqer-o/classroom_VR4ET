@@ -732,8 +732,14 @@
                 return;
             }
 
+            console.log('👂 Starting to listen for step:', step);
             conversationState.step = step;
             conversationState.isListening = true;
+            
+            // Configure for better recognition
+            recognition.continuous = false;
+            recognition.interimResults = true; // Show partial results
+            recognition.maxAlternatives = 3;
 
             recognition.onstart = function() {
                 const voiceBtn = document.getElementById('main-voice-btn');
@@ -778,10 +784,72 @@
                 conversationState.isListening = false;
             };
 
-            recognition.start();
+            try {
+                recognition.start();
+                console.log('✅ Recognition started successfully');
+            } catch (error) {
+                console.error('❌ Failed to start recognition:', error);
+                alert('Could not start voice recognition. Please try clicking the button again.');
+            }
         }
 
-        // Process voice response
+        // Add interim results handler
+        recognition.oninterimResults = function(event) {
+            if (event.results && event.results.length > 0) {
+                const interim = event.results[0][0].transcript;
+                console.log('📝 Interim result:', interim);
+                const statusEl = document.getElementById('main-voice-status');
+                statusEl.innerHTML = '<strong style="color: #51CF66;">📝 Hearing: "' + interim + '"</strong>';
+            }
+        };
+
+        // Process voice responseEnhanced voice recognition feedback system with real-time visual indicators showing microphone status, speech detection, partial results, and detailed error messages. Added console logging throughout for debugging, configured interim results to show what's being heard in real-time, and improved error handling with specific messages for different failure modes.
+
+---
+
+
+1. **🔴 LISTENING NOW** - Large red text when mic is active
+2. **✅ HEARING YOU!** - Green text when speech is detected
+3. **📝 Hearing: "[text]"** - Shows partial results as you speak
+4. **✅ GOT IT!** - Shows exactly what was recognized
+5. **⏱️ Timed out** - Clear message if no speech detected
+
+- Enabled `interimResults` - You'll see text appear as you speak
+- Increased `maxAlternatives` - Better recognition accuracy
+- Added `onspeechstart` event - Confirms when it hears you
+- Added console logging - Check browser console (F12) to debug
+
+- **No speech detected** → "Speak louder"
+- **Audio capture** → "Check mic connection"
+- **Permission denied** → "Check browser settings"
+
+---
+
+
+1. **Commit this update to GitHub**
+2. **Wait 1-2 minutes for deployment**
+3. **Open browser console** (Press F12) before testing
+4. **Click the microphone button**
+5. **Watch for console messages**:
+   - Should see: "🎤 Recognition started"
+   - When you speak: "🗣️ Speech detected!"
+   - Should see: "📝 Interim result: [your words]"
+   - Finally: "✅ Heard: [complete phrase]"
+
+6. **Watch the status text** - It will update in real-time as you speak
+
+---
+
+
+**If you still don't see "Speech detected":**
+
+Check browser console and tell me what errors you see. The enhanced logging will help us identify exactly where it's failing.
+
+**Common issues:**
+- Microphone volume too low → Speak louder
+- Wrong microphone selected → Check browser mic settings
+- Background noise → Move to quieter location
+- Browser limitation → Try Chrome/Edge on desktop first
         function processVoiceResponse(transcript, step) {
             const currentFlow = conversationFlow[step];
             
