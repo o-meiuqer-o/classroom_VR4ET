@@ -352,7 +352,9 @@
     let synthesis = window.speechSynthesis;
     let voices = [];
     let recognitionTimeout = null;
-    let isSpeaking = false; // Track if system is currently speaking
+    let isSpeaking = false;
+    let restartCount = 0;
+    const MAX_RESTARTS = 3;
 
     // Load voices
     if (synthesis) {
@@ -417,7 +419,7 @@
       }
     };
 
-    // Enhanced speak function with longer delay before starting recognition
+    // Enhanced speak function with 3-second delay
     function speak(text, callback) {
       console.log('🔊 Speaking:', text.substring(0, 50) + '...');
       
@@ -427,9 +429,9 @@
         return;
       }
 
-      // Cancel any ongoing speech
       synthesis.cancel();
       isSpeaking = true;
+      restartCount = 0;
 
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.rate = 0.85;
@@ -444,9 +446,8 @@
         utterance.voice = preferredVoice;
       }
 
-      // Calculate estimated duration (150ms per word + 2 second buffer for safety)
       const wordCount = text.split(' ').length;
-      const estimatedDuration = (wordCount * 150) + 2000;
+      const estimatedDuration = (wordCount * 150) + 3000;
       console.log('⏱️ Estimated speech duration:', estimatedDuration + 'ms');
 
       let callbackExecuted = false;
@@ -454,18 +455,15 @@
         if (!callbackExecuted && callback) {
           callbackExecuted = true;
           isSpeaking = false;
-          console.log('✅ Speech ended - waiting 1.5s before starting recognition');
+          console.log('✅ Speech ended - waiting 3s before starting recognition');
           
-          // CRITICAL FIX: Wait 1.5 seconds after speech ends before starting recognition
-          // This ensures the microphone doesn't pick up the system's own voice
           setTimeout(() => {
             console.log('🎤 Now safe to start listening');
             callback();
-          }, 1500);
+          }, 3000);
         }
       };
 
-      // Multiple fallback mechanisms
       utterance.onstart = () => {
         console.log('🔊 Speech started');
       };
@@ -481,13 +479,12 @@
         executeCallback();
       };
 
-      // Fallback timeout
       setTimeout(() => {
         if (!callbackExecuted) {
           console.log('⏱️ Fallback timeout triggered');
           executeCallback();
         }
-      }, estimatedDuration + 1500);
+      }, estimatedDuration + 3000);
 
       addMessage('System', text);
       synthesis.speak(utterance);
@@ -524,7 +521,6 @@
 
       console.log('🎬 Starting conversation from step:', conversationState.step);
 
-      // Check if resuming
       const currentStep = conversationState.step || 'welcome';
       const currentFlow = conversationFlow[currentStep];
 
@@ -539,7 +535,6 @@
         return;
       }
 
-      // Request mic permission
       voiceBtn.textContent = '🎤 Requesting microphone...';
       statusEl.textContent = 'Please allow microphone access';
 
@@ -550,7 +545,6 @@
         return;
       }
 
-      // Start welcome
       voiceBtn.textContent = '🔊 Speaking...';
       statusEl.textContent = 'System is speaking';
 
@@ -567,7 +561,6 @@
         return;
       }
 
-      // Safety check: Don't start listening if system is still speaking
       if (isSpeaking) {
         console.log('⚠️ System still speaking, delaying recognition start');
         setTimeout(() => startListening(step), 500);
@@ -593,13 +586,12 @@
 
       recognition.onstart = () => {
         console.log('✅ Recognition started');
-        // INCREASED TIMEOUT: 60 seconds instead of 30
         recognitionTimeout = setTimeout(() => {
           if (conversationState.isListening && !conversationState.hasReceivedSpeech) {
             console.log('⏱️ 60s timeout - restarting');
             recognition.stop();
           }
-        }, 60000); // 60 seconds
+        }, 60000);
       };
 
       recognition.onspeechstart = () => {
@@ -645,19 +637,22 @@
         if (recognitionTimeout) clearTimeout(recognitionTimeout);
 
         if (conversationState.isListening && !conversationState.hasReceivedSpeech) {
-          console.log('🔄 Auto-restarting recognition');
-          setTimeout(() => {
-            try {
-              recognition.start();
-            } catch (e) {
-              console.error('Failed to restart:', e);
-              voiceBtn.classList.remove('listening');
-              voiceBtn.textContent = '🔄 Click to Resume';
-              statusEl.textContent = 'Click to resume conversation';
-              statusEl.style.color = '';
-              statusEl.style.fontWeight = '';
-            }
-          }, 100);
+          restartCount++;
+          
+          if (restartCount <= MAX_RESTARTS) {
+            console.log(`🔄 Auto-restarting recognition (attempt ${restartCount}/${MAX_RESTARTS})`);
+            setTimeout(() => {
+              try {
+                recognition.start();
+              } catch (e) {
+                console.error('Failed to restart:', e);
+                handleRecognitionFailure();
+              }
+            }, 100);
+          } else {
+            console.log('⚠️ Max restarts reached - stopping auto-restart');
+            handleRecognitionFailure();
+          }
         }
       };
 
@@ -665,15 +660,10 @@
         console.error('❌ Recognition error:', event.error);
         
         if (event.error === 'no-speech') {
-          // Auto-restart handled in onend
           return;
         }
 
-        voiceBtn.classList.remove('listening');
-        voiceBtn.textContent = '🔄 Click to Resume';
-        statusEl.textContent = `Error: ${event.error} - Click to resume`;
-        statusEl.style.color = '#FF6B6B';
-        conversationState.isListening = false;
+        handleRecognitionFailure();
       };
 
       try {
@@ -683,6 +673,18 @@
         console.error('❌ Failed to start recognition:', error);
         alert('Could not start voice recognition. Please try again.');
       }
+    }
+
+    function handleRecognitionFailure() {
+      const voiceBtn = document.getElementById('voiceBtn');
+      const statusEl = document.getElementById('voiceStatus');
+      voiceBtn.classList.remove('listening');
+      voiceBtn.textContent = '🔄 Click to Resume';
+      statusEl.textContent = 'No speech detected - Click to try again';
+      statusEl.style.color = '';
+      statusEl.style.fontWeight = '';
+      conversationState.isListening = false;
+      restartCount = 0;
     }
 
     // Process response
