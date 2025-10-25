@@ -87,116 +87,124 @@
 
     .message {
       margin-bottom: 10px;
-      padding: 8px;
-      border-radius: 6px;
+      padding: 8px 12px;
+      border-radius: 8px;
       font-size: 12px;
       line-height: 1.4;
     }
 
     .message.system {
       background: rgba(33, 128, 141, 0.1);
+      color: rgba(19, 52, 59, 1);
       border-left: 3px solid rgba(33, 128, 141, 1);
     }
 
     .message.user {
-      background: rgba(94, 82, 64, 0.1);
-      border-left: 3px solid rgba(94, 82, 64, 0.8);
+      background: rgba(33, 128, 141, 0.2);
+      color: rgba(19, 52, 59, 1);
+      text-align: right;
+      border-right: 3px solid rgba(33, 128, 141, 1);
     }
 
-    .message strong {
-      font-weight: 600;
-      margin-right: 4px;
+    /* Live Caption */
+    #liveCaption {
+      min-height: 40px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 12px;
+      color: rgba(19, 52, 59, 0.6);
+      font-style: italic;
+      text-align: center;
     }
 
     /* Voice Button */
-    #voiceBtn {
+    #voiceButton {
       width: 100%;
-      padding: 12px 20px;
-      font-size: 14px;
-      font-weight: 600;
+      padding: 14px;
       border: none;
       border-radius: 8px;
       background: #FF6B6B;
       color: white;
+      font-size: 14px;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.3s ease;
       margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
 
-    #voiceBtn:hover {
-      background: #EE5A5A;
-      transform: translateY(-1px);
+    #voiceButton:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
     }
 
-    #voiceBtn.listening {
+    #voiceButton.listening {
       background: #51CF66;
       animation: pulse 1.5s infinite;
     }
 
     @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.7;
+      }
+    }
+
+    #voiceButton.processing {
+      background: #FFA94D;
+      cursor: not-allowed;
+    }
+
+    #voiceButton:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .status-icon {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: white;
+      display: inline-block;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
       0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
+      50% { opacity: 0.3; }
     }
 
-    #voiceStatus {
-      text-align: center;
-      font-size: 12px;
-      color: rgba(19, 52, 59, 0.6);
-      margin-bottom: 16px;
-      min-height: 20px;
-    }
-
-    #skipBtn {
+    #skipButton {
       width: 100%;
-      padding: 10px 20px;
+      padding: 10px;
+      border: 2px solid rgba(33, 128, 141, 1);
+      border-radius: 8px;
+      background: transparent;
+      color: rgba(33, 128, 141, 1);
       font-size: 13px;
       font-weight: 500;
-      border: 1px solid rgba(94, 82, 64, 0.2);
-      border-radius: 8px;
-      background: rgba(94, 82, 64, 0.05);
-      color: rgba(19, 52, 59, 1);
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.3s ease;
     }
 
-    #skipBtn:hover {
-      background: rgba(94, 82, 64, 0.1);
+    #skipButton:hover {
+      background: rgba(33, 128, 141, 0.1);
     }
 
     /* Manual Input Overlay */
-    #manualOverlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      backdrop-filter: blur(8px);
-      background: rgba(232, 244, 248, 0.85);
+    #manualInputOverlay {
       display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1001;
     }
 
-    #manualOverlay.active {
+    #manualInputOverlay.active {
       display: flex;
-    }
-
-    .manual-form {
-      max-width: 420px;
-      width: 90%;
-      background: white;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 10px 40px rgba(19, 52, 59, 0.15);
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-
-    .manual-form h2 {
-      font-size: 18px;
-      color: rgba(19, 52, 59, 1);
-      margin-bottom: 16px;
     }
 
     .form-group {
@@ -205,8 +213,8 @@
 
     .form-group label {
       display: block;
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 13px;
+      font-weight: 500;
       color: rgba(19, 52, 59, 1);
       margin-bottom: 6px;
     }
@@ -215,15 +223,22 @@
     .form-group textarea {
       width: 100%;
       padding: 10px 12px;
-      font-size: 13px;
-      border: 1px solid rgba(94, 82, 64, 0.2);
+      border: 1px solid rgba(19, 52, 59, 0.2);
       border-radius: 6px;
+      font-size: 13px;
       font-family: inherit;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: rgba(33, 128, 141, 1);
     }
 
     .form-group textarea {
       resize: vertical;
-      min-height: 80px;
+      min-height: 60px;
     }
 
     .button-group {
@@ -234,163 +249,169 @@
 
     .button-group button {
       flex: 1;
-      padding: 10px 20px;
-      font-size: 13px;
-      font-weight: 600;
+      padding: 12px;
       border: none;
       border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.3s ease;
     }
 
-    .btn-secondary {
-      background: rgba(94, 82, 64, 0.1);
-      color: rgba(19, 52, 59, 1);
-    }
-
-    .btn-primary {
+    .button-group button.primary {
       background: rgba(33, 128, 141, 1);
       color: white;
     }
 
-    .btn-primary:hover {
-      background: rgba(29, 116, 128, 1);
+    .button-group button.primary:hover {
+      background: rgba(33, 128, 141, 0.9);
+    }
+
+    .button-group button.secondary {
+      background: rgba(19, 52, 59, 0.1);
+      color: rgba(19, 52, 59, 1);
+    }
+
+    .button-group button.secondary:hover {
+      background: rgba(19, 52, 59, 0.15);
+    }
+
+    /* Permission Instructions */
+    #permissionInstructions {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      background: rgba(255, 193, 7, 0.1);
+      border-left: 3px solid #FFC107;
+      border-radius: 4px;
+      font-size: 11px;
+      color: rgba(19, 52, 59, 0.8);
+      line-height: 1.5;
+    }
+
+    #permissionInstructions.show {
+      display: block;
+    }
+
+    /* Status Message */
+    #statusMessage {
+      text-align: center;
+      padding: 8px;
+      font-size: 11px;
+      color: rgba(19, 52, 59, 0.6);
+      font-weight: 500;
     }
   </style>
 </head>
 <body>
-  <!-- Voice Conversation Overlay -->
+  <!-- VR Scene -->
+  <a-scene>
+    <!-- Sky -->
+    <a-sky color="#E8F4F8"></a-sky>
+
+    <!-- Lighting -->
+    <a-entity light="type: ambient; color: #BBB; intensity: 0.8"></a-entity>
+    <a-entity light="type: directional; intensity: 0.6" position="5 10 7"></a-entity>
+    <a-entity light="type: point; intensity: 0.4" position="0 3.5 0"></a-entity>
+
+    <!-- Camera Rig -->
+    <a-entity id="cameraRig" position="-0.5 0.6 1.8">
+      <a-camera wasd-controls="acceleration: 20" look-controls="pointerLockEnabled: true">
+        <a-cursor></a-cursor>
+      </a-camera>
+    </a-entity>
+
+    <!-- Classroom Model -->
+    <a-entity 
+      id="classroom"
+      gltf-model="https://raw.githubusercontent.com/o-meiuqer-o/classroom_VR4ET/main/assets/models/classroom.glb"
+      position="0 0 0"
+      rotation="0 180 0"
+      scale="1.15 1.15 1.15">
+    </a-entity>
+  </a-scene>
+
+  <!-- Voice Mode Overlay -->
   <div id="vrOverlay">
     <div class="overlay-card">
-      <h1>🎓 Virtual Lecter's Destressing Experience</h1>
-      <p>We'll collect some information through voice conversation before starting.</p>
-      
-      <div id="conversationDisplay">
-        <div class="message system">
-          <strong>System:</strong> Welcome to Virtual Lecter's Destressing Experience
-        </div>
+      <h1>Virtual Lecter's Experience</h1>
+      <p>Welcome to your safe virtual classroom for destressing practice.</p>
+
+      <div id="conversationDisplay"></div>
+      <div id="liveCaption">Your responses will appear here...</div>
+
+      <button id="voiceButton">
+        <span class="status-icon"></span>
+        <span id="voiceButtonText">Start Voice Conversation</span>
+      </button>
+
+      <button id="skipButton">Use Manual Input Instead</button>
+
+      <div id="permissionInstructions">
+        <strong>Microphone Access Required:</strong><br>
+        • Chrome/Edge: Click the camera icon in the address bar<br>
+        • Firefox: Click the microphone icon in the address bar<br>
+        • Safari: Go to Settings → Websites → Microphone<br>
+        Please allow microphone access and try again.
       </div>
 
-      <button id="voiceBtn">🎤 Click to Start Voice Conversation</button>
-      <div id="voiceStatus">Ready to begin</div>
-      <button id="skipBtn">Skip Voice Mode (Use Manual Input)</button>
+      <div id="statusMessage"></div>
     </div>
   </div>
 
   <!-- Manual Input Overlay -->
-  <div id="manualOverlay">
-    <div class="manual-form">
-      <h2>Basic Information</h2>
-      <p style="font-size: 12px; color: rgba(19, 52, 59, 0.7); margin-bottom: 16px;">
-        Let's collect some information to personalize your experience.
-      </p>
+  <div id="manualInputOverlay" class="vrOverlay">
+    <div class="overlay-card">
+      <h1>Session Information</h1>
+      <p>Please provide some information to personalize your experience.</p>
 
-      <div class="form-group">
-        <label>Comfortable Languages</label>
-        <input type="text" id="manualLanguages" placeholder="e.g., English, Hindi">
-      </div>
+      <form id="manualForm">
+        <div class="form-group">
+          <label>Comfortable Languages</label>
+          <input type="text" id="manualLanguages" placeholder="e.g., English, Spanish" required>
+        </div>
 
-      <div class="form-group">
-        <label>Preferred Color</label>
-        <input type="text" id="manualColor" placeholder="e.g., Blue, Green">
-      </div>
+        <div class="form-group">
+          <label>Preferred Color for Environment</label>
+          <input type="text" id="manualColor" placeholder="e.g., blue, green, warm" required>
+        </div>
 
-      <div class="form-group">
-        <label>Emergency Contact (Name and Phone)</label>
-        <textarea id="manualEmergency" placeholder="e.g., John Doe, +91-1234567890"></textarea>
-      </div>
+        <div class="form-group">
+          <label>Emergency Contact (Name &amp; Phone)</label>
+          <input type="text" id="manualContact" placeholder="e.g., John Smith 555-1234" required>
+        </div>
 
-      <div class="form-group">
-        <label>Session Goals</label>
-        <textarea id="manualGoals" placeholder="What would you like to work on today?"></textarea>
-      </div>
+        <div class="form-group">
+          <label>Session Goals</label>
+          <textarea id="manualGoals" placeholder="What would you like to work on today?" required></textarea>
+        </div>
 
-      <div class="button-group">
-        <button class="btn-secondary" onclick="closeManualInput()">Back</button>
-        <button class="btn-primary" onclick="submitManualData()">Start VR Experience</button>
-      </div>
+        <div class="button-group">
+          <button type="button" class="secondary" id="backButton">Back</button>
+          <button type="submit" class="primary">Begin VR Session</button>
+        </div>
+      </form>
     </div>
   </div>
 
-  <!-- A-Frame VR Scene -->
-  <a-scene>
-    <a-sky color="#E8F4F8"></a-sky>
-    
-    <a-entity light="type: ambient; color: #BBB; intensity: 0.8"></a-entity>
-    <a-entity light="type: directional; color: #FFF; intensity: 0.6" position="5 10 7"></a-entity>
-    <a-entity light="type: point; color: #FFF; intensity: 0.4" position="0 3.5 0"></a-entity>
-
-    <a-entity 
-      gltf-model="https://raw.githubusercontent.com/o-meiuqer-o/classroom_VR4ET/main/assets/models/classroom.glb"
-      position="0 0 0"
-      rotation="0 180 0"
-      scale="1.15 1.15 1.15"
-      shadow="cast: true; receive: true">
-    </a-entity>
-
-    <a-entity id="rig" position="-0.5 0.6 1.8">
-      <a-camera look-controls wasd-controls>
-        <a-cursor color="#21808D"></a-cursor>
-      </a-camera>
-    </a-entity>
-  </a-scene>
-
   <script>
-    console.log('VR Classroom Exposure Therapy Initialized');
-
-    // Session data
+    // Session Data Storage
     const sessionData = {
       comfortableLanguages: '',
       preferredColor: '',
       emergencyContact: '',
       goals: '',
-      startTime: new Date()
+      exposureLevel: 'gentle',
+      startTime: null,
+      conversationHistory: []
     };
 
-    // Speech APIs
-    let recognition = null;
-    let synthesis = window.speechSynthesis;
-    let voices = [];
-    let recognitionTimeout = null;
-    let isSpeaking = false;
-    let restartCount = 0;
-    const MAX_RESTARTS = 3;
-
-    // Load voices
-    if (synthesis) {
-      synthesis.onvoiceschanged = () => {
-        voices = synthesis.getVoices();
-        console.log('✅ Voices loaded:', voices.length);
-      };
-    }
-
-    // Setup speech recognition
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = true;
-      recognition.maxAlternatives = 3;
-      recognition.lang = 'en-US';
-      console.log('✅ Speech Recognition initialized');
-    } else {
-      console.log('❌ Speech Recognition not available');
-    }
-
-    // Conversation state
-    let conversationState = {
-      step: 'welcome',
-      isListening: false,
-      responses: {},
-      hasReceivedSpeech: false
-    };
-
-    // Conversation flow
+    // Conversation Flow
     const conversationFlow = {
       welcome: {
         text: "Welcome to Virtual Lecter's Destressing Experience. We'll practice safely in a virtual classroom. Before we begin, I will ask a few questions to personalize your experience. Are you ready to start?",
         nextStep: 'language',
-        expectedResponses: ['yes', 'okay', 'sure', 'ready', 'thank you']
+        saveAs: null
       },
       language: {
         text: "Which languages are you comfortable with? Feel free to mention one or more.",
@@ -415,354 +436,405 @@
       complete: {
         text: "Thank you for sharing. We're now ready to begin your virtual classroom experience. Are you ready to enter the virtual environment?",
         nextStep: 'vr',
-        expectedResponses: ['yes', 'ready', 'let\'s go', 'thank you']
+        saveAs: null
       }
     };
 
-    // Enhanced speak function with 3-second delay
-    function speak(text, callback) {
-      console.log('🔊 Speaking:', text.substring(0, 50) + '...');
-      
-      if (!synthesis) {
-        console.log('❌ Speech synthesis not available');
-        if (callback) callback();
-        return;
-      }
+    // DOM Elements
+    const vrOverlay = document.getElementById('vrOverlay');
+    const manualInputOverlay = document.getElementById('manualInputOverlay');
+    const conversationDisplay = document.getElementById('conversationDisplay');
+    const liveCaption = document.getElementById('liveCaption');
+    const voiceButton = document.getElementById('voiceButton');
+    const voiceButtonText = document.getElementById('voiceButtonText');
+    const skipButton = document.getElementById('skipButton');
+    const permissionInstructions = document.getElementById('permissionInstructions');
+    const statusMessage = document.getElementById('statusMessage');
+    const manualForm = document.getElementById('manualForm');
+    const backButton = document.getElementById('backButton');
 
-      synthesis.cancel();
-      isSpeaking = true;
-      restartCount = 0;
+    // Voice Recognition
+    let recognition = null;
+    let currentStep = 'welcome';
+    let isListening = false;
+    let isSpeaking = false;
+    let timeoutId = null;
+    let restartCount = 0;
+    const MAX_RESTARTS = 3;
+    let speechSynthesis = window.speechSynthesis;
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.85;
-      utterance.pitch = 1;
-      utterance.volume = 1;
-      utterance.lang = 'en-US';
-
-      if (voices.length > 0) {
-        const preferredVoice = voices.find(v => 
-          v.lang.includes('en') && (v.name.includes('Female') || v.name.includes('Zira'))
-        ) || voices[0];
-        utterance.voice = preferredVoice;
-      }
-
-      const wordCount = text.split(' ').length;
-      const estimatedDuration = (wordCount * 150) + 3000;
-      console.log('⏱️ Estimated speech duration:', estimatedDuration + 'ms');
-
-      let callbackExecuted = false;
-      const executeCallback = () => {
-        if (!callbackExecuted && callback) {
-          callbackExecuted = true;
-          isSpeaking = false;
-          console.log('✅ Speech ended - waiting 3s before starting recognition');
-          
-          setTimeout(() => {
-            console.log('🎤 Now safe to start listening');
-            callback();
-          }, 3000);
-        }
-      };
-
-      utterance.onstart = () => {
-        console.log('🔊 Speech started');
-      };
-
-      utterance.onend = () => {
-        console.log('✅ Speech onend event fired');
-        executeCallback();
-      };
-
-      utterance.onerror = (e) => {
-        console.error('❌ Speech error:', e);
-        isSpeaking = false;
-        executeCallback();
-      };
-
-      setTimeout(() => {
-        if (!callbackExecuted) {
-          console.log('⏱️ Fallback timeout triggered');
-          executeCallback();
-        }
-      }, estimatedDuration + 3000);
-
-      addMessage('System', text);
-      synthesis.speak(utterance);
-    }
-
-    // Add message to conversation display
-    function addMessage(sender, text) {
-      const display = document.getElementById('conversationDisplay');
-      const messageDiv = document.createElement('div');
-      messageDiv.className = `message ${sender.toLowerCase()}`;
-      messageDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
-      display.appendChild(messageDiv);
-      display.scrollTop = display.scrollHeight;
-    }
-
-    // Request microphone permission
-    async function requestMicPermission() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        stream.getTracks().forEach(track => track.stop());
-        console.log('✅ Microphone permission granted');
-        return true;
-      } catch (error) {
-        console.error('❌ Microphone permission denied:', error);
-        alert('Microphone access is required for voice conversation. Please allow access and try again.');
+    // Initialize Speech Recognition
+    function initSpeechRecognition() {
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
         return false;
       }
-    }
 
-    // Start conversation
-    async function startConversation() {
-      const voiceBtn = document.getElementById('voiceBtn');
-      const statusEl = document.getElementById('voiceStatus');
-
-      console.log('🎬 Starting conversation from step:', conversationState.step);
-
-      const currentStep = conversationState.step || 'welcome';
-      const currentFlow = conversationFlow[currentStep];
-
-      if (currentStep !== 'welcome' && Object.keys(conversationState.responses).length > 0) {
-        console.log('🔄 Resuming conversation');
-        voiceBtn.textContent = '🔊 Resuming...';
-        statusEl.textContent = 'Resuming conversation';
-
-        speak("Let's continue from where we left off. " + currentFlow.text, () => {
-          startListening(currentStep);
-        });
-        return;
-      }
-
-      voiceBtn.textContent = '🎤 Requesting microphone...';
-      statusEl.textContent = 'Please allow microphone access';
-
-      const hasPermission = await requestMicPermission();
-      if (!hasPermission) {
-        voiceBtn.textContent = '🎤 Click to Start Voice Conversation';
-        statusEl.textContent = '❌ Microphone access denied';
-        return;
-      }
-
-      voiceBtn.textContent = '🔊 Speaking...';
-      statusEl.textContent = 'System is speaking';
-
-      speak(conversationFlow.welcome.text, () => {
-        console.log('🎤 Speech completed, starting listening');
-        startListening('welcome');
-      });
-    }
-
-    // Start listening
-    function startListening(step) {
-      if (!recognition) {
-        alert('Speech recognition not supported. Please use manual input.');
-        return;
-      }
-
-      if (isSpeaking) {
-        console.log('⚠️ System still speaking, delaying recognition start');
-        setTimeout(() => startListening(step), 500);
-        return;
-      }
-
-      console.log('👂 Starting to listen for step:', step);
-      
-      const voiceBtn = document.getElementById('voiceBtn');
-      const statusEl = document.getElementById('voiceStatus');
-
-      conversationState.step = step;
-      conversationState.isListening = true;
-      conversationState.hasReceivedSpeech = false;
-
-      voiceBtn.textContent = '🎤 Listening...';
-      voiceBtn.classList.add('listening');
-      statusEl.textContent = '🔴 LISTENING - Speak now (60s window)';
-      statusEl.style.color = '#FF6B6B';
-      statusEl.style.fontWeight = 'bold';
-
-      if (recognitionTimeout) clearTimeout(recognitionTimeout);
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
 
       recognition.onstart = () => {
-        console.log('✅ Recognition started');
-        recognitionTimeout = setTimeout(() => {
-          if (conversationState.isListening && !conversationState.hasReceivedSpeech) {
-            console.log('⏱️ 60s timeout - restarting');
+        isListening = true;
+        updateButtonState('listening');
+        liveCaption.textContent = 'Listening...';
+        
+        // Set 60-second timeout
+        timeoutId = setTimeout(() => {
+          if (isListening) {
+            console.log('⏰ 60-second timeout reached');
             recognition.stop();
+            updateStatus('No speech detected. Click the button to try again.');
           }
         }, 60000);
       };
 
-      recognition.onspeechstart = () => {
-        console.log('🗣️ Speech detected');
-        conversationState.hasReceivedSpeech = true;
-        if (recognitionTimeout) clearTimeout(recognitionTimeout);
-        statusEl.textContent = '✅ HEARING YOU - Keep speaking';
-        statusEl.style.color = '#51CF66';
-      };
-
       recognition.onresult = (event) => {
+        let interimTranscript = '';
         let finalTranscript = '';
-        
+
         for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
+            finalTranscript += transcript;
           } else {
-            const interim = event.results[i][0].transcript;
-            statusEl.textContent = `📝 Hearing: "${interim}"`;
+            interimTranscript += transcript;
           }
         }
+
+        liveCaption.textContent = interimTranscript || finalTranscript || 'Listening...';
 
         if (finalTranscript) {
-          const transcript = finalTranscript.toLowerCase().trim();
-          console.log('✅ Final result:', transcript);
-
-          if (recognitionTimeout) clearTimeout(recognitionTimeout);
-          conversationState.isListening = false;
-
-          voiceBtn.classList.remove('listening');
-          voiceBtn.textContent = '✅ Got it!';
-          statusEl.textContent = `You said: "${transcript}"`;
-          statusEl.style.color = '#51CF66';
-
-          addMessage('You', transcript);
-          processResponse(transcript, step);
-        }
-      };
-
-      recognition.onend = () => {
-        console.log('🛑 Recognition ended');
-        
-        if (recognitionTimeout) clearTimeout(recognitionTimeout);
-
-        if (conversationState.isListening && !conversationState.hasReceivedSpeech) {
-          restartCount++;
-          
-          if (restartCount <= MAX_RESTARTS) {
-            console.log(`🔄 Auto-restarting recognition (attempt ${restartCount}/${MAX_RESTARTS})`);
-            setTimeout(() => {
-              try {
-                recognition.start();
-              } catch (e) {
-                console.error('Failed to restart:', e);
-                handleRecognitionFailure();
-              }
-            }, 100);
-          } else {
-            console.log('⚠️ Max restarts reached - stopping auto-restart');
-            handleRecognitionFailure();
-          }
+          clearTimeout(timeoutId);
+          console.log('✅ Final transcript received:', finalTranscript);
+          restartCount = 0; // Reset restart count on successful recognition
+          handleUserResponse(finalTranscript.trim());
         }
       };
 
       recognition.onerror = (event) => {
-        console.error('❌ Recognition error:', event.error);
+        clearTimeout(timeoutId);
+        isListening = false;
+        console.log('❌ Recognition error:', event.error);
         
-        if (event.error === 'no-speech') {
-          return;
+        if (event.error === 'not-allowed' || event.error === 'permission-denied') {
+          permissionInstructions.classList.add('show');
+          updateStatus('Microphone permission denied. Please allow access.');
+          updateButtonState('ready');
+        } else if (event.error === 'no-speech') {
+          console.log('⚠️ No speech detected. Restart count:', restartCount);
+          if (restartCount < MAX_RESTARTS) {
+            restartCount++;
+            updateStatus(`No speech detected. Auto-restarting (${restartCount}/${MAX_RESTARTS})...`);
+            setTimeout(() => {
+              if (!isSpeaking) {
+                console.log('🔄 Auto-restarting recognition');
+                startListening();
+              }
+            }, 1000);
+          } else {
+            handleRecognitionFailure();
+          }
+        } else {
+          updateStatus(`Error: ${event.error}. Click to try again.`);
+          updateButtonState('ready');
         }
-
-        handleRecognitionFailure();
       };
 
-      try {
-        recognition.start();
-        console.log('✅ Recognition start called');
-      } catch (error) {
-        console.error('❌ Failed to start recognition:', error);
-        alert('Could not start voice recognition. Please try again.');
-      }
+      recognition.onend = () => {
+        clearTimeout(timeoutId);
+        isListening = false;
+        console.log('🛑 Recognition ended');
+        if (voiceButton.classList.contains('listening')) {
+          updateButtonState('ready');
+        }
+      };
+
+      return true;
     }
 
+    // Handle Recognition Failure
     function handleRecognitionFailure() {
-      const voiceBtn = document.getElementById('voiceBtn');
-      const statusEl = document.getElementById('voiceStatus');
-      voiceBtn.classList.remove('listening');
-      voiceBtn.textContent = '🔄 Click to Resume';
-      statusEl.textContent = 'No speech detected - Click to try again';
-      statusEl.style.color = '';
-      statusEl.style.fontWeight = '';
-      conversationState.isListening = false;
+      console.log('🚫 Maximum restart attempts reached');
+      updateStatus('Having trouble hearing you. Please click the button to try again or use manual input.');
+      updateButtonState('ready');
       restartCount = 0;
     }
 
-    // Process response
-    function processResponse(transcript, step) {
-      const currentFlow = conversationFlow[step];
+    // Speak Text with Bulletproof Callback System
+    function speak(text, callback) {
+      console.log('🔊 Speaking:', text.substring(0, 50) + '...');
       
-      if (currentFlow.saveAs) {
-        conversationState.responses[currentFlow.saveAs] = transcript;
-      }
-
-      if (currentFlow.nextStep === 'vr') {
-        completeConversation();
-      } else {
-        setTimeout(() => continueConversation(currentFlow.nextStep), 1000);
+      isSpeaking = true;
+      speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.9;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+      
+      // Calculate estimated duration (roughly 150ms per word + 1 second buffer)
+      const wordCount = text.split(' ').length;
+      const estimatedDuration = (wordCount * 150) + 1000;
+      console.log('⏱️ Estimated speech duration:', estimatedDuration + 'ms');
+      
+      let callbackExecuted = false;
+      const executeCallback = () => {
+        if (!callbackExecuted) {
+          callbackExecuted = true;
+          isSpeaking = false;
+          console.log('✅ Speech finished. Waiting 3 seconds before callback...');
+          
+          // CRITICAL FIX: 3-second delay after speech ends
+          setTimeout(() => {
+            console.log('🎤 3-second delay complete - executing callback');
+            if (callback) {
+              callback();
+            }
+          }, 3000);
+        }
+      };
+      
+      // Primary callback: utterance.onend
+      utterance.onend = () => {
+        console.log('✅ Speech ended (onend)');
+        executeCallback();
+      };
+      
+      // Error fallback
+      utterance.onerror = (event) => {
+        console.log('⚠️ Speech error:', event.error);
+        executeCallback();
+      };
+      
+      // Fallback 1: Timeout based on estimated duration
+      const fallbackTimeout = setTimeout(() => {
+        console.log('⏰ Fallback timeout triggered');
+        executeCallback();
+      }, estimatedDuration);
+      
+      // Fallback 2: Safety net if onend doesn't fire within 1 second after estimated time
+      const safetyTimeout = setTimeout(() => {
+        console.log('🚨 Safety timeout triggered');
+        executeCallback();
+      }, estimatedDuration + 1000);
+      
+      utterance.onstart = () => {
+        console.log('🎬 Speech started');
+      };
+      
+      try {
+        speechSynthesis.speak(utterance);
+        
+        // Additional safety: If speechSynthesis fails to speak, trigger callback immediately
+        setTimeout(() => {
+          if (speechSynthesis.speaking === false && !callbackExecuted) {
+            console.log('❌ Speech failed to start - triggering callback immediately');
+            executeCallback();
+          }
+        }, 100);
+      } catch (error) {
+        console.error('❌ Speech synthesis error:', error);
+        executeCallback();
       }
     }
 
-    // Continue conversation
-    function continueConversation(nextStep) {
-      const nextFlow = conversationFlow[nextStep];
-      const voiceBtn = document.getElementById('voiceBtn');
-      const statusEl = document.getElementById('voiceStatus');
-
-      voiceBtn.textContent = '🔊 Speaking...';
-      voiceBtn.classList.remove('listening');
-      statusEl.textContent = 'System is speaking';
-      statusEl.style.color = '';
-      statusEl.style.fontWeight = '';
-
-      speak(nextFlow.text, () => {
-        startListening(nextStep);
-      });
+    // Add Message to Conversation
+    function addMessage(text, type) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${type}`;
+      messageDiv.textContent = text;
+      conversationDisplay.appendChild(messageDiv);
+      conversationDisplay.scrollTop = conversationDisplay.scrollHeight;
+      
+      sessionData.conversationHistory.push({ type, text, timestamp: new Date().toISOString() });
     }
 
-    // Complete conversation
-    function completeConversation() {
-      Object.assign(sessionData, conversationState.responses);
+    // Update Button State
+    function updateButtonState(state) {
+      voiceButton.className = '';
       
-      console.log('✅ Conversation complete:', sessionData);
+      switch (state) {
+        case 'ready':
+          voiceButton.classList.remove('listening', 'processing');
+          voiceButtonText.textContent = currentStep === 'welcome' ? 'Start Voice Conversation' : 'Continue';
+          voiceButton.disabled = false;
+          break;
+        case 'listening':
+          voiceButton.classList.add('listening');
+          voiceButtonText.textContent = 'LISTENING...';
+          voiceButton.disabled = false;
+          break;
+        case 'processing':
+          voiceButton.classList.add('processing');
+          voiceButtonText.textContent = 'PROCESSING...';
+          voiceButton.disabled = true;
+          break;
+        case 'speaking':
+          voiceButton.classList.add('processing');
+          voiceButtonText.textContent = 'SPEAKING...';
+          voiceButton.disabled = true;
+          break;
+      }
+    }
 
-      const voiceBtn = document.getElementById('voiceBtn');
-      const statusEl = document.getElementById('voiceStatus');
-
-      voiceBtn.textContent = '✅ Complete - Starting VR';
-      voiceBtn.classList.remove('listening');
-      statusEl.textContent = 'Launching virtual classroom...';
-
+    // Update Status Message
+    function updateStatus(message) {
+      statusMessage.textContent = message;
       setTimeout(() => {
-        document.getElementById('vrOverlay').classList.add('hidden');
-        speak('Welcome to the virtual classroom. Take your time and remember you can exit at any moment.');
-      }, 2000);
+        statusMessage.textContent = '';
+      }, 5000);
     }
 
-    // Manual input functions
-    function showManualInput() {
-      document.getElementById('manualOverlay').classList.add('active');
+    // Handle User Response
+    function handleUserResponse(response) {
+      updateButtonState('processing');
+      liveCaption.textContent = `Got it: "${response}"`;
+      addMessage(response, 'user');
+
+      const step = conversationFlow[currentStep];
+      
+      // Save response if needed
+      if (step.saveAs) {
+        sessionData[step.saveAs] = response;
+      }
+
+      // Move to next step
+      setTimeout(() => {
+        proceedToNextStep();
+      }, 1000);
     }
 
-    function closeManualInput() {
-      document.getElementById('manualOverlay').classList.remove('active');
+    // Proceed to Next Step
+    function proceedToNextStep() {
+      const step = conversationFlow[currentStep];
+      const nextStep = step.nextStep;
+
+      if (nextStep === 'vr') {
+        // Complete conversation
+        updateButtonState('speaking');
+        speak('Great! Entering the virtual classroom now.', () => {
+          completeSession();
+        });
+      } else {
+        currentStep = nextStep;
+        const nextStepData = conversationFlow[nextStep];
+        
+        updateButtonState('speaking');
+        addMessage(nextStepData.text, 'system');
+        
+        // Speak and auto-start listening after (includes 3s delay)
+        speak(nextStepData.text, () => {
+          liveCaption.textContent = 'Ready to listen...';
+          startListening();
+        });
+      }
     }
 
-    function submitManualData() {
+    // Start Listening
+    function startListening() {
+      if (isSpeaking) {
+        console.log('⚠️ Cannot start listening while speaking');
+        return;
+      }
+      
+      console.log('👂 Starting voice recognition');
+      try {
+        recognition.start();
+        console.log('✅ Recognition started');
+      } catch (error) {
+        console.error('❌ Recognition start error:', error);
+        
+        // If already running, this is expected
+        if (error.message && error.message.includes('already started')) {
+          console.log('ℹ️ Recognition already running');
+        } else {
+          updateStatus('Error starting recognition. Please try again.');
+          updateButtonState('ready');
+        }
+      }
+    }
+
+    // Start Voice Conversation
+    function startVoiceConversation() {
+      console.log('🎬 Starting conversation');
+      
+      if (!recognition && !initSpeechRecognition()) {
+        return;
+      }
+
+      if (isListening) {
+        recognition.stop();
+        return;
+      }
+
+      // If first time, speak welcome message and auto-start listening
+      if (currentStep === 'welcome') {
+        sessionData.startTime = new Date().toISOString();
+        updateButtonState('speaking');
+        const welcomeText = conversationFlow.welcome.text;
+        addMessage(welcomeText, 'system');
+        
+        // Speak with callback to auto-start listening (includes 3s delay)
+        speak(welcomeText, () => {
+          liveCaption.textContent = 'Ready to listen...';
+          startListening();
+        });
+      } else {
+        // Start listening immediately
+        startListening();
+      }
+    }
+
+    // Complete Session
+    function completeSession() {
+      console.log('Session Data:', sessionData);
+      vrOverlay.classList.add('hidden');
+      updateStatus('Welcome to your virtual classroom!');
+    }
+
+    // Switch to Manual Input
+    function switchToManualInput() {
+      vrOverlay.style.display = 'none';
+      manualInputOverlay.classList.add('active');
+    }
+
+    // Back to Voice Mode
+    function backToVoiceMode() {
+      manualInputOverlay.classList.remove('active');
+      vrOverlay.style.display = 'flex';
+    }
+
+    // Handle Manual Form Submit
+    function handleManualSubmit(e) {
+      e.preventDefault();
+      
       sessionData.comfortableLanguages = document.getElementById('manualLanguages').value;
       sessionData.preferredColor = document.getElementById('manualColor').value;
-      sessionData.emergencyContact = document.getElementById('manualEmergency').value;
+      sessionData.emergencyContact = document.getElementById('manualContact').value;
       sessionData.goals = document.getElementById('manualGoals').value;
+      sessionData.startTime = new Date().toISOString();
 
-      console.log('✅ Manual data submitted:', sessionData);
-
-      closeManualInput();
-      document.getElementById('vrOverlay').classList.add('hidden');
-      speak('Thank you. Welcome to the virtual classroom.');
+      console.log('Session Data (Manual):', sessionData);
+      
+      manualInputOverlay.classList.remove('active');
+      vrOverlay.classList.add('hidden');
+      
+      speak('Welcome to your virtual classroom. Take your time to explore.', null);
     }
 
-    // Event listeners
-    document.getElementById('voiceBtn').addEventListener('click', startConversation);
-    document.getElementById('skipBtn').addEventListener('click', showManualInput);
+    // Event Listeners
+    voiceButton.addEventListener('click', startVoiceConversation);
+    skipButton.addEventListener('click', switchToManualInput);
+    backButton.addEventListener('click', backToVoiceMode);
+    manualForm.addEventListener('submit', handleManualSubmit);
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('VR Classroom Exposure Therapy Initialized');
+    });
   </script>
 </body>
 </html>
