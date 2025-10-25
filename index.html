@@ -52,7 +52,6 @@
             padding: 40px;
             max-width: 600px;
             width: 100%;
-            box-sizing: border-box; /* Added for better padding control */
         }
 
         /* Typography */
@@ -231,14 +230,6 @@
             border-left: 4px solid rgba(94, 82, 64, 0.8);
         }
 
-        /* Added for live caption */
-        .message.live {
-            background: rgba(94, 82, 64, 0.05); /* Lighter background */
-            border-left: 4px solid rgba(94, 82, 64, 0.4); /* Fainter border */
-            font-style: italic;
-            color: rgba(19, 52, 59, 0.7);
-        }
-
         @keyframes messageSlideIn {
             from { opacity: 0; transform: translateX(-10px); }
             to { opacity: 1; transform: translateX(0); }
@@ -292,11 +283,6 @@
         /* VR Scene (hidden initially) */
         #vr-container {
             display: none;
-            position: fixed; /* Changed */
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
         }
 
         #vr-container.active {
@@ -519,28 +505,27 @@
         // Web Speech API setup
         let recognition = null;
         let synthesis = window.speechSynthesis;
+        let voices = [];
 
-        // --- FIX 2: ADDED VOICE LOADING ---
-        let availableVoices = [];
-
-        function loadVoices() {
-            availableVoices = synthesis.getVoices();
-            if (availableVoices.length > 0) {
-                console.log('Voices loaded:', availableVoices.length);
-            }
+        // Load voices
+        if (synthesis) {
+            synthesis.onvoiceschanged = function() {
+                voices = synthesis.getVoices();
+                console.log('Available voices:', voices.length);
+            };
         }
-        // Fetch voices when they are loaded
-        synthesis.onvoiceschanged = loadVoices;
-        // Initial attempt (for browsers that load them immediately)
-        loadVoices();
-        // --- END FIX 2 ---
 
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
             recognition.continuous = false;
-            recognition.interimResults = false;
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 3;
             recognition.lang = 'en-US';
+            
+            console.log('✅ Speech Recognition available');
+        } else {
+            console.log('❌ Speech Recognition NOT available');
         }
 
         // Conversation state
@@ -597,13 +582,11 @@
         // Request microphone permission
         async function requestMicPermission() {
             try {
-                // Check if mediaDevices is supported
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                     alert('Your browser does not support microphone access. Please use Chrome, Edge, or Safari.');
                     return false;
                 }
 
-                // Check current permission state
                 const permState = await checkMicPermission();
                 console.log('Current permission state:', permState);
 
@@ -613,12 +596,11 @@
                 }
 
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                // Stop the stream immediately - we just needed permission
                 stream.getTracks().forEach(track => track.stop());
-                console.log('Microphone permission granted');
+                console.log('✅ Microphone permission granted');
                 return true;
             } catch (error) {
-                console.error('Microphone permission error:', error);
+                console.error('❌ Microphone permission error:', error);
                 showPermissionInstructions(error.name);
                 return false;
             }
@@ -632,65 +614,69 @@
                 message += '❌ MICROPHONE BLOCKED\n\n';
                 message += 'Your microphone is currently blocked. To fix this:\n\n';
                 
-                // Detect browser
                 const isEdge = /Edg/.test(navigator.userAgent);
                 const isChrome = /Chrome/.test(navigator.userAgent) && !/Edg/.test(navigator.userAgent);
                 const isBrave = navigator.brave !== undefined;
-                const isFirefox = /Firefox/.test(navigator.userAgent);
-                const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
                 
                 if (isEdge) {
-                    message += '📱 EDGE INSTRUCTIONS:\n';
-                    message += '1. Look at the address bar (top)\n';
-                    message += '2. Click the lock 🔒 or camera icon\n';
-                    message += '3. Find "Microphone" and change to "Allow"\n';
-                    message += '4. Click "Refresh" or reload this page\n';
+                    message += '📱 EDGE: Click lock icon in address bar → Microphone → Allow → Reload';
                 } else if (isBrave) {
-                    message += '🦁 BRAVE INSTRUCTIONS:\n';
-                    message += '1. Click the Brave shield icon (right side of address bar)\n';
-                    message += '2. Click "Advanced View"\n';
-                    message += '3. Find "Microphone" and set to "Allow"\n';
-                    message += '4. Reload this page\n';
+                    message += '🦁 BRAVE: Click shield icon → Advanced View → Microphone → Allow → Reload';
                 } else if (isChrome) {
-                    message += '🌐 CHROME INSTRUCTIONS:\n';
-                    message += '1. Click the lock icon in address bar\n';
-                    message += '2. Find "Microphone" and change to "Allow"\n';
-                    message += '3. Reload the page\n';
-                } else if (isFirefox) {
-                    message += '🦊 FIREFOX INSTRUCTIONS:\n';
-                    message += '1. Click the crossed-out microphone icon in address bar\n';
-                    message += '2. Click settings icon (gear)\n';
-                    message += '3. Remove the blocked site\n';
-                    message += '4. Reload and allow when prompted\n';
+                    message += '🌐 CHROME: Click lock icon in address bar → Microphone → Allow → Reload';
                 } else {
-                    message += 'GENERAL INSTRUCTIONS:\n';
-                    message += '1. Click the site settings icon in address bar\n';
-                    message += '2. Find "Microphone" permission\n';
-                    message += '3. Change to "Allow"\n';
-                    message += '4. Reload this page\n';
+                    message += 'Click site settings in address bar → Microphone → Allow → Reload';
                 }
-                
-                message += '\n💡 After changing settings, RELOAD the page!';
-                
             } else if (errorType === 'NotFoundError') {
-                message += '❌ NO MICROPHONE DETECTED\n\n';
-                message += '• Make sure your microphone is connected\n';
-                message += '• Check if other apps can use your microphone\n';
-                message += '• Try restarting your browser\n';
-            } else if (errorType === 'NotReadableError') {
-                message += '❌ MICROPHONE IN USE\n\n';
-                message += '• Close other apps using your microphone\n';
-                message += '• Try restarting your browser\n';
+                message += '❌ NO MICROPHONE DETECTED\n\nCheck your microphone connection.';
             } else {
-                message += '❌ PERMISSION ERROR\n\n';
-                message += 'Error: ' + errorType + '\n\n';
-                message += 'Try:\n';
-                message += '1. Reload the page\n';
-                message += '2. Check browser settings\n';
-                message += '3. Try a different browser\n';
+                message += '❌ ERROR: ' + errorType + '\n\nTry reloading the page.';
             }
             
             alert(message);
+        }
+
+        // Enhanced speech with callback
+        function speak(text, callback = null) {
+            if (!synthesis) {
+                console.log('❌ Speech synthesis not available');
+                if (callback) callback();
+                return;
+            }
+
+            synthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.85;
+            utterance.pitch = 1;
+            utterance.volume = 1;
+            utterance.lang = 'en-US';
+            
+            // Use a natural voice if available
+            if (voices.length > 0) {
+                const preferredVoice = voices.find(v => v.lang.includes('en') && v.name.includes('Female')) || voices[0];
+                utterance.voice = preferredVoice;
+            }
+            
+            addMessageToConversation('System', text);
+            
+            utterance.onstart = function() {
+                console.log('🔊 Started speaking:', text.substring(0, 50) + '...');
+            };
+            
+            utterance.onend = function() {
+                console.log('✅ Finished speaking');
+                if (callback) {
+                    setTimeout(callback, 500);
+                }
+            };
+            
+            utterance.onerror = function(e) {
+                console.error('❌ Speech error:', e);
+                if (callback) callback();
+            };
+            
+            synthesis.speak(utterance);
         }
 
         // Start voice conversation
@@ -698,101 +684,39 @@
             const voiceBtn = document.getElementById('main-voice-btn');
             const statusEl = document.getElementById('main-voice-status');
             
-            // Check permission status first
-            const permState = await checkMicPermission();
-            console.log('Permission state:', permState);
+            console.log('🎬 Starting conversation...');
             
-            // Request microphone permission first
             voiceBtn.textContent = '🎤 Requesting microphone access...';
-            statusEl.textContent = permState === 'denied' ? 
-                '⚠️ Microphone blocked - check address bar!' : 
-                '⚠️ Look for permission prompt in your browser!';
+            statusEl.textContent = '⚠️ Look for permission prompt!';
             statusEl.style.color = '#FF6B6B';
             statusEl.style.fontWeight = 'bold';
             
             const hasPermission = await requestMicPermission();
             if (!hasPermission) {
                 voiceBtn.textContent = '🎤 Click to Start Voice Conversation';
-                statusEl.textContent = 'Microphone access denied';
+                statusEl.textContent = '❌ Microphone access denied';
+                statusEl.style.color = '#FF6B6B';
                 return;
             }
             
             voiceBtn.textContent = '🔊 Speaking...';
             statusEl.textContent = 'System is speaking';
+            statusEl.style.color = '';
             
-            // Speak the welcome message
             speak(conversationFlow.welcome.text, () => {
-                // After speaking, start listening
                 voiceBtn.textContent = '🎤 Listening for your response...';
                 voiceBtn.classList.add('listening');
-                statusEl.textContent = '🔴 LISTENING - Say "yes" or "thank you" to continue';
+                statusEl.textContent = '🔴 LISTENING - Say "yes" or "thank you"';
+                statusEl.style.color = '#FF6B6B';
+                statusEl.style.fontWeight = 'bold';
                 startListening('welcome');
             });
         }
 
-        // --- FIX 3: REPLACED 'speak' FUNCTION ---
-        // Enhanced speech with callback and voice selection
-        function speak(text, callback = null) {
-            if (synthesis) {
-                // Stop any ongoing speech
-                synthesis.cancel();
-                
-                const utterance = new SpeechSynthesisUtterance(text);
-
-                // --- Voice Selection Logic ---
-                if (availableVoices.length === 0) {
-                    // Precaution if voices are not loaded yet
-                    availableVoices = synthesis.getVoices();
-                }
-
-                // Try to find a calm, female voice (common defaults)
-                let calmVoice = availableVoices.find(voice =>
-                    voice.lang.startsWith('en') &&
-                    (
-                        voice.name.includes('Zira') ||       // Microsoft Edge
-                        voice.name.includes('Google US English') || // Chrome
-                        voice.name.includes('Susan') ||      // Apple
-                        voice.name.includes('Female')        // Generic
-                    )
-                );
-
-                // Fallback: just find any US or UK English voice
-                if (!calmVoice) {
-                    calmVoice = availableVoices.find(voice => 
-                        voice.lang === 'en-US' || voice.lang === 'en-GB'
-                    );
-                }
-                
-                if (calmVoice) {
-                    utterance.voice = calmVoice;
-                    console.log('Using voice:', calmVoice.name);
-                }
-                // --- End Voice Selection ---
-
-                // --- Modulation for "Calm" ---
-                utterance.rate = 0.9; // Slightly slower than normal (1.0)
-                utterance.pitch = 1.0; // Normal pitch (can lower to 0.9 if needed)
-                utterance.volume = 1;
-                
-                // Add message to conversation display
-                addMessageToConversation('System', text);
-                
-                utterance.onend = function() {
-                    if (callback) callback();
-                };
-                
-                synthesis.speak(utterance);
-            } else if (callback) {
-                // Fallback if synthesis is not supported
-                callback();
-            }
-        }
-        // --- END FIX 3 ---
-
         // Start listening for specific conversation step
         function startListening(step) {
             if (!recognition) {
-                alert('Voice recognition not supported. Please use a compatible browser (Chrome, Edge, Safari).');
+                alert('Voice recognition not supported. Please use Chrome, Edge, or Safari.');
                 return;
             }
 
@@ -800,31 +724,25 @@
             conversationState.step = step;
             conversationState.isListening = true;
             
-            // Configure for better recognition
-            recognition.continuous = true; // CHANGED: Make the listener more "patient"
-            recognition.interimResults = true; // Show partial results
-            recognition.maxAlternatives = 3;
-
             recognition.onstart = function() {
+                console.log('🎤 Recognition started successfully');
                 const voiceBtn = document.getElementById('main-voice-btn');
                 const statusEl = document.getElementById('main-voice-status');
                 voiceBtn.classList.add('listening');
-                voiceBtn.textContent = '🎤 LISTENING NOW';
-                statusEl.textContent = '🔴 RECORDING - Speak clearly into your microphone';
-                statusEl.style.color = '#FF6B6B';
-                statusEl.style.fontWeight = 'bold';
-
-                // Remove any old caption
-                removeLiveCaption();
+                voiceBtn.textContent = '🔴 LISTENING NOW - SPEAK!';
+                statusEl.innerHTML = '<strong style="font-size: 18px; color: #FF6B6B;">🔴 RECORDING</strong><br>Speak clearly now!';
             };
 
-            // UPDATED to handle interim AND final results
+            recognition.onspeechstart = function() {
+                console.log('🗣️ Speech detected!');
+                const statusEl = document.getElementById('main-voice-status');
+                statusEl.innerHTML = '<strong style="font-size: 18px; color: #51CF66;">✅ HEARING YOU!</strong><br>Keep speaking...';
+            };
+
             recognition.onresult = function(event) {
                 let interimTranscript = '';
                 let finalTranscript = '';
-                // const statusEl = document.getElementById('main-voice-status'); // No longer updating this with interim
-
-                // Loop through all results
+                
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
                     const transcript = event.results[i][0].transcript;
                     if (event.results[i].isFinal) {
@@ -833,103 +751,94 @@
                         interimTranscript += transcript;
                     }
                 }
-
-                // 1. Update UI with interim results (what's being heard)
+                
                 if (interimTranscript) {
-                    console.log('📝 Interim result:', interimTranscript);
-                    // NEW: Show live caption in conversation box
-                    addOrUpdateLiveCaption(interimTranscript);
+                    console.log('📝 Interim:', interimTranscript);
+                    const statusEl = document.getElementById('main-voice-status');
+                    statusEl.innerHTML = '<strong style="color: #51CF66;">📝 Hearing: "' + interimTranscript + '"</strong>';
                 }
-
-                // 2. Process the final result (if we have one)
-                finalTranscript = finalTranscript.toLowerCase().trim();
+                
                 if (finalTranscript) {
-                    console.log('Heard (final):', finalTranscript);
+                    const transcript = finalTranscript.toLowerCase().trim();
+                    const confidence = event.results[event.results.length - 1][0].confidence;
+                    console.log('✅ Final result:', transcript, '(Confidence:', confidence, ')');
                     
-                    // NEW: Stop the recognition now that we have a final result
-                    recognition.stop();
-
-                    // Process the response
-                    processVoiceResponse(finalTranscript, step);
+                    const statusEl = document.getElementById('main-voice-status');
+                    statusEl.innerHTML = '<strong style="font-size: 18px; color: #51CF66;">✅ GOT IT!</strong><br>You said: "' + transcript + '"';
+                    
+                    addMessageToConversation('You', transcript);
+                    processVoiceResponse(transcript, step);
                 }
             };
-            
-            // Add interim results handler
-            recognition.onend = function() {
-                console.log('Recognition ended.');
-                conversationState.isListening = false;
+
+            recognition.onnomatch = function() {
+                console.log('⚠️ No speech recognized');
                 const voiceBtn = document.getElementById('main-voice-btn');
                 const statusEl = document.getElementById('main-voice-status');
                 voiceBtn.classList.remove('listening');
-                // Don't change text here, onresult handles it
+                voiceBtn.textContent = '🎤 Didn\'t catch that - Try Again';
+                statusEl.innerHTML = '<strong style="color: #FFA500;">⚠️ Didn\'t understand</strong><br>Click to try again';
+            };
 
-                // NEW: Remove live caption on end
-                removeLiveCaption();
+            recognition.onend = function() {
+                console.log('🛑 Recognition ended');
+                conversationState.isListening = false;
+                const voiceBtn = document.getElementById('main-voice-btn');
+                const statusEl = document.getElementById('main-voice-status');
+                
+                if (!statusEl.innerHTML.includes('GOT IT')) {
+                    voiceBtn.classList.remove('listening');
+                    voiceBtn.textContent = '🎤 Click to Try Again';
+                    statusEl.innerHTML = '<strong>⏱️ Timed out</strong><br>Click to speak again';
+                    statusEl.style.color = '#FFA500';
+                }
             };
 
             recognition.onerror = function(event) {
-                console.error('Speech recognition error:', event.error);
+                console.error('❌ Recognition error:', event.error);
                 const voiceBtn = document.getElementById('main-voice-btn');
                 const statusEl = document.getElementById('main-voice-status');
                 voiceBtn.classList.remove('listening');
-                voiceBtn.textContent = '❌ Error - Click to Retry';
+                voiceBtn.textContent = '❌ Error - Retry';
                 
-                let errorMsg = event.error;
+                let errorMsg = '';
                 if (event.error === 'no-speech') {
-                    errorMsg = 'No speech detected. Please try again.';
-                    console.log('DEBUG: "no-speech" error. Check microphone levels or background noise.');
+                    errorMsg = '⏱️ No speech detected<br>Speak louder!';
                 } else if (event.error === 'audio-capture') {
-                    errorMsg = 'Microphone error. Check connection.';
+                    errorMsg = '🎤 Mic problem<br>Check connection';
+                } else if (event.error === 'not-allowed') {
+                    errorMsg = '🚫 Permission denied<br>Check settings';
+                } else {
+                    errorMsg = '❌ Error: ' + event.error;
                 }
                 
-                statusEl.textContent = '❌ Error: ' + errorMsg + ' - Click button to try again';
-                statusEl.style.color = '#FF6B6B';
+                statusEl.innerHTML = '<strong style="color: #FF6B6B;">' + errorMsg + '</strong>';
                 conversationState.isListening = false;
-
-                // NEW: Remove live caption on error
-                removeLiveCaption();
             };
 
             try {
                 recognition.start();
-                console.log('✅ Recognition started successfully');
+                console.log('✅ Recognition start called');
             } catch (error) {
                 console.error('❌ Failed to start recognition:', error);
-                // This catch might handle if recognition is already started
-                if (error.name === 'InvalidStateError') {
-                     // Already started, which is fine
-                } else {
-                    alert('Could not start voice recognition. Please try clicking the button again.');
-                }
+                alert('Could not start voice recognition. Try again.');
             }
         }
-
-        // DELETED the broken recognition.oninterimresults block that was here
 
         // Process voice response
         function processVoiceResponse(transcript, step) {
             const currentFlow = conversationFlow[step];
-            const voiceBtn = document.getElementById('main-voice-btn');
-            const statusEl = document.getElementById('main-voice-status');
-
-            voiceBtn.textContent = '✅ Processing...';
-            statusEl.textContent = 'Processing your response...';
-            statusEl.style.color = '';
-            statusEl.style.fontWeight = '';
             
             if (currentFlow.saveAs) {
-                // Save the response
                 conversationState.responses[currentFlow.saveAs] = transcript;
             }
             
-            // Move to next step
             if (currentFlow.nextStep === 'vr') {
-                // Complete conversation, start VR
                 completeVoiceConversation();
             } else {
                 setTimeout(() => {
                     continueConversation(currentFlow.nextStep);
-                }, 1000); // Wait a second before speaking next line
+                }, 1000);
             }
         }
 
@@ -940,11 +849,17 @@
             const statusEl = document.getElementById('main-voice-status');
             
             voiceBtn.textContent = '🔊 Speaking...';
+            voiceBtn.classList.remove('listening');
             statusEl.textContent = 'System is speaking';
+            statusEl.style.color = '';
+            statusEl.style.fontWeight = '';
             
             speak(nextFlow.text, () => {
-                voiceBtn.textContent = '🎤 Listening for your response...';
-                statusEl.textContent = 'Please speak your response';
+                voiceBtn.textContent = '🎤 Listening...';
+                voiceBtn.classList.add('listening');
+                statusEl.textContent = '🔴 Speak your response';
+                statusEl.style.color = '#FF6B6B';
+                statusEl.style.fontWeight = 'bold';
                 startListening(nextStep);
             });
         }
@@ -959,41 +874,8 @@
             conversationDisplay.scrollTop = conversationDisplay.scrollHeight;
         }
 
-        // --- NEW FUNCTIONS FOR LIVE CAPTION ---
-        // Add or update a live caption message
-        function addOrUpdateLiveCaption(text) {
-            const conversationDisplay = document.getElementById('conversation-display');
-            let captionEl = document.getElementById('live-caption');
-            
-            if (!captionEl) {
-                // Create it
-                captionEl = document.createElement('div');
-                captionEl.id = 'live-caption';
-                captionEl.className = 'message user-message live'; // Add a 'live' class
-                captionEl.innerHTML = `<strong>You (speaking):</strong> ${text}`;
-                conversationDisplay.appendChild(captionEl);
-            } else {
-                // Update it
-                captionEl.innerHTML = `<strong>You (speaking):</strong> ${text}`;
-            }
-            
-            // Ensure it's scrolled into view
-            conversationDisplay.scrollTop = conversationDisplay.scrollHeight;
-        }
-
-        // Remove the live caption
-        function removeLiveCaption() {
-            const captionEl = document.getElementById('live-caption');
-            if (captionEl) {
-                captionEl.remove();
-            }
-        }
-        // --- END NEW FUNCTIONS ---
-
-
-        // Complete voice conversation and start VR
+        // Complete voice conversation
         function completeVoiceConversation() {
-            // Transfer voice responses to session data
             sessionData.name = conversationState.responses.name || '';
             sessionData.age = conversationState.responses.age || '';
             sessionData.anxietyLevel = conversationState.responses.anxietyLevel || '5';
@@ -1004,9 +886,9 @@
             const statusEl = document.getElementById('main-voice-status');
             
             voiceBtn.textContent = '✅ Complete - Starting VR';
+            voiceBtn.classList.remove('listening');
             statusEl.textContent = 'Launching virtual classroom...';
             
-            // Log collected data
             console.log('Voice conversation completed:', conversationState.responses);
             
             setTimeout(() => {
@@ -1014,25 +896,21 @@
             }, 2000);
         }
 
-        // Skip to manual mode (original flow)
+        // Skip to manual mode
         function skipToManualMode() {
             goToScreen('info');
         }
 
         // Screen navigation
         function goToScreen(screenName) {
-            // Save current data
             saveCurrentData();
 
-            // Hide all screens
             document.querySelectorAll('.screen').forEach(screen => {
                 screen.classList.remove('active');
             });
 
-            // Show target screen
             document.getElementById('screen-' + screenName).classList.add('active');
 
-            // Update summary if going to summary screen
             if (screenName === 'summary') {
                 updateSummary();
             }
@@ -1056,29 +934,20 @@
         // Voice input for form fields
         async function startVoiceInput(targetInputId) {
             if (!recognition) {
-                alert('Voice recognition not supported in this browser. Please use Chrome, Edge, or Safari.');
+                alert('Voice recognition not supported. Please use Chrome, Edge, or Safari.');
                 return;
             }
 
             const targetInput = document.getElementById(targetInputId);
             const voiceBtn = event.target.closest('.btn-voice');
-            const statusElement = document.getElementById('goals-voice-status'); // Only one status for now
+            const statusElement = document.getElementById('goals-voice-status');
 
-            // Request microphone permission
             const hasPermission = await requestMicPermission();
-            if (!hasPermission) {
-                return;
-            }
-            
-            // Use a temporary recognition handler for form fields
-            const formRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            formRecognition.lang = 'en-US';
-            formRecognition.continuous = true; // CHANGED: Make the listener more "patient"
-            formRecognition.interimResults = false;
+            if (!hasPermission) return;
 
-            formRecognition.onstart = function() {
+            recognition.onstart = function() {
                 voiceBtn.classList.add('listening');
-                voiceBtn.textContent = '🔴'; // Smaller indicator
+                voiceBtn.textContent = '🔴 LISTENING';
                 if (statusElement) {
                     statusElement.textContent = '🔴 RECORDING - Speak now';
                     statusElement.style.color = '#FF6B6B';
@@ -1086,16 +955,12 @@
                 }
             };
 
-            formRecognition.onresult = function(event) {
+            recognition.onresult = function(event) {
                 const transcript = event.results[0][0].transcript;
-                if (targetInput.tagName === 'TEXTAREA' || targetInput.tagName === 'INPUT') {
-                    targetInput.value = transcript;
-                }
-                // NEW: Stop the recognition
-                formRecognition.stop();
+                targetInput.value = transcript;
             };
 
-            formRecognition.onend = function() {
+            recognition.onend = function() {
                 voiceBtn.classList.remove('listening');
                 voiceBtn.textContent = '🎤';
                 if (statusElement) {
@@ -1105,7 +970,7 @@
                 }
             };
 
-            formRecognition.onerror = function(event) {
+            recognition.onerror = function(event) {
                 console.error('Speech recognition error:', event.error);
                 voiceBtn.classList.remove('listening');
                 voiceBtn.textContent = '❌';
@@ -1115,10 +980,8 @@
                 }
             };
 
-            formRecognition.start();
+            recognition.start();
         }
-
-        // --- FIX 1: REMOVED the duplicate 'speak' function that was here ---
 
         // Update summary
         function updateSummary() {
@@ -1152,35 +1015,16 @@
         function startVRSession() {
             saveCurrentData();
             
-            // Log session data (in production, send to server)
             console.log('Session Data:', sessionData);
             
-            // Hide all screens
             document.querySelectorAll('.screen').forEach(screen => {
                 screen.classList.remove('active');
             });
 
-            // Show VR container
             document.getElementById('vr-container').classList.add('active');
 
-            // Optional: Speak welcome message
-            // Make sure to use the callback version if you want to do something after
             speak('Welcome to the virtual classroom. Take your time and remember you can exit at any moment.');
-        }
-
-        // Export session data (for therapist review)
-        function downloadSessionData() {
-            const dataStr = JSON.stringify(sessionData, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `vr-therapy-session-${Date.now()}.json`;
-            link.click();
         }
     </script>
 </body>
 </html>
-
-
-
