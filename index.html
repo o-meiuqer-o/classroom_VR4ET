@@ -144,102 +144,91 @@
         <a-box position="0 2.2 -4.8" width="3.1" height="1.6" depth="0.02" 
                color="#2C2C2C"></a-box>
 
-        <!-- Teacher's desk with GLB model -->
-        <a-entity gltf-model="https://cdn.glitch.global/341720a2-2c0f-44cd-a0c0-dfd86353d756/desk.glb?v=1680885951234" 
-                  position="0 0 -3.5" scale="0.8 0.8 0.8" rotation="0 0 0"
-                  shadow="cast: true; receive: true"></a-entity>
+        <!-- Teacher's desk with fallback geometry (replace with GLB once uploaded) -->
+        <a-box position="0 0.4 -3.5" width="1.2" height="0.8" depth="0.6" 
+               color="#8B4513" shadow="cast: true; receive: true"></a-box>
+        <a-box position="0 0.15 -3.5" width="0.15" height="0.3" depth="0.15" 
+               color="#654321" shadow="cast: true; receive: true"></a-box>
         
         <!-- Student desks and chairs with GLB models - 4 rows, 3 columns -->
         <!-- Row 1 -->
         <a-entity position="-3 0 0">
-            <a-entity gltf-model="https://cdn.glitch.global/341720a2-2c0f-44cd-a0c0-dfd86353d756/school-desk.glb?v=1680885951234" 
-                      scale="0.6 0.6 0.6" shadow="cast: true; receive: true"></a-entity>
-            <a-entity gltf-model=".assets/models/chair.glb" 
-                      position="0 0 0.6" scale="0.6 0.6 0.6" rotation="0 180 0" shadow="cast: true; receive: true"></a-entity>
-            <a-entity gltf-model="https://cdn.glitch.global/341720a2-2c0f-44cd-a0c0-dfd86353d756/student-sitting.glb?v=1680885951234" 
-                      position="0 0.5 0.5" scale="0.9 0.9 0.9" rotation="0 180 0" shadow="cast: true"></a-entity>
+            <a-box position="0 0.35 0" width="0.7" height="0.7" depth="0.5" color="#8B7355" shadow="cast: true; receive: true"></a-box>
+            <a-entity gltf-model="https://raw.githubusercontent.com/o-meiuqer-o/classroom_VR4ET/main/assets/models/chair.glb" 
+                      position="0 0 0.6" scale="0.09 0.09 0.09" rotation="0 0 0" shadow="cast: true; receive: true"></a-entity>
+            <a-cylinder position="0 0.8 0.5" radius="0.15" height="0.4" color="#4A90E2" shadow="cast: true"></a-cylinder>
+            <a-sphere position="0 1.1 0.5" radius="0.12" color="#FFD5B4" shadow="cast: true"></a-sphere>
         </a-entity>
         <a-entity position="0 0 0">
-            <a-entity gltf-model="https://cdn.glitch.global/341720a2-2c0f-44cd-a0c0-dfd86353d756/school-desk.glb?v=1680885951234" 
-                      scale="0.6 0.6 0.6" shadow="cast: true; receive: true"></a-entity>
-            <a-entity gltf-model=".assets/models/chair.glb" 
-                      position="0 0 0.6" scale="0.6 0.6 0.6" rotation="0 180 0" shadow="cast: true; receive: true"></a-entity>
+            <a-box position="0 0.35 0" width="0.7" height="0.7" depth="0.5" color="#8B7355" shadow="cast: true; receive: true"></a-box>
+            <a-entity gltf-model="https://raw.githubusercontent.com/o-meiuqer-o/classroom_VR4ET/main/assets/models/chair.glb" 
+                      position="0 0 0.6" scale="0.09 0.09 0.09" rotation="0 180 0" shadow="cast: true; receive: true"></a-entity>
         </a-entity>
         <a-entity position="3 0 0">
-            <a-entity gltf-model="https://cdn.glitch.global/341720a2-2c0f-44cd-a0c0-dfd86353d756/school-desk.glb?v=1680885951234" 
-                      scale="0.6 0.6 0.6" shadow="cast: true; receive: true"></a-entity>
-            <a-entity gltf-model=".assets/models/chair.glb" 
-                      position="0 0 0.6" scale="0.6 0.6 0.6" rotation="0 180 0" shadow="cast: true; receive: true"></a-entity>
-            <a-entity gltf-model="https://cdn.glitch.global/341720a2-2c0f-44cd-a0c0-dfd86353d756/student-sitting.glb?v=1680885951234" 
-                      position="0 0.5 0.5" scale="0.9 0.9 0.9" rotation="0 180 0" shadow="cast: true"></a-entity>
+            <a-box position="0 0.35 0" width="0.7" height="0.7" depth="0.5" color="#8B7355" shadow="cast: true; receive: true"></a-box>
+            <a-entity gltf-model="https://raw.githubusercontent.com/o-meiuqer-o/classroom_VR4ET/main/assets/models/chair.glb" 
+                      position="0 0 0.6" scale="0.09 0.09 0.09" rotation="0 0 0" shadow="cast: true; receive: true"></a-entity>
+            <a-cylinder position="0 0.8 0.5" radius="0.15" height="0.4" color="#E94B3C" shadow="cast: true"></a-cylinder>
+            <a-sphere position="0 1.1 0.5" radius="0.12" color="#FFD5B4" shadow="cast: true"></a-sphere>
         </a-entity>
 
         <!-- Row 2 -->
         <a-entity position="-3 0 1.5">
-            <a-entity gltf-model="https://cdn.glitch.global/341720a2-2c0f-44cd-a0c0-dfd86353d756/school-desk.glb?v=1680885951234" 
-                      scale="0.6 0.6 0.6" shadow="cast: true; receive: true"></a-entity>
-            <a-entity gltf-model=".assets/models/chair.glb" 
-                      position="0 0 0.6" scale="0.6 0.6 0.6" rotation="0 180 0" shadow="cast: true; receive: true"></a-entity>
+            <a-box position="0 0.35 0" width="0.7" height="0.7" depth="0.5" color="#8B7355" shadow="cast: true; receive: true"></a-box>
+            <a-entity gltf-model="https://raw.githubusercontent.com/o-meiuqer-o/classroom_VR4ET/main/assets/models/chair.glb" 
+                      position="0 0 0.6" scale="0.18 0.18 0.18" rotation="0 180 0" shadow="cast: true; receive: true"></a-entity>
         </a-entity>
         <a-entity position="0 0 1.5">
-            <a-entity gltf-model="https://cdn.glitch.global/341720a2-2c0f-44cd-a0c0-dfd86353d756/school-desk.glb?v=1680885951234" 
-                      scale="0.6 0.6 0.6" shadow="cast: true; receive: true"></a-entity>
-            <a-entity gltf-model=".assets/models/chair.glb" 
-                      position="0 0 0.6" scale="0.6 0.6 0.6" rotation="0 180 0" shadow="cast: true; receive: true"></a-entity>
-            <a-entity gltf-model="https://cdn.glitch.global/341720a2-2c0f-44cd-a0c0-dfd86353d756/student-sitting.glb?v=1680885951234" 
-                      position="0 0.5 0.5" scale="0.9 0.9 0.9" rotation="0 180 0" shadow="cast: true"></a-entity>
+            <a-box position="0 0.35 0" width="0.7" height="0.7" depth="0.5" color="#8B7355" shadow="cast: true; receive: true"></a-box>
+            <a-entity gltf-model="https://raw.githubusercontent.com/o-meiuqer-o/classroom_VR4ET/main/assets/models/chair.glb" 
+                      position="0 0 0.6" scale="0.09 0.09 0.09" rotation="0 0 0" shadow="cast: true; receive: true"></a-entity>
+            <a-cylinder position="0 0.8 0.5" radius="0.15" height="0.4" color="#50C878" shadow="cast: true"></a-cylinder>
+            <a-sphere position="0 1.1 0.5" radius="0.12" color="#FFD5B4" shadow="cast: true"></a-sphere>
         </a-entity>
         <a-entity position="3 0 1.5">
-            <a-entity gltf-model="https://cdn.glitch.global/341720a2-2c0f-44cd-a0c0-dfd86353d756/school-desk.glb?v=1680885951234" 
-                      scale="0.6 0.6 0.6" shadow="cast: true; receive: true"></a-entity>
-            <a-entity gltf-model=".assets/models/chair.glb" 
-                      position="0 0 0.6" scale="0.6 0.6 0.6" rotation="0 180 0" shadow="cast: true; receive: true"></a-entity>
+            <a-box position="0 0.35 0" width="0.7" height="0.7" depth="0.5" color="#8B7355" shadow="cast: true; receive: true"></a-box>
+            <a-entity gltf-model="https://raw.githubusercontent.com/o-meiuqer-o/classroom_VR4ET/main/assets/models/chair.glb" 
+                      position="0 0 0.6" scale="0.09 0.09 0.09" rotation="0 0 0" shadow="cast: true; receive: true"></a-entity>
         </a-entity>
 
         <!-- Row 3 -->
         <a-entity position="-3 0 3">
-            <a-entity gltf-model="https://cdn.glitch.global/341720a2-2c0f-44cd-a0c0-dfd86353d756/school-desk.glb?v=1680885951234" 
-                      scale="0.6 0.6 0.6" shadow="cast: true; receive: true"></a-entity>
-            <a-entity gltf-model=".assets/models/chair.glb" 
-                      position="0 0 0.6" scale="0.6 0.6 0.6" rotation="0 180 0" shadow="cast: true; receive: true"></a-entity>
-            <a-entity gltf-model="https://cdn.glitch.global/341720a2-2c0f-44cd-a0c0-dfd86353d756/student-sitting.glb?v=1680885951234" 
-                      position="0 0.5 0.5" scale="0.9 0.9 0.9" rotation="0 180 0" shadow="cast: true"></a-entity>
+            <a-box position="0 0.35 0" width="0.7" height="0.7" depth="0.5" color="#8B7355" shadow="cast: true; receive: true"></a-box>
+            <a-entity gltf-model="https://raw.githubusercontent.com/o-meiuqer-o/classroom_VR4ET/main/assets/models/chair.glb" 
+                      position="0 0 0.6" scale="0.09 0.09 0.09" rotation="0 0 0" shadow="cast: true; receive: true"></a-entity>
+            <a-cylinder position="0 0.8 0.5" radius="0.15" height="0.4" color="#9B59B6" shadow="cast: true"></a-cylinder>
+            <a-sphere position="0 1.1 0.5" radius="0.12" color="#FFD5B4" shadow="cast: true"></a-sphere>
         </a-entity>
         <a-entity position="0 0 3">
-            <a-entity gltf-model="https://cdn.glitch.global/341720a2-2c0f-44cd-a0c0-dfd86353d756/school-desk.glb?v=1680885951234" 
-                      scale="0.6 0.6 0.6" shadow="cast: true; receive: true"></a-entity>
-            <a-entity gltf-model=".assets/models/chair.glb" 
-                      position="0 0 0.6" scale="0.6 0.6 0.6" rotation="0 180 0" shadow="cast: true; receive: true"></a-entity>
+            <a-box position="0 0.35 0" width="0.7" height="0.7" depth="0.5" color="#8B7355" shadow="cast: true; receive: true"></a-box>
+            <a-entity gltf-model="https://raw.githubusercontent.com/o-meiuqer-o/classroom_VR4ET/main/assets/models/chair.glb" 
+                      position="0 0 0.6" scale="0.09 0.09 0.09" rotation="0 0 0" shadow="cast: true; receive: true"></a-entity>
         </a-entity>
         <a-entity position="3 0 3">
-            <a-entity gltf-model="https://cdn.glitch.global/341720a2-2c0f-44cd-a0c0-dfd86353d756/school-desk.glb?v=1680885951234" 
-                      scale="0.6 0.6 0.6" shadow="cast: true; receive: true"></a-entity>
-            <a-entity gltf-model=".assets/models/chair.glb" 
-                      position="0 0 0.6" scale="0.6 0.6 0.6" rotation="0 180 0" shadow="cast: true; receive: true"></a-entity>
-            <a-entity gltf-model="https://cdn.glitch.global/341720a2-2c0f-44cd-a0c0-dfd86353d756/student-sitting.glb?v=1680885951234" 
-                      position="0 0.5 0.5" scale="0.9 0.9 0.9" rotation="0 180 0" shadow="cast: true"></a-entity>
+            <a-box position="0 0.35 0" width="0.7" height="0.7" depth="0.5" color="#8B7355" shadow="cast: true; receive: true"></a-box>
+            <a-entity gltf-model="https://raw.githubusercontent.com/o-meiuqer-o/classroom_VR4ET/main/assets/models/chair.glb" 
+                      position="0 0 0.6" scale="0.09 0.09 0.09" rotation="0 0 0" shadow="cast: true; receive: true"></a-entity>
+            <a-cylinder position="0 0.8 0.5" radius="0.15" height="0.4" color="#FFA500" shadow="cast: true"></a-cylinder>
+            <a-sphere position="0 1.1 0.5" radius="0.12" color="#FFD5B4" shadow="cast: true"></a-sphere>
         </a-entity>
 
         <!-- Row 4 (back row) -->
         <a-entity position="-3 0 4.5">
-            <a-entity gltf-model="https://cdn.glitch.global/341720a2-2c0f-44cd-a0c0-dfd86353d756/school-desk.glb?v=1680885951234" 
-                      scale="0.6 0.6 0.6" shadow="cast: true; receive: true"></a-entity>
-            <a-entity gltf-model=".assets/models/chair.glb" 
-                      position="0 0 0.6" scale="0.6 0.6 0.6" rotation="0 180 0" shadow="cast: true; receive: true"></a-entity>
+            <a-box position="0 0.35 0" width="0.7" height="0.7" depth="0.5" color="#8B7355" shadow="cast: true; receive: true"></a-box>
+            <a-entity gltf-model="https://raw.githubusercontent.com/o-meiuqer-o/classroom_VR4ET/main/assets/models/chair.glb" 
+                      position="0 0 0.6" scale="0.09 0.09 0.09" rotation="0 0 0" shadow="cast: true; receive: true"></a-entity>
         </a-entity>
         <a-entity position="0 0 4.5">
-            <a-entity gltf-model="https://cdn.glitch.global/341720a2-2c0f-44cd-a0c0-dfd86353d756/school-desk.glb?v=1680885951234" 
-                      scale="0.6 0.6 0.6" shadow="cast: true; receive: true"></a-entity>
-            <a-entity gltf-model=".assets/models/chair.glb" 
-                      position="0 0 0.6" scale="0.6 0.6 0.6" rotation="0 180 0" shadow="cast: true; receive: true"></a-entity>
-            <a-entity gltf-model="https://cdn.glitch.global/341720a2-2c0f-44cd-a0c0-dfd86353d756/student-sitting.glb?v=1680885951234" 
-                      position="0 0.5 0.5" scale="0.9 0.9 0.9" rotation="0 180 0" shadow="cast: true"></a-entity>
+            <a-box position="0 0.35 0" width="0.7" height="0.7" depth="0.5" color="#8B7355" shadow="cast: true; receive: true"></a-box>
+            <a-entity gltf-model="https://raw.githubusercontent.com/o-meiuqer-o/classroom_VR4ET/main/assets/models/chair.glb" 
+                      position="0 0 0.6" scale="0.09 0.09 0.09" rotation="0 0 0" shadow="cast: true; receive: true"></a-entity>
+            <a-cylinder position="0 0.8 0.5" radius="0.15" height="0.4" color="#E74C3C" shadow="cast: true"></a-cylinder>
+            <a-sphere position="0 1.1 0.5" radius="0.12" color="#FFD5B4" shadow="cast: true"></a-sphere>
         </a-entity>
         <a-entity position="3 0 4.5">
-            <a-entity gltf-model="https://cdn.glitch.global/341720a2-2c0f-44cd-a0c0-dfd86353d756/school-desk.glb?v=1680885951234" 
-                      scale="0.6 0.6 0.6" shadow="cast: true; receive: true"></a-entity>
-            <a-entity gltf-model=".assets/models/chair.glb" 
-                      position="0 0 0.6" scale="0.6 0.6 0.6" rotation="0 180 0" shadow="cast: true; receive: true"></a-entity>
+            <a-box position="0 0.35 0" width="0.7" height="0.7" depth="0.5" color="#8B7355" shadow="cast: true; receive: true"></a-box>
+            <a-entity gltf-model="https://raw.githubusercontent.com/o-meiuqer-o/classroom_VR4ET/main/assets/models/chair.glb" 
+                      position="0 0 0.6" scale="0.09 0.09 0.09" rotation="0 0 0" shadow="cast: true; receive: true"></a-entity>
         </a-entity>
 
         <!-- Camera rig with VR controls -->
