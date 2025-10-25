@@ -69,6 +69,60 @@
             font-weight: 600;
         }
 
+        /* VR Overlay Typography Overrides */
+        .overlay-card h1 {
+            font-size: 20px;
+            margin: 0 0 12px 0;
+        }
+
+        .overlay-card h2 {
+            font-size: 18px;
+            margin: 0 0 10px 0;
+        }
+
+        .overlay-card p {
+            font-size: 13px;
+            line-height: 1.4;
+            margin: 0 0 12px 0;
+        }
+
+        .overlay-card .btn {
+            padding: 10px 16px;
+            font-size: 13px;
+        }
+
+        .overlay-card .conversation-display {
+            max-height: 180px;
+            padding: 12px;
+            margin: 12px 0;
+        }
+
+        .overlay-card .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            font-size: 12px;
+        }
+
+        .overlay-card .voice-status {
+            font-size: 11px;
+            margin-top: 6px;
+        }
+
+        .overlay-card .icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .overlay-card ul {
+            font-size: 12px;
+            margin: 8px 0;
+            padding-left: 16px;
+        }
+
+        .overlay-card li {
+            margin-bottom: 4px;
+        }
+
         p {
             font-size: 16px;
             line-height: 1.6;
@@ -332,14 +386,15 @@
 
         .overlay-card {
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            max-width: 600px;
-            width: 100%;
-            max-height: 90vh;
+            border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+            padding: 24px;
+            max-width: 420px;
+            width: 90%;
+            max-height: 75vh;
             overflow-y: auto;
             animation: overlaySlideIn 0.5s ease-out;
+            font-size: 14px;
         }
 
         @keyframes overlaySlideIn {
