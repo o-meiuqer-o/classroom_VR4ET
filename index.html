@@ -338,6 +338,7 @@
                         <li>You respond with your voice</li>
                         <li>Say "yes" or "thank you" to continue</li>
                         <li>We'll collect basic information for safety</li>
+                        <li><strong>Speak within 10 seconds after listening starts</strong></li>
                     </ul>
                     
                     <div style="background: rgba(255, 107, 107, 0.1); padding: 12px; border-radius: 6px; margin-top: 16px;">
@@ -506,12 +507,14 @@
         let recognition = null;
         let synthesis = window.speechSynthesis;
         let voices = [];
+        let recognitionTimeout = null;
+        let autoRestartEnabled = false;
 
         // Load voices
         if (synthesis) {
             synthesis.onvoiceschanged = function() {
                 voices = synthesis.getVoices();
-                console.log('Available voices:', voices.length);
+                console.log('Voices loaded:', voices.length);
             };
         }
 
@@ -533,7 +536,8 @@
             step: 'welcome',
             isListening: false,
             currentQuestion: '',
-            responses: {}
+            responses: {},
+            hasReceivedSpeech: false
         };
 
         // Conversation flow
@@ -654,8 +658,9 @@
             
             // Use a natural voice if available
             if (voices.length > 0) {
-                const preferredVoice = voices.find(v => v.lang.includes('en') && v.name.includes('Female')) || voices[0];
+                const preferredVoice = voices.find(v => v.lang.includes('en') && (v.name.includes('Female') || v.name.includes('Zira'))) || voices[0];
                 utterance.voice = preferredVoice;
+                console.log('Using voice:', preferredVoice.name);
             }
             
             addMessageToConversation('System', text);
@@ -723,18 +728,38 @@
             console.log('👂 Starting to listen for step:', step);
             conversationState.step = step;
             conversationState.isListening = true;
+            conversationState.hasReceivedSpeech = false;
+            autoRestartEnabled = true;
+            
+            // Clear any existing timeout
+            if (recognitionTimeout) {
+                clearTimeout(recognitionTimeout);
+            }
             
             recognition.onstart = function() {
-                console.log('🎤 Recognition started successfully');
+                console.log('✅ Recognition started successfully');
                 const voiceBtn = document.getElementById('main-voice-btn');
                 const statusEl = document.getElementById('main-voice-status');
                 voiceBtn.classList.add('listening');
                 voiceBtn.textContent = '🔴 LISTENING NOW - SPEAK!';
-                statusEl.innerHTML = '<strong style="font-size: 18px; color: #FF6B6B;">🔴 RECORDING</strong><br>Speak clearly now!';
+                statusEl.innerHTML = '<strong style="font-size: 18px; color: #FF6B6B;">🔴 RECORDING</strong><br>Speak clearly now! (10s timeout)';
+                
+                // Set 10-second timeout
+                recognitionTimeout = setTimeout(() => {
+                    if (conversationState.isListening && !conversationState.hasReceivedSpeech) {
+                        console.log('⏱️ 10-second timeout reached, auto-restarting...');
+                        recognition.stop();
+                        // Auto-restart will happen in onend handler
+                    }
+                }, 10000);
             };
 
             recognition.onspeechstart = function() {
                 console.log('🗣️ Speech detected!');
+                conversationState.hasReceivedSpeech = true;
+                if (recognitionTimeout) {
+                    clearTimeout(recognitionTimeout);
+                }
                 const statusEl = document.getElementById('main-voice-status');
                 statusEl.innerHTML = '<strong style="font-size: 18px; color: #51CF66;">✅ HEARING YOU!</strong><br>Keep speaking...';
             };
@@ -763,6 +788,15 @@
                     const confidence = event.results[event.results.length - 1][0].confidence;
                     console.log('✅ Final result:', transcript, '(Confidence:', confidence, ')');
                     
+                    // Clear timeout since we got a result
+                    if (recognitionTimeout) {
+                        clearTimeout(recognitionTimeout);
+                    }
+                    
+                    // Disable auto-restart since we got what we need
+                    autoRestartEnabled = false;
+                    conversationState.isListening = false;
+                    
                     const statusEl = document.getElementById('main-voice-status');
                     statusEl.innerHTML = '<strong style="font-size: 18px; color: #51CF66;">✅ GOT IT!</strong><br>You said: "' + transcript + '"';
                     
@@ -773,6 +807,10 @@
 
             recognition.onnomatch = function() {
                 console.log('⚠️ No speech recognized');
+                if (recognitionTimeout) {
+                    clearTimeout(recognitionTimeout);
+                }
+                
                 const voiceBtn = document.getElementById('main-voice-btn');
                 const statusEl = document.getElementById('main-voice-status');
                 voiceBtn.classList.remove('listening');
@@ -782,38 +820,75 @@
 
             recognition.onend = function() {
                 console.log('🛑 Recognition ended');
-                conversationState.isListening = false;
+                
+                if (recognitionTimeout) {
+                    clearTimeout(recognitionTimeout);
+                }
+                
                 const voiceBtn = document.getElementById('main-voice-btn');
                 const statusEl = document.getElementById('main-voice-status');
                 
-                if (!statusEl.innerHTML.includes('GOT IT')) {
+                // Auto-restart if we haven't received speech yet and it's still enabled
+                if (autoRestartEnabled && conversationState.isListening && !conversationState.hasReceivedSpeech) {
+                    console.log('🔄 Auto-restarting recognition...');
+                    setTimeout(() => {
+                        try {
+                            recognition.start();
+                            console.log('✅ Recognition restarted');
+                        } catch (e) {
+                            console.error('❌ Failed to restart:', e);
+                            voiceBtn.classList.remove('listening');
+                            voiceBtn.textContent = '🎤 Click to Try Again';
+                            statusEl.innerHTML = '<strong style="color: #FFA500;">Click button to try again</strong>';
+                            conversationState.isListening = false;
+                        }
+                    }, 100);
+                } else if (!statusEl.innerHTML.includes('GOT IT')) {
                     voiceBtn.classList.remove('listening');
                     voiceBtn.textContent = '🎤 Click to Try Again';
                     statusEl.innerHTML = '<strong>⏱️ Timed out</strong><br>Click to speak again';
                     statusEl.style.color = '#FFA500';
+                    conversationState.isListening = false;
                 }
             };
 
             recognition.onerror = function(event) {
                 console.error('❌ Recognition error:', event.error);
+                
+                if (recognitionTimeout) {
+                    clearTimeout(recognitionTimeout);
+                }
+                
                 const voiceBtn = document.getElementById('main-voice-btn');
                 const statusEl = document.getElementById('main-voice-status');
-                voiceBtn.classList.remove('listening');
-                voiceBtn.textContent = '❌ Error - Retry';
                 
                 let errorMsg = '';
+                let shouldRestart = false;
+                
                 if (event.error === 'no-speech') {
-                    errorMsg = '⏱️ No speech detected<br>Speak louder!';
+                    errorMsg = '⏱️ No speech detected';
+                    shouldRestart = autoRestartEnabled && conversationState.isListening;
+                    console.log('No speech error. Should restart?', shouldRestart);
                 } else if (event.error === 'audio-capture') {
                     errorMsg = '🎤 Mic problem<br>Check connection';
                 } else if (event.error === 'not-allowed') {
                     errorMsg = '🚫 Permission denied<br>Check settings';
+                    autoRestartEnabled = false;
+                } else if (event.error === 'aborted') {
+                    console.log('Recognition aborted (normal if restarting)');
+                    return; // Don't show error for aborted (happens during restart)
                 } else {
                     errorMsg = '❌ Error: ' + event.error;
                 }
                 
-                statusEl.innerHTML = '<strong style="color: #FF6B6B;">' + errorMsg + '</strong>';
-                conversationState.isListening = false;
+                if (!shouldRestart) {
+                    voiceBtn.classList.remove('listening');
+                    voiceBtn.textContent = '❌ Error - Retry';
+                    statusEl.innerHTML = '<strong style="color: #FF6B6B;">' + errorMsg + '</strong><br>Click to try again';
+                    conversationState.isListening = false;
+                    autoRestartEnabled = false;
+                }
+                // If shouldRestart is true, onend handler will restart
             };
 
             try {
