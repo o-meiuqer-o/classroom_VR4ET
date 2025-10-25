@@ -535,17 +535,73 @@
       return true;
     }
 
-    // Speak Text
-    function speak(text) {
-      return new Promise((resolve) => {
-        speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.9;
-        utterance.pitch = 1;
-        utterance.volume = 1;
-        utterance.onend = resolve;
+    // Speak Text with Bulletproof Callback System
+    function speak(text, callback) {
+      console.log('🔊 Speaking:', text.substring(0, 50) + '...');
+      
+      speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.9;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+      
+      // Calculate estimated duration (roughly 150ms per word + 1 second buffer)
+      const wordCount = text.split(' ').length;
+      const estimatedDuration = (wordCount * 150) + 1000;
+      console.log('⏱️ Estimated speech duration:', estimatedDuration + 'ms');
+      
+      let callbackExecuted = false;
+      const executeCallback = () => {
+        if (!callbackExecuted && callback) {
+          callbackExecuted = true;
+          console.log('🎤 Callback executed - starting listening');
+          callback();
+        }
+      };
+      
+      // Primary callback: utterance.onend
+      utterance.onend = () => {
+        console.log('✅ Speech ended (onend)');
+        executeCallback();
+      };
+      
+      // Error fallback
+      utterance.onerror = (event) => {
+        console.log('⚠️ Speech error:', event.error);
+        executeCallback();
+      };
+      
+      // Fallback 1: Timeout based on estimated duration
+      const fallbackTimeout = setTimeout(() => {
+        console.log('⏰ Fallback timeout triggered');
+        executeCallback();
+      }, estimatedDuration);
+      
+      // Fallback 2: Safety net if onend doesn't fire within 1 second after estimated time
+      const safetyTimeout = setTimeout(() => {
+        console.log('🚨 Safety timeout triggered');
+        executeCallback();
+      }, estimatedDuration + 1000);
+      
+      utterance.onstart = () => {
+        console.log('🎬 Speech started');
+      };
+      
+      try {
         speechSynthesis.speak(utterance);
-      });
+        
+        // Additional safety: If speechSynthesis fails to speak, trigger callback immediately
+        setTimeout(() => {
+          if (speechSynthesis.speaking === false && !callbackExecuted) {
+            console.log('❌ Speech failed to start - triggering callback immediately');
+            executeCallback();
+          }
+        }, 100);
+      } catch (error) {
+        console.error('❌ Speech synthesis error:', error);
+        executeCallback();
+      }
     }
 
     // Add Message to Conversation
@@ -615,30 +671,50 @@
     }
 
     // Proceed to Next Step
-    async function proceedToNextStep() {
+    function proceedToNextStep() {
       const step = conversationFlow[currentStep];
       const nextStep = step.nextStep;
 
       if (nextStep === 'vr') {
         // Complete conversation
         updateButtonState('speaking');
-        await speak('Great! Entering the virtual classroom now.');
-        completeSession();
+        speak('Great! Entering the virtual classroom now.', () => {
+          completeSession();
+        });
       } else {
         currentStep = nextStep;
         const nextStepData = conversationFlow[nextStep];
         
         updateButtonState('speaking');
         addMessage(nextStepData.text, 'system');
-        await speak(nextStepData.text);
         
+        // Speak and auto-start listening after
+        speak(nextStepData.text, () => {
+          liveCaption.textContent = 'Ready to listen...';
+          setTimeout(() => {
+            startListening();
+          }, 500);
+        });
+      }
+    }
+
+    // Start Listening
+    function startListening() {
+      console.log('👂 Starting voice recognition');
+      try {
+        recognition.start();
+        console.log('✅ Recognition started');
+      } catch (error) {
+        console.error('❌ Recognition start error:', error);
+        updateStatus('Error starting recognition. Please try again.');
         updateButtonState('ready');
-        liveCaption.textContent = 'Click the button when ready to respond...';
       }
     }
 
     // Start Voice Conversation
-    async function startVoiceConversation() {
+    function startVoiceConversation() {
+      console.log('🎬 Starting conversation');
+      
       if (!recognition && !initSpeechRecognition()) {
         return;
       }
@@ -648,24 +724,23 @@
         return;
       }
 
-      // If first time, speak welcome message
+      // If first time, speak welcome message and auto-start listening
       if (currentStep === 'welcome') {
         sessionData.startTime = new Date().toISOString();
         updateButtonState('speaking');
         const welcomeText = conversationFlow.welcome.text;
         addMessage(welcomeText, 'system');
-        await speak(welcomeText);
-        liveCaption.textContent = 'Click the button when ready to respond...';
-        updateButtonState('ready');
+        
+        // Speak with callback to auto-start listening
+        speak(welcomeText, () => {
+          liveCaption.textContent = 'Ready to listen...';
+          setTimeout(() => {
+            startListening();
+          }, 500);
+        });
       } else {
-        // Start listening
-        try {
-          recognition.start();
-        } catch (error) {
-          console.error('Recognition start error:', error);
-          updateStatus('Error starting recognition. Please try again.');
-          updateButtonState('ready');
-        }
+        // Start listening immediately
+        startListening();
       }
     }
 
@@ -703,7 +778,7 @@
       manualInputOverlay.classList.remove('active');
       vrOverlay.classList.add('hidden');
       
-      speak('Welcome to your virtual classroom. Take your time to explore.');
+      speak('Welcome to your virtual classroom. Take your time to explore.', null);
     }
 
     // Event Listeners
