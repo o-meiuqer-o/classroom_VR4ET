@@ -462,6 +462,7 @@
     <button id="mobileThumbsUp" class="mobile-btn thumbs-up" style="display: none;">👍 Yes</button>
     <button id="mobileThumbsDown" class="mobile-btn thumbs-down" style="display: none;">👎 Not Really</button>
     <button id="mobileContinue" class="mobile-btn" style="display: none;">Continue to Phase 2</button>
+    <button id="mobilePhase3" class="mobile-btn" style="display: none;">Continue to Phase 3</button>
   </div>
 
   <a-scene>
@@ -527,6 +528,21 @@
               wrap-count="30"></a-text>
     </a-entity>
 
+    <!-- Phase 3 Button (hidden initially) -->
+    <a-entity id="phase3Button" 
+              position="0 1.6 -2"
+              visible="false"
+              class="clickable">
+      <a-plane width="1.8" height="0.5" color="#21808D" opacity="0.95"></a-plane>
+      <a-text value="Continue to Phase 3" 
+              position="0 0 0.01" 
+              align="center"
+              width="2.8"
+              color="#FFFFFF"
+              font="roboto"
+              wrap-count="30"></a-text>
+    </a-entity>
+
     <!-- Text Display (for showing numbers 5-4-3-2-1) -->
     <a-text id="displayText" 
             position="0 2 -1.8" 
@@ -537,7 +553,7 @@
   </a-scene>
 
   <script>
-    console.log('VR Classroom v34 - Fixed Breathing Animation Timing - Initialized');
+    console.log('VR Classroom v35 - Phase 2 Conclusion + Phase 3 Prompt - Initialized');
 
     const sessionData = {
       comfortableLanguages: '',
@@ -571,7 +587,7 @@
       { text: "That's okay. Sometimes it takes a few tries. We can do it again later if needed.", duration: 4000, negative: true }
     ];
 
-    // Phase 2: Breathing exercises - FIXED TIMING
+    // Phase 2: Breathing exercises - WITH FEEDBACK AND PHASE 3 PROMPT
     let breathingStep = 0;
     const breathingSteps = [
       { text: "Phase 2. Now we're going to regulate your nervous system with breathing. It's not just about calming down—it's about giving your body the signal that you're safe.", duration: 5000 },
@@ -590,10 +606,16 @@
       { text: "Last one. In", duration: 0, animDuration: 4000, breathe: 'in', breathText: 'BREATHE IN' },
       { text: "Hold", duration: 0, animDuration: 4000, breathe: 'hold-full', breathText: 'HOLD' },
       { text: "Out", duration: 0, animDuration: 6000, breathe: 'out', breathText: 'BREATHE OUT' },
+      // Phase 2 Reflection
       { text: "Good. Notice your shoulders, your jaw. Are they a little looser? Did your heart rate drop even a bit? You don't have to feel perfect. You just have to feel present.", duration: 6000 },
-      { text: "So. Phase 1 was grounding. That gets you here. Phase 2 was breathing. That tells your body you're safe. Together, these are your reset button.", duration: 6000, conclusion: true },
-      { text: "You can do these anywhere. In the exam hall. Before bed. In a bathroom stall if you need to. No one even has to know.", duration: 5000, conclusion: true },
-      { text: "In the next phase, we'll build on this foundation. But for now, take a moment. You just gave yourself a real tool.", duration: 5000, conclusion: true }
+      // Phase 2 Feedback Question
+      { text: "How do you feel after that breathing exercise? Ready to continue, or do you need a moment? You can say yes or no, or tap a button.", duration: 4000, showFeedback: true },
+      // Phase 2 Conclusion (after positive feedback)
+      { text: "Great. So. Phase 1 was grounding. That gets you here. Phase 2 was breathing. That tells your body you're safe. Together, these are your reset button.", duration: 6000, conclusion: true, positive: true },
+      { text: "You can do these anywhere. In the exam hall. Before bed. In a bathroom stall if you need to. No one even has to know.", duration: 5000, conclusion: true, positive: true },
+      // Phase 2 Alternative conclusion (after negative feedback)
+      { text: "That's okay. These techniques take practice. The more you use them, the more effective they become.", duration: 5000, conclusion: true, negative: true },
+      { text: "Even if they don't feel perfect right now, your nervous system is still learning. That's progress.", duration: 4000, conclusion: true, negative: true }
     ];
 
     if (synthesis) {
@@ -1089,6 +1111,15 @@
       document.getElementById('mobileContinue').style.display = 'none';
     }
 
+    function showMobilePhase3Button() {
+      document.getElementById('mobileControls').classList.add('active');
+      document.getElementById('mobilePhase3').style.display = 'block';
+    }
+
+    function hideMobilePhase3Button() {
+      document.getElementById('mobilePhase3').style.display = 'none';
+    }
+
     // Grounding Exercise Functions
     function startGuidedSession() {
       console.log('Starting guided session - Phase 1: Grounding');
@@ -1191,7 +1222,7 @@
       const circle = document.getElementById('breathingCircle');
       const breathText = document.getElementById('breathingText');
       
-      // Update breathing visualization - FIXED
+      // Update breathing visualization
       if (step.breathe) {
         circle.classList.remove('inhale', 'exhale', 'hold-full', 'hold-empty');
         circle.classList.add('active', step.breathe);
@@ -1200,6 +1231,21 @@
       } else {
         circle.classList.remove('active', 'inhale', 'exhale', 'hold-full', 'hold-empty');
         breathText.classList.remove('active');
+      }
+
+      // Handle feedback steps in Phase 2
+      if (step.showFeedback) {
+        speak(step.text, () => {
+          document.getElementById('feedbackButtons').setAttribute('visible', 'true');
+          showMobileFeedbackButtons();
+          
+          console.log('Setting up voice listener for Phase 2 feedback');
+          startVoiceResponseListener((response) => {
+            console.log('Phase 2 feedback callback received:', response);
+            handlePhase2Feedback(response);
+          });
+        });
+        return;
       }
 
       // Handle conclusion steps
@@ -1233,6 +1279,58 @@
       }
     }
 
+    function handlePhase2Feedback(isPositive) {
+      console.log('handlePhase2Feedback called with:', isPositive);
+      stopVoiceResponseListener();
+      document.getElementById('feedbackButtons').setAttribute('visible', 'false');
+      hideMobileFeedbackButtons();
+      document.getElementById('breathingCircle').classList.remove('active');
+      document.getElementById('breathingText').classList.remove('active');
+      
+      // Move to conclusion steps based on feedback
+      if (isPositive) {
+        breathingStep = 15; // Start with positive conclusion
+      } else {
+        breathingStep = 17; // Start with negative conclusion
+      }
+      
+      nextBreathingStep();
+      
+      // After conclusion, ask about Phase 3
+      setTimeout(() => {
+        askToContinuePhase3();
+      }, 10000); // Wait for conclusion steps to finish
+    }
+
+    function askToContinuePhase3() {
+      speak('Would you like to continue to Phase 3? You can say yes, or tap the button.', () => {
+        document.getElementById('phase3Button').setAttribute('visible', 'true');
+        showMobilePhase3Button();
+        
+        console.log('Setting up voice listener for phase 3 continuation');
+        startVoiceResponseListener((response) => {
+          console.log('Phase 3 continuation callback received:', response);
+          if (response) {
+            startPhase3();
+          } else {
+            stopVoiceResponseListener();
+            document.getElementById('phase3Button').setAttribute('visible', 'false');
+            hideMobilePhase3Button();
+            speak('That\'s perfectly fine. You\'ve accomplished a lot today. These two phases alone are powerful tools for managing stress and anxiety.');
+          }
+        });
+      });
+    }
+
+    function startPhase3() {
+      console.log('Starting Phase 3');
+      stopVoiceResponseListener();
+      document.getElementById('phase3Button').setAttribute('visible', 'false');
+      hideMobilePhase3Button();
+      
+      speak('Phase 3 will be implemented in the next update. For now, you can explore the virtual classroom and practice what you\'ve learned.');
+    }
+
     // Event Listeners
     document.getElementById('voiceBtn').addEventListener('click', startConversation);
     document.getElementById('skipBtn').addEventListener('click', showManualInput);
@@ -1245,29 +1343,37 @@
 
     document.getElementById('mobileThumbsUp').addEventListener('click', () => {
       console.log('Thumbs up button clicked');
-      if (breathingStep === 0) {
+      if (groundingStep > 0 && breathingStep === 0) {
         handleFeedback(true);
+      } else if (breathingStep > 0) {
+        handlePhase2Feedback(true);
       }
     });
     document.getElementById('mobileThumbsUp').addEventListener('touchend', (e) => {
       e.preventDefault();
       console.log('Thumbs up touch');
-      if (breathingStep === 0) {
+      if (groundingStep > 0 && breathingStep === 0) {
         handleFeedback(true);
+      } else if (breathingStep > 0) {
+        handlePhase2Feedback(true);
       }
     });
 
     document.getElementById('mobileThumbsDown').addEventListener('click', () => {
       console.log('Thumbs down button clicked');
-      if (breathingStep === 0) {
+      if (groundingStep > 0 && breathingStep === 0) {
         handleFeedback(false);
+      } else if (breathingStep > 0) {
+        handlePhase2Feedback(false);
       }
     });
     document.getElementById('mobileThumbsDown').addEventListener('touchend', (e) => {
       e.preventDefault();
       console.log('Thumbs down touch');
-      if (breathingStep === 0) {
+      if (groundingStep > 0 && breathingStep === 0) {
         handleFeedback(false);
+      } else if (breathingStep > 0) {
+        handlePhase2Feedback(false);
       }
     });
 
@@ -1281,22 +1387,37 @@
       startPhase2();
     });
 
+    document.getElementById('mobilePhase3').addEventListener('click', () => {
+      console.log('Phase 3 button clicked');
+      startPhase3();
+    });
+    document.getElementById('mobilePhase3').addEventListener('touchend', (e) => {
+      e.preventDefault();
+      console.log('Phase 3 touch');
+      startPhase3();
+    });
+
     document.addEventListener('DOMContentLoaded', () => {
       const sessionBtn = document.getElementById('sessionButton');
       sessionBtn.addEventListener('click', startGuidedSession);
 
       document.getElementById('thumbsUpBtn').addEventListener('click', () => {
-        if (breathingStep === 0) {
+        if (groundingStep > 0 && breathingStep === 0) {
           handleFeedback(true);
+        } else if (breathingStep > 0) {
+          handlePhase2Feedback(true);
         }
       });
       document.getElementById('thumbsDownBtn').addEventListener('click', () => {
-        if (breathingStep === 0) {
+        if (groundingStep > 0 && breathingStep === 0) {
           handleFeedback(false);
+        } else if (breathingStep > 0) {
+          handlePhase2Feedback(false);
         }
       });
       
       document.getElementById('continueButton').addEventListener('click', () => startPhase2());
+      document.getElementById('phase3Button').addEventListener('click', () => startPhase3());
     });
   </script>
 </body>
