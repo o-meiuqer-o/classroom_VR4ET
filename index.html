@@ -1,888 +1,721 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>VR Classroom - Exposure Therapy</title>
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <style>
-        :root {
-            --color-text: rgba(19, 52, 59, 1);
-            --color-background: rgba(252, 252, 249, 1);
-            --color-primary: rgba(33, 128, 141, 1);
-            --color-primary-hover: rgba(29, 116, 128, 1);
-            --color-secondary: rgba(94, 82, 64, 0.12);
-            --color-border: rgba(94, 82, 64, 0.2);
-            --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VR Classroom Exposure Therapy</title>
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            margin: 0;
-            font-family: var(--font-family-base);
-            background: linear-gradient(135deg, #E8F4F8 0%, #F0F8FA 100%);
-            color: var(--color-text);
-            min-height: 100vh;
-        }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      overflow: hidden;
+      background: linear-gradient(135deg, #E8F4F8 0%, #F0F8FA 100%);
+    }
 
-        /* Screen Container */
-        .screen {
-            display: none;
-            min-height: 100vh;
-            padding: 40px 20px;
-            animation: fadeIn 0.5s ease-in-out;
-        }
+    /* VR Overlay */
+    #vrOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      backdrop-filter: blur(8px);
+      background: rgba(232, 244, 248, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
 
-        .screen.active {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
+    #vrOverlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    .overlay-card {
+      max-width: 420px;
+      width: 90%;
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 40px rgba(19, 52, 59, 0.15);
+      animation: slideUp 0.4s ease;
+    }
 
-        /* Card Container */
-        .card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            max-width: 600px;
-            width: 100%;
-        }
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-        /* Typography */
-        h1 {
-            font-size: 32px;
-            margin: 0 0 16px 0;
-            color: var(--color-text);
-            font-weight: 600;
-        }
+    .overlay-card h1 {
+      font-size: 20px;
+      color: rgba(19, 52, 59, 1);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
 
-        h2 {
-            font-size: 24px;
-            margin: 0 0 12px 0;
-            color: var(--color-text);
-            font-weight: 600;
-        }
+    .overlay-card p {
+      font-size: 13px;
+      color: rgba(19, 52, 59, 0.7);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
 
-        /* VR Overlay Typography Overrides */
-        .overlay-card h1 {
-            font-size: 20px;
-            margin: 0 0 12px 0;
-        }
+    /* Conversation Display */
+    #conversationDisplay {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: rgba(232, 244, 248, 0.5);
+      border-radius: 8px;
+    }
 
-        .overlay-card h2 {
-            font-size: 18px;
-            margin: 0 0 10px 0;
-        }
+    .message {
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
 
-        .overlay-card p {
-            font-size: 13px;
-            line-height: 1.4;
-            margin: 0 0 12px 0;
-        }
+    .message.system {
+      background: rgba(33, 128, 141, 0.1);
+      color: rgba(19, 52, 59, 1);
+      border-left: 3px solid rgba(33, 128, 141, 1);
+    }
 
-        .overlay-card .btn {
-            padding: 10px 16px;
-            font-size: 13px;
-        }
+    .message.user {
+      background: rgba(33, 128, 141, 0.2);
+      color: rgba(19, 52, 59, 1);
+      text-align: right;
+      border-right: 3px solid rgba(33, 128, 141, 1);
+    }
 
-        .overlay-card .conversation-display {
-            max-height: 180px;
-            padding: 12px;
-            margin: 12px 0;
-        }
+    /* Live Caption */
+    #liveCaption {
+      min-height: 40px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 12px;
+      color: rgba(19, 52, 59, 0.6);
+      font-style: italic;
+      text-align: center;
+    }
 
-        .overlay-card .message {
-            margin-bottom: 10px;
-            padding: 8px;
-            font-size: 12px;
-        }
+    /* Voice Button */
+    #voiceButton {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      background: #FF6B6B;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
 
-        .overlay-card .voice-status {
-            font-size: 11px;
-            margin-top: 6px;
-        }
+    #voiceButton:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+    }
 
-        .overlay-card .icon {
-            font-size: 32px;
-            margin-bottom: 12px;
-        }
+    #voiceButton.listening {
+      background: #51CF66;
+      animation: pulse 1.5s infinite;
+    }
 
-        .overlay-card ul {
-            font-size: 12px;
-            margin: 8px 0;
-            padding-left: 16px;
-        }
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.7;
+      }
+    }
 
-        .overlay-card li {
-            margin-bottom: 4px;
-        }
+    #voiceButton.processing {
+      background: #FFA94D;
+      cursor: not-allowed;
+    }
 
-        p {
-            font-size: 16px;
-            line-height: 1.6;
-            color: rgba(19, 52, 59, 0.8);
-            margin: 0 0 20px 0;
-        }
+    #voiceButton:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
 
-        /* Progress Bar */
-        .progress-container {
-            margin-bottom: 30px;
-        }
+    .status-icon {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: white;
+      display: inline-block;
+      animation: blink 1s infinite;
+    }
 
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: var(--color-secondary);
-            border-radius: 3px;
-            overflow: hidden;
-        }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
 
-        .progress-fill {
-            height: 100%;
-            background: var(--color-primary);
-            transition: width 0.3s ease;
-        }
+    #skipButton {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid rgba(33, 128, 141, 1);
+      border-radius: 8px;
+      background: transparent;
+      color: rgba(33, 128, 141, 1);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
 
-        .progress-text {
-            font-size: 14px;
-            color: rgba(19, 52, 59, 0.6);
-            margin-top: 8px;
-            text-align: center;
-        }
+    #skipButton:hover {
+      background: rgba(33, 128, 141, 0.1);
+    }
 
-        /* Form Elements */
-        .form-group {
-            margin-bottom: 24px;
-        }
+    /* Manual Input Overlay */
+    #manualInputOverlay {
+      display: none;
+    }
 
-        label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 8px;
-            color: var(--color-text);
-        }
+    #manualInputOverlay.active {
+      display: flex;
+    }
 
-        input, select, textarea {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid var(--color-border);
-            border-radius: 8px;
-            font-size: 16px;
-            font-family: var(--font-family-base);
-            transition: border-color 0.2s;
-            box-sizing: border-box;
-        }
+    .form-group {
+      margin-bottom: 16px;
+    }
 
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--color-primary);
-        }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(19, 52, 59, 1);
+      margin-bottom: 6px;
+    }
 
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid rgba(19, 52, 59, 0.2);
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+      transition: border-color 0.3s ease;
+    }
 
-        /* Buttons */
-        .btn {
-            padding: 14px 28px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: var(--font-family-base);
-        }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: rgba(33, 128, 141, 1);
+    }
 
-        .btn-primary {
-            background: var(--color-primary);
-            color: white;
-        }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
 
-        .btn-primary:hover {
-            background: var(--color-primary-hover);
-        }
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
 
-        .btn-secondary {
-            background: var(--color-secondary);
-            color: var(--color-text);
-        }
+    .button-group button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
 
-        .btn-secondary:hover {
-            background: rgba(94, 82, 64, 0.2);
-        }
+    .button-group button.primary {
+      background: rgba(33, 128, 141, 1);
+      color: white;
+    }
 
-        .btn-voice {
-            background: #FF6B6B;
-            color: white;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
+    .button-group button.primary:hover {
+      background: rgba(33, 128, 141, 0.9);
+    }
 
-        .btn-voice:hover {
-            background: #EE5A5A;
-        }
+    .button-group button.secondary {
+      background: rgba(19, 52, 59, 0.1);
+      color: rgba(19, 52, 59, 1);
+    }
 
-        .btn-voice.listening {
-            background: #51CF66;
-            animation: pulse 1.5s infinite;
-        }
+    .button-group button.secondary:hover {
+      background: rgba(19, 52, 59, 0.15);
+    }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
+    /* Permission Instructions */
+    #permissionInstructions {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      background: rgba(255, 193, 7, 0.1);
+      border-left: 3px solid #FFC107;
+      border-radius: 4px;
+      font-size: 11px;
+      color: rgba(19, 52, 59, 0.8);
+      line-height: 1.5;
+    }
 
-        .btn-group {
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
-        }
+    #permissionInstructions.show {
+      display: block;
+    }
 
-        .btn-full {
-            width: 100%;
-        }
-
-        /* Voice Conversation */
-        .voice-conversation {
-            text-align: center;
-        }
-
-        .conversation-display {
-            background: var(--color-secondary);
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-            max-height: 300px;
-            overflow-y: auto;
-            text-align: left;
-        }
-
-        .message {
-            margin-bottom: 16px;
-            padding: 12px;
-            border-radius: 8px;
-            animation: messageSlideIn 0.3s ease-out;
-        }
-
-        .system-message {
-            background: rgba(33, 128, 141, 0.1);
-            border-left: 4px solid var(--color-primary);
-        }
-
-        .user-message {
-            background: rgba(94, 82, 64, 0.1);
-            border-left: 4px solid rgba(94, 82, 64, 0.8);
-        }
-
-        @keyframes messageSlideIn {
-            from { opacity: 0; transform: translateX(-10px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .voice-controls {
-            margin: 20px 0;
-        }
-
-        .conversation-info {
-            background: rgba(33, 128, 141, 0.05);
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-
-        /* Voice Input Section */
-        .voice-section {
-            background: var(--color-secondary);
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-            text-align: center;
-        }
-
-        .voice-status {
-            font-size: 14px;
-            color: rgba(19, 52, 59, 0.7);
-            margin-top: 8px;
-        }
-
-        /* Session Summary */
-        .summary-item {
-            padding: 12px;
-            background: var(--color-secondary);
-            border-radius: 8px;
-            margin-bottom: 12px;
-        }
-
-        .summary-item strong {
-            display: block;
-            margin-bottom: 4px;
-            font-size: 14px;
-        }
-
-        .summary-item span {
-            font-size: 16px;
-            color: var(--color-text);
-        }
-
-        /* VR Scene (hidden initially) */
-        #vr-container {
-            display: none;
-        }
-
-        #vr-container.active {
-            display: block;
-        }
-
-        /* Icons */
-        .icon {
-            font-size: 48px;
-            margin-bottom: 20px;
-        }
-
-        /* Alert */
-        .alert {
-            background: rgba(33, 128, 141, 0.1);
-            border-left: 4px solid var(--color-primary);
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .alert p {
-            margin: 0;
-            font-size: 14px;
-        }
-
-        /* VR Overlay Styles */
-        .vr-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(8px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .vr-overlay.active {
-            display: flex;
-        }
-
-        .overlay-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
-            padding: 24px;
-            max-width: 420px;
-            width: 90%;
-            max-height: 75vh;
-            overflow-y: auto;
-            animation: overlaySlideIn 0.5s ease-out;
-            font-size: 14px;
-        }
-
-        @keyframes overlaySlideIn {
-            from { 
-                opacity: 0; 
-                transform: scale(0.9) translateY(20px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: scale(1) translateY(0); 
-            }
-        }
-
-        /* Manual input overlay */
-        .manual-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(8px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1001;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .manual-overlay.active {
-            display: flex;
-        }
-    </style>
+    /* Status Message */
+    #statusMessage {
+      text-align: center;
+      padding: 8px;
+      font-size: 11px;
+      color: rgba(19, 52, 59, 0.6);
+      font-weight: 500;
+    }
+  </style>
 </head>
 <body>
-    <!-- Welcome Screen (hidden - now using VR overlay) -->
-    <div id="screen-welcome" class="screen">
-        <div class="card">
-            <div class="icon">🎓</div>
-            <h1>Virtual Lecter's Destressing Experience</h1>
-            
-            <div class="voice-conversation">
-                <div class="conversation-display" id="conversation-display">
-                    <div class="message system-message">
-                        <strong>System:</strong> Welcome to Virtual Lecter's Destressing Experience
-                    </div>
-                </div>
-                
-                <div class="voice-controls">
-                    <button class="btn btn-voice btn-full" id="main-voice-btn" onclick="startConversation()">
-                        🎤 Click to Start Voice Conversation
-                    </button>
-                    <div class="voice-status" id="main-voice-status">Ready to begin</div>
-                </div>
-                
-                <div class="conversation-info">
-                    <p><strong>How this works:</strong></p>
-                    <ul style="text-align: left; line-height: 1.6;">
-                        <li>The system will speak to you</li>
-                        <li>You respond with your voice</li>
-                        <li>Say "yes" or "thank you" to continue</li>
-                        <li>We'll collect basic information for safety</li>
-                        <li><strong>Speak within 10 seconds after listening starts</strong></li>
-                    </ul>
-                    
-                    <div style="background: rgba(255, 107, 107, 0.1); padding: 12px; border-radius: 6px; margin-top: 16px;">
-                        <p style="margin: 0; font-size: 14px;"><strong>⚠️ Microphone Permission Required:</strong></p>
-                        <p style="margin: 8px 0 0 0; font-size: 13px;">
-                            When you click the button, your browser will ask for microphone access. 
-                            Look for a popup near the address bar and click "Allow".
-                        </p>
-                    </div>
-                </div>
-                
-                <button class="btn btn-secondary btn-full" onclick="skipToManualMode()" style="margin-top: 20px;">
-                    Skip Voice Mode (Use Manual Input)
-                </button>
-            </div>
-        </div>
+  <!-- VR Scene -->
+  <a-scene>
+    <!-- Sky -->
+    <a-sky color="#E8F4F8"></a-sky>
+
+    <!-- Lighting -->
+    <a-entity light="type: ambient; color: #BBB; intensity: 0.8"></a-entity>
+    <a-entity light="type: directional; intensity: 0.6" position="5 10 7"></a-entity>
+    <a-entity light="type: point; intensity: 0.4" position="0 3.5 0"></a-entity>
+
+    <!-- Camera Rig -->
+    <a-entity id="cameraRig" position="-0.5 0.6 1.8">
+      <a-camera wasd-controls="acceleration: 20" look-controls="pointerLockEnabled: true">
+        <a-cursor></a-cursor>
+      </a-camera>
+    </a-entity>
+
+    <!-- Classroom Model -->
+    <a-entity 
+      id="classroom"
+      gltf-model="https://raw.githubusercontent.com/o-meiuqer-o/classroom_VR4ET/main/assets/models/classroom.glb"
+      position="0 0 0"
+      rotation="0 180 0"
+      scale="1.15 1.15 1.15">
+    </a-entity>
+  </a-scene>
+
+  <!-- Voice Mode Overlay -->
+  <div id="vrOverlay">
+    <div class="overlay-card">
+      <h1>Virtual Lecter's Experience</h1>
+      <p>Welcome to your safe virtual classroom for destressing practice.</p>
+
+      <div id="conversationDisplay"></div>
+      <div id="liveCaption">Your responses will appear here...</div>
+
+      <button id="voiceButton">
+        <span class="status-icon"></span>
+        <span id="voiceButtonText">Start Voice Conversation</span>
+      </button>
+
+      <button id="skipButton">Use Manual Input Instead</button>
+
+      <div id="permissionInstructions">
+        <strong>Microphone Access Required:</strong><br>
+        • Chrome/Edge: Click the camera icon in the address bar<br>
+        • Firefox: Click the microphone icon in the address bar<br>
+        • Safari: Go to Settings → Websites → Microphone<br>
+        Please allow microphone access and try again.
+      </div>
+
+      <div id="statusMessage"></div>
     </div>
+  </div>
 
-    <!-- Manual Input Overlay for Information Collection -->
-    <div id="manual-overlay" class="manual-overlay">
-        <div class="overlay-card">
-            <h2>Basic Information</h2>
-            <p>Let's collect some basic information to personalize your experience.</p>
+  <!-- Manual Input Overlay -->
+  <div id="manualInputOverlay" class="vrOverlay">
+    <div class="overlay-card">
+      <h1>Session Information</h1>
+      <p>Please provide some information to personalize your experience.</p>
 
-            <div class="form-group">
-                <label for="manual-name">Your Name (or Participant ID)</label>
-                <input type="text" id="manual-name" placeholder="Enter your name" />
-            </div>
-
-            <div class="form-group">
-                <label for="manual-age">Age</label>
-                <input type="number" id="manual-age" placeholder="Enter your age" min="5" max="100" />
-            </div>
-
-            <div class="form-group">
-                <label for="manual-anxiety">Current Anxiety Level (1-10)</label>
-                <input type="range" id="manual-anxiety" min="1" max="10" value="5" oninput="updateManualAnxietyDisplay()" />
-                <div style="text-align: center; font-size: 18px; margin-top: 8px;">
-                    <strong id="manual-anxiety-display">5</strong> / 10
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="manual-goals">Session Goals</label>
-                <textarea id="manual-goals" placeholder="What would you like to work on today?"></textarea>
-            </div>
-
-            <div class="btn-group">
-                <button class="btn btn-secondary" onclick="closeManualOverlay()">Back</button>
-                <button class="btn btn-primary" onclick="submitManualData()" style="flex: 1;">Start VR Experience</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Information Collection Screen (deprecated) -->
-    <div id="screen-info" class="screen" style="display: none;">
-        <div class="card">
-            <div class="progress-container">
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: 25%"></div>
-                </div>
-                <div class="progress-text">Step 1 of 4</div>
-            </div>
-            
-            <h2>Basic Information</h2>
-            <p>Let's collect some basic information to personalize your experience.</p>
-
-            <div class="form-group">
-                <label for="participant-name">Your Name (or Participant ID)</label>
-                <div style="display: flex; gap: 8px;">
-                    <input type="text" id="participant-name" placeholder="Enter your name" />
-                    <button class="btn btn-voice" onclick="startVoiceInput('participant-name')">
-                        🎤
-                    </button>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="participant-age">Age</label>
-                <input type="number" id="participant-age" placeholder="Enter your age" min="5" max="100" />
-            </div>
-
-            <div class="form-group">
-                <label for="anxiety-level">Current Anxiety Level (1-10)</label>
-                <input type="range" id="anxiety-level" min="1" max="10" value="5" oninput="updateAnxietyDisplay()" />
-                <div style="text-align: center; font-size: 18px; margin-top: 8px;">
-                    <strong id="anxiety-display">5</strong> / 10
-                </div>
-            </div>
-
-            <div class="btn-group">
-                <button class="btn btn-secondary" onclick="goToScreen('welcome')">Back</button>
-                <button class="btn btn-primary" onclick="goToScreen('goals')" style="flex: 1;">Next</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Session Goals Screen -->
-    <div id="screen-goals" class="screen">
-        <div class="card">
-            <div class="progress-container">
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: 50%"></div>
-                </div>
-                <div class="progress-text">Step 2 of 4</div>
-            </div>
-            
-            <h2>Session Goals</h2>
-            <p>What would you like to work on today? You can type or use voice input.</p>
-
-            <div class="voice-section">
-                <button class="btn btn-voice" id="goals-voice-btn" onclick="startVoiceInput('session-goals')">
-                    🎤 Click to Speak
-                </button>
-                <div class="voice-status" id="goals-voice-status">Voice input ready</div>
-            </div>
-
-            <div class="form-group">
-                <label for="session-goals">Your Goals (e.g., "reduce anxiety when presenting", "feel comfortable in classroom")</label>
-                <textarea id="session-goals" placeholder="Describe what you want to achieve..."></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="exposure-level">Preferred Exposure Level</label>
-                <select id="exposure-level">
-                    <option value="gentle">Gentle - Empty classroom, calm environment</option>
-                    <option value="moderate">Moderate - Few students, minimal activity</option>
-                    <option value="challenging">Challenging - Full classroom, active environment</option>
-                </select>
-            </div>
-
-            <div class="btn-group">
-                <button class="btn btn-secondary" onclick="goToScreen('info')">Back</button>
-                <button class="btn btn-primary" onclick="goToScreen('summary')" style="flex: 1;">Next</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Summary/Ready Screen -->
-    <div id="screen-summary" class="screen">
-        <div class="card">
-            <div class="progress-container">
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: 75%"></div>
-                </div>
-                <div class="progress-text">Step 3 of 4</div>
-            </div>
-            
-            <h2>Session Summary</h2>
-            <p>Please review your information before entering the VR environment.</p>
-
-            <div id="summary-content">
-                <!-- Populated dynamically -->
-            </div>
-
-            <div class="alert">
-                <p><strong>Ready to begin?</strong> You'll enter a virtual classroom. You can exit at any time by pressing ESC or removing your headset.</p>
-            </div>
-
-            <div class="btn-group">
-                <button class="btn btn-secondary" onclick="goToScreen('goals')">Back</button>
-                <button class="btn btn-primary" onclick="startVRSession()" style="flex: 1;">Enter VR Classroom</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- VR Container -->
-    <div id="vr-container" class="active">
-        <!-- Overlay for conversation - appears on top of VR scene -->
-        <div id="vr-overlay" class="vr-overlay active">
-            <div class="overlay-card">
-                <div class="icon">🎓</div>
-                <h1>Virtual Lecter's Destressing Experience</h1>
-
-                <div class="voice-conversation">
-                    <div class="conversation-display" id="vr-conversation-display">
-                        <div class="message system-message">
-                            <strong>System:</strong> Welcome to Virtual Lecter's Destressing Experience
-                        </div>
-                    </div>
-
-                    <div class="voice-controls">
-                        <button class="btn btn-voice btn-full" id="vr-voice-btn" onclick="startVRConversation()">
-                            🎤 Click to Start Voice Conversation
-                        </button>
-                        <div class="voice-status" id="vr-voice-status">Ready to begin</div>
-                    </div>
-
-                    <div class="conversation-info">
-                        <p><strong>How this works:</strong></p>
-                        <ul style="text-align: left; line-height: 1.6;">
-                            <li>The system will speak to you</li>
-                            <li>You respond with your voice</li>
-                            <li>Say "yes" or "thank you" to continue</li>
-                            <li>We'll collect basic information for safety</li>
-                            <li><strong>Speak within 30 seconds after listening starts</strong></li>
-                        </ul>
-                    </div>
-
-                    <button class="btn btn-secondary btn-full" onclick="skipToManualOverlay()" style="margin-top: 20px;">
-                        Skip Voice Mode (Use Manual Input)
-                    </button>
-                </div>
-            </div>
+      <form id="manualForm">
+        <div class="form-group">
+          <label>Comfortable Languages</label>
+          <input type="text" id="manualLanguages" placeholder="e.g., English, Spanish" required>
         </div>
 
-        <a-scene>
-            <a-sky color="#E8F4F8"></a-sky>
-            <a-entity light="type: ambient; color: #BBB; intensity: 0.8"></a-entity>
-            <a-entity light="type: directional; color: #FFF; intensity: 0.6" position="5 10 7"></a-entity>
-            <a-entity light="type: point; color: #FFF; intensity: 0.4" position="0 3.5 0"></a-entity>
+        <div class="form-group">
+          <label>Preferred Color for Environment</label>
+          <input type="text" id="manualColor" placeholder="e.g., blue, green, warm" required>
+        </div>
 
-            <a-entity id="classroom-model"
-                      gltf-model="https://raw.githubusercontent.com/o-meiuqer-o/classroom_VR4ET/main/assets/models/classroom.glb"
-                      position="0 0 0"
-                      rotation="0 180 0"
-                      scale="1.15 1.15 1.15"
-                      shadow="cast: true; receive: true"></a-entity>
+        <div class="form-group">
+          <label>Emergency Contact (Name &amp; Phone)</label>
+          <input type="text" id="manualContact" placeholder="e.g., John Smith 555-1234" required>
+        </div>
 
-            <a-entity id="rig" position="-0.5 0.6 1.8">
-                <a-camera id="camera" look-controls wasd-controls>
-                    <a-cursor color="#21808D"></a-cursor>
-                </a-camera>
-            </a-entity>
-        </a-scene>
+        <div class="form-group">
+          <label>Session Goals</label>
+          <textarea id="manualGoals" placeholder="What would you like to work on today?" required></textarea>
+        </div>
+
+        <div class="button-group">
+          <button type="button" class="secondary" id="backButton">Back</button>
+          <button type="submit" class="primary">Begin VR Session</button>
+        </div>
+      </form>
     </div>
+  </div>
 
-<script>
-    // Session data storage
+  <script>
+    // Session Data Storage
     const sessionData = {
-        comfortableLanguages: '',
-        preferredColor: '',
-        emergencyContact: '',
-        goals: '',
-        exposureLevel: 'gentle',
-        startTime: new Date()
+      comfortableLanguages: '',
+      preferredColor: '',
+      emergencyContact: '',
+      goals: '',
+      exposureLevel: 'gentle',
+      startTime: null,
+      conversationHistory: []
     };
 
-    // Web Speech API setup
-    let recognition = null;
-    let synthesis = window.speechSynthesis;
-    let voices = [];
-    let recognitionTimeout = null;
-    let autoRestartEnabled = false;
-
-    // Load voices
-    if (synthesis) {
-        synthesis.onvoiceschanged = function() {
-            voices = synthesis.getVoices();
-            console.log('Voices loaded:', voices.length);
-        };
-    }
-
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = true;
-        recognition.maxAlternatives = 3;
-        recognition.lang = 'en-US';
-
-        console.log('✅ Speech Recognition available');
-    } else {
-        console.log('❌ Speech Recognition NOT available');
-    }
-
-    // Conversation state
-    let conversationState = {
-        step: 'welcome',
-        isListening: false,
-        currentQuestion: '',
-        responses: {},
-        hasReceivedSpeech: false
-    };
-
-    // Updated conversation flow with new questions
+    // Conversation Flow
     const conversationFlow = {
-        welcome: {
-            text: "Welcome to Virtual Lecter's Destressing Experience. We'll practice safely in a virtual classroom. Before we begin, I will ask a few questions to personalize your experience. Are you ready to start?",
-            nextStep: 'language',
-            expectedResponses: ['yes', 'okay', 'sure', 'ready', 'thank you']
-        },
-        language: {
-            text: "Which languages are you comfortable with? Feel free to mention one or more.",
-            nextStep: 'color',
-            saveAs: 'comfortableLanguages'
-        },
-        color: {
-            text: "What is your preferred color for the virtual environment?",
-            nextStep: 'emergencyContact',
-            saveAs: 'preferredColor'
-        },
-        emergencyContact: {
-            text: "For your safety, please provide the name and phone number of an emergency contact person.",
-            nextStep: 'goals',
-            saveAs: 'emergencyContact'
-        },
-        goals: {
-            text: "What would you like to work on today? For example, 'reduce anxiety when presenting' or 'feel comfortable in class'.",
-            nextStep: 'complete',
-            saveAs: 'goals'
-        },
-        complete: {
-            text: "Thank you for sharing. We're now ready to begin your virtual classroom experience. Are you ready to enter the virtual environment?",
-            nextStep: 'vr',
-            expectedResponses: ['yes', 'ready', 'let\'s go', 'thank you']
-        }
+      welcome: {
+        text: "Welcome to Virtual Lecter's Destressing Experience. We'll practice safely in a virtual classroom. Before we begin, I will ask a few questions to personalize your experience. Are you ready to start?",
+        nextStep: 'language',
+        saveAs: null
+      },
+      language: {
+        text: "Which languages are you comfortable with? Feel free to mention one or more.",
+        nextStep: 'color',
+        saveAs: 'comfortableLanguages'
+      },
+      color: {
+        text: "What is your preferred color for the virtual environment?",
+        nextStep: 'emergencyContact',
+        saveAs: 'preferredColor'
+      },
+      emergencyContact: {
+        text: "For your safety, please provide the name and phone number of an emergency contact person.",
+        nextStep: 'goals',
+        saveAs: 'emergencyContact'
+      },
+      goals: {
+        text: "What would you like to work on today? For example, 'reduce anxiety when presenting' or 'feel comfortable in class'.",
+        nextStep: 'complete',
+        saveAs: 'goals'
+      },
+      complete: {
+        text: "Thank you for sharing. We're now ready to begin your virtual classroom experience. Are you ready to enter the virtual environment?",
+        nextStep: 'vr',
+        saveAs: null
+      }
     };
 
-    // Mic permission checking and request, speech synthesis, conversation controls, voice recognition event handlers
-    // ... existing code unchanged from previous version ...
+    // DOM Elements
+    const vrOverlay = document.getElementById('vrOverlay');
+    const manualInputOverlay = document.getElementById('manualInputOverlay');
+    const conversationDisplay = document.getElementById('conversationDisplay');
+    const liveCaption = document.getElementById('liveCaption');
+    const voiceButton = document.getElementById('voiceButton');
+    const voiceButtonText = document.getElementById('voiceButtonText');
+    const skipButton = document.getElementById('skipButton');
+    const permissionInstructions = document.getElementById('permissionInstructions');
+    const statusMessage = document.getElementById('statusMessage');
+    const manualForm = document.getElementById('manualForm');
+    const backButton = document.getElementById('backButton');
 
-    // Here the functions `startConversation`, `startListening`, `processVoiceResponse`, `continueConversation`, `addMessageToConversation`, and `completeVoiceConversation` remain the same but will now use updated conversationFlow and saveAs fields
+    // Voice Recognition
+    let recognition = null;
+    let currentStep = 'welcome';
+    let isListening = false;
+    let timeoutId = null;
+    let speechSynthesis = window.speechSynthesis;
 
-    async function startConversation() {
-        const btnId = window.currentVoiceButton || 'main-voice-btn';
-        const statusId = window.currentStatusElement || 'main-voice-status';
-        const voiceBtn = document.getElementById(btnId);
-        const statusEl = document.getElementById(statusId);
+    // Initialize Speech Recognition
+    function initSpeechRecognition() {
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
+        return false;
+      }
 
-        console.log('🎬 Starting/Resuming conversation...');
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
 
-        const currentStep = conversationState.step || 'welcome';
-        const currentFlow = conversationFlow[currentStep];
+      recognition.onstart = () => {
+        isListening = true;
+        updateButtonState('listening');
+        liveCaption.textContent = 'Listening...';
+        
+        // Set 30-second timeout
+        timeoutId = setTimeout(() => {
+          if (isListening) {
+            recognition.stop();
+            updateStatus('No speech detected. Click the button to try again.');
+          }
+        }, 30000);
+      };
 
-        if (currentStep !== 'welcome' && conversationState.responses && Object.keys(conversationState.responses).length > 0) {
-            voiceBtn.textContent = '🔊 Resuming...';
-            statusEl.textContent = 'Resuming conversation';
+      recognition.onresult = (event) => {
+        let interimTranscript = '';
+        let finalTranscript = '';
 
-            Object.keys(conversationState.responses).forEach(key => {
-                addMessageToConversation('You', conversationState.responses[key]);
-            });
-
-            speak("Let's continue from where we left off. " + currentFlow.text, () => {
-                voiceBtn.textContent = '🎤 Listening...';
-                voiceBtn.classList.add('listening');
-                statusEl.textContent = '🔴 Speak your response';
-                startListening(currentStep);
-            });
-            return;
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript;
+          } else {
+            interimTranscript += transcript;
+          }
         }
 
-        voiceBtn.textContent = '🎤 Requesting microphone access...';
-        const hasPermission = await requestMicPermission();
-        if (!hasPermission) {
-            voiceBtn.textContent = '🎤 Click to Start Voice Conversation';
-            statusEl.textContent = '❌ Microphone access denied';
-            return;
+        liveCaption.textContent = interimTranscript || finalTranscript || 'Listening...';
+
+        if (finalTranscript) {
+          clearTimeout(timeoutId);
+          handleUserResponse(finalTranscript.trim());
         }
+      };
 
-        speak(currentFlow.text, () => {
-            voiceBtn.textContent = '🎤 Listening for your response...';
-            voiceBtn.classList.add('listening');
-            statusEl.textContent = '🔴 LISTENING - Speak now';
-            startListening('welcome');
-        });
-    }
-
-    function processVoiceResponse(transcript, step) {
-        const currentFlow = conversationFlow[step];
-        if (currentFlow.saveAs) {
-            conversationState.responses[currentFlow.saveAs] = transcript;
-        }
-
-        if (currentFlow.nextStep === 'vr') {
-            completeVoiceConversation();
+      recognition.onerror = (event) => {
+        clearTimeout(timeoutId);
+        isListening = false;
+        
+        if (event.error === 'not-allowed' || event.error === 'permission-denied') {
+          permissionInstructions.classList.add('show');
+          updateStatus('Microphone permission denied. Please allow access.');
+        } else if (event.error === 'no-speech') {
+          updateStatus('No speech detected. Click to try again.');
         } else {
-            setTimeout(() => continueConversation(currentFlow.nextStep), 1000);
+          updateStatus(`Error: ${event.error}. Click to try again.`);
         }
+        
+        updateButtonState('ready');
+      };
+
+      recognition.onend = () => {
+        clearTimeout(timeoutId);
+        isListening = false;
+        if (voiceButton.classList.contains('listening')) {
+          updateButtonState('ready');
+        }
+      };
+
+      return true;
     }
 
-    function continueConversation(nextStep) {
-        const nextFlow = conversationFlow[nextStep];
-        const voiceBtn = document.getElementById('main-voice-btn');
-        const statusEl = document.getElementById('main-voice-status');
-
-        voiceBtn.textContent = '🔊 Speaking...';
-        voiceBtn.classList.remove('listening');
-        statusEl.textContent = 'System is speaking';
-
-        speak(nextFlow.text, () => {
-            voiceBtn.textContent = '🎤 Listening...';
-            voiceBtn.classList.add('listening');
-            statusEl.textContent = '🔴 Speak your response';
-            startListening(nextStep);
-        });
+    // Speak Text
+    function speak(text) {
+      return new Promise((resolve) => {
+        speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+        utterance.volume = 1;
+        utterance.onend = resolve;
+        speechSynthesis.speak(utterance);
+      });
     }
 
-    function addMessageToConversation(sender, message) {
-        const displayId = window.currentConversationDisplay || 'conversation-display';
-        const conversationDisplay = document.getElementById(displayId);
-        if (!conversationDisplay) return;
-        const messageDiv = document.createElement('div');
-        messageDiv.className = sender === 'System' ? 'message system-message' : 'message user-message';
-        messageDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
-        conversationDisplay.appendChild(messageDiv);
-        conversationDisplay.scrollTop = conversationDisplay.scrollHeight;
+    // Add Message to Conversation
+    function addMessage(text, type) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${type}`;
+      messageDiv.textContent = text;
+      conversationDisplay.appendChild(messageDiv);
+      conversationDisplay.scrollTop = conversationDisplay.scrollHeight;
+      
+      sessionData.conversationHistory.push({ type, text, timestamp: new Date().toISOString() });
     }
 
-    function completeVoiceConversation() {
-        // Save responses to sessionData for summary or processing
-        sessionData.comfortableLanguages = conversationState.responses.comfortableLanguages || '';
-        sessionData.preferredColor = conversationState.responses.preferredColor || '';
-        sessionData.emergencyContact = conversationState.responses.emergencyContact || '';
-        sessionData.goals = conversationState.responses.goals || '';
-        sessionData.exposureLevel = 'gentle'; // Or from UI if chosen separately
-
-        const voiceBtn = document.getElementById(window.currentVoiceButton || 'main-voice-btn');
-        const statusEl = document.getElementById(window.currentStatusElement || 'main-voice-status');
-
-        voiceBtn.textContent = '✅ Complete - Starting VR';
-        voiceBtn.classList.remove('listening');
-        statusEl.textContent = 'Launching virtual classroom...';
-
-        setTimeout(() => {
-            document.getElementById('vr-overlay').classList.remove('active');
-            speak('Welcome to the virtual classroom. Take your time and remember you can exit at any moment.');
-        }, 2000);
+    // Update Button State
+    function updateButtonState(state) {
+      voiceButton.className = '';
+      
+      switch (state) {
+        case 'ready':
+          voiceButton.classList.remove('listening', 'processing');
+          voiceButtonText.textContent = currentStep === 'welcome' ? 'Start Voice Conversation' : 'Continue';
+          voiceButton.disabled = false;
+          break;
+        case 'listening':
+          voiceButton.classList.add('listening');
+          voiceButtonText.textContent = 'LISTENING...';
+          voiceButton.disabled = false;
+          break;
+        case 'processing':
+          voiceButton.classList.add('processing');
+          voiceButtonText.textContent = 'PROCESSING...';
+          voiceButton.disabled = true;
+          break;
+        case 'speaking':
+          voiceButton.classList.add('processing');
+          voiceButtonText.textContent = 'SPEAKING...';
+          voiceButton.disabled = true;
+          break;
+      }
     }
 
-    // Other functions: mic permission, voice recording handlers, manual input handling, UI control remain unchanged from previous code
+    // Update Status Message
+    function updateStatus(message) {
+      statusMessage.textContent = message;
+      setTimeout(() => {
+        statusMessage.textContent = '';
+      }, 5000);
+    }
 
-    // You can keep the rest of the existing code unchanged (voice input, manual input, screens, VR loading)
+    // Handle User Response
+    function handleUserResponse(response) {
+      updateButtonState('processing');
+      liveCaption.textContent = `Got it: "${response}"`;
+      addMessage(response, 'user');
 
-</script>
+      const step = conversationFlow[currentStep];
+      
+      // Save response if needed
+      if (step.saveAs) {
+        sessionData[step.saveAs] = response;
+      }
+
+      // Move to next step
+      setTimeout(() => {
+        proceedToNextStep();
+      }, 1000);
+    }
+
+    // Proceed to Next Step
+    async function proceedToNextStep() {
+      const step = conversationFlow[currentStep];
+      const nextStep = step.nextStep;
+
+      if (nextStep === 'vr') {
+        // Complete conversation
+        updateButtonState('speaking');
+        await speak('Great! Entering the virtual classroom now.');
+        completeSession();
+      } else {
+        currentStep = nextStep;
+        const nextStepData = conversationFlow[nextStep];
+        
+        updateButtonState('speaking');
+        addMessage(nextStepData.text, 'system');
+        await speak(nextStepData.text);
+        
+        updateButtonState('ready');
+        liveCaption.textContent = 'Click the button when ready to respond...';
+      }
+    }
+
+    // Start Voice Conversation
+    async function startVoiceConversation() {
+      if (!recognition && !initSpeechRecognition()) {
+        return;
+      }
+
+      if (isListening) {
+        recognition.stop();
+        return;
+      }
+
+      // If first time, speak welcome message
+      if (currentStep === 'welcome') {
+        sessionData.startTime = new Date().toISOString();
+        updateButtonState('speaking');
+        const welcomeText = conversationFlow.welcome.text;
+        addMessage(welcomeText, 'system');
+        await speak(welcomeText);
+        liveCaption.textContent = 'Click the button when ready to respond...';
+        updateButtonState('ready');
+      } else {
+        // Start listening
+        try {
+          recognition.start();
+        } catch (error) {
+          console.error('Recognition start error:', error);
+          updateStatus('Error starting recognition. Please try again.');
+          updateButtonState('ready');
+        }
+      }
+    }
+
+    // Complete Session
+    function completeSession() {
+      console.log('Session Data:', sessionData);
+      vrOverlay.classList.add('hidden');
+      updateStatus('Welcome to your virtual classroom!');
+    }
+
+    // Switch to Manual Input
+    function switchToManualInput() {
+      vrOverlay.style.display = 'none';
+      manualInputOverlay.classList.add('active');
+    }
+
+    // Back to Voice Mode
+    function backToVoiceMode() {
+      manualInputOverlay.classList.remove('active');
+      vrOverlay.style.display = 'flex';
+    }
+
+    // Handle Manual Form Submit
+    function handleManualSubmit(e) {
+      e.preventDefault();
+      
+      sessionData.comfortableLanguages = document.getElementById('manualLanguages').value;
+      sessionData.preferredColor = document.getElementById('manualColor').value;
+      sessionData.emergencyContact = document.getElementById('manualContact').value;
+      sessionData.goals = document.getElementById('manualGoals').value;
+      sessionData.startTime = new Date().toISOString();
+
+      console.log('Session Data (Manual):', sessionData);
+      
+      manualInputOverlay.classList.remove('active');
+      vrOverlay.classList.add('hidden');
+      
+      speak('Welcome to your virtual classroom. Take your time to explore.');
+    }
+
+    // Event Listeners
+    voiceButton.addEventListener('click', startVoiceConversation);
+    skipButton.addEventListener('click', switchToManualInput);
+    backButton.addEventListener('click', backToVoiceMode);
+    manualForm.addEventListener('submit', handleManualSubmit);
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('VR Classroom Exposure Therapy Initialized');
+    });
+  </script>
 </body>
 </html>
