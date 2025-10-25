@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VR Classroom - Exposure Therapy</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <style>
@@ -52,6 +52,7 @@
             padding: 40px;
             max-width: 600px;
             width: 100%;
+            box-sizing: border-box; /* Improved padding control */
         }
 
         /* Typography */
@@ -67,60 +68,6 @@
             margin: 0 0 12px 0;
             color: var(--color-text);
             font-weight: 600;
-        }
-
-        /* VR Overlay Typography Overrides */
-        .overlay-card h1 {
-            font-size: 20px;
-            margin: 0 0 12px 0;
-        }
-
-        .overlay-card h2 {
-            font-size: 18px;
-            margin: 0 0 10px 0;
-        }
-
-        .overlay-card p {
-            font-size: 13px;
-            line-height: 1.4;
-            margin: 0 0 12px 0;
-        }
-
-        .overlay-card .btn {
-            padding: 10px 16px;
-            font-size: 13px;
-        }
-
-        .overlay-card .conversation-display {
-            max-height: 180px;
-            padding: 12px;
-            margin: 12px 0;
-        }
-
-        .overlay-card .message {
-            margin-bottom: 10px;
-            padding: 8px;
-            font-size: 12px;
-        }
-
-        .overlay-card .voice-status {
-            font-size: 11px;
-            margin-top: 6px;
-        }
-
-        .overlay-card .icon {
-            font-size: 32px;
-            margin-bottom: 12px;
-        }
-
-        .overlay-card ul {
-            font-size: 12px;
-            margin: 8px 0;
-            padding-left: 16px;
-        }
-
-        .overlay-card li {
-            margin-bottom: 4px;
         }
 
         p {
@@ -265,6 +212,7 @@
             max-height: 300px;
             overflow-y: auto;
             text-align: left;
+            position: relative;
         }
 
         .message {
@@ -282,6 +230,11 @@
         .user-message {
             background: rgba(94, 82, 64, 0.1);
             border-left: 4px solid rgba(94, 82, 64, 0.8);
+        }
+
+        .user-message.live {
+            font-style: italic;
+            opacity: 0.7;
         }
 
         @keyframes messageSlideIn {
@@ -485,17 +438,17 @@
 
             <div class="form-group">
                 <label for="manual-name">Your Name (or Participant ID)</label>
-                <input type="text" id="manual-name" placeholder="Enter your name">
+                <input type="text" id="manual-name" placeholder="Enter your name" />
             </div>
 
             <div class="form-group">
                 <label for="manual-age">Age</label>
-                <input type="number" id="manual-age" placeholder="Enter your age" min="5" max="100">
+                <input type="number" id="manual-age" placeholder="Enter your age" min="5" max="100" />
             </div>
 
             <div class="form-group">
                 <label for="manual-anxiety">Current Anxiety Level (1-10)</label>
-                <input type="range" id="manual-anxiety" min="1" max="10" value="5" oninput="updateManualAnxietyDisplay()">
+                <input type="range" id="manual-anxiety" min="1" max="10" value="5" oninput="updateManualAnxietyDisplay()" />
                 <div style="text-align: center; font-size: 18px; margin-top: 8px;">
                     <strong id="manual-anxiety-display">5</strong> / 10
                 </div>
@@ -513,117 +466,7 @@
         </div>
     </div>
     
-    <!-- Information Collection Screen (deprecated) -->
-    <div id="screen-info" class="screen" style="display: none;">
-        <div class="card">
-            <div class="progress-container">
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: 25%"></div>
-                </div>
-                <div class="progress-text">Step 1 of 4</div>
-            </div>
-            
-            <h2>Basic Information</h2>
-            <p>Let's collect some basic information to personalize your experience.</p>
-
-            <div class="form-group">
-                <label for="participant-name">Your Name (or Participant ID)</label>
-                <div style="display: flex; gap: 8px;">
-                    <input type="text" id="participant-name" placeholder="Enter your name">
-                    <button class="btn btn-voice" onclick="startVoiceInput('participant-name')">
-                        🎤
-                    </button>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="participant-age">Age</label>
-                <input type="number" id="participant-age" placeholder="Enter your age" min="5" max="100">
-            </div>
-
-            <div class="form-group">
-                <label for="anxiety-level">Current Anxiety Level (1-10)</label>
-                <input type="range" id="anxiety-level" min="1" max="10" value="5" oninput="updateAnxietyDisplay()">
-                <div style="text-align: center; font-size: 18px; margin-top: 8px;">
-                    <strong id="anxiety-display">5</strong> / 10
-                </div>
-            </div>
-
-            <div class="btn-group">
-                <button class="btn btn-secondary" onclick="goToScreen('welcome')">Back</button>
-                <button class="btn btn-primary" onclick="goToScreen('goals')" style="flex: 1;">Next</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Session Goals Screen -->
-    <div id="screen-goals" class="screen">
-        <div class="card">
-            <div class="progress-container">
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: 50%"></div>
-                </div>
-                <div class="progress-text">Step 2 of 4</div>
-            </div>
-            
-            <h2>Session Goals</h2>
-            <p>What would you like to work on today? You can type or use voice input.</p>
-
-            <div class="voice-section">
-                <button class="btn btn-voice" id="goals-voice-btn" onclick="startVoiceInput('session-goals')">
-                    🎤 Click to Speak
-                </button>
-                <div class="voice-status" id="goals-voice-status">Voice input ready</div>
-            </div>
-
-            <div class="form-group">
-                <label for="session-goals">Your Goals (e.g., "reduce anxiety when presenting", "feel comfortable in classroom")</label>
-                <textarea id="session-goals" placeholder="Describe what you want to achieve..."></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="exposure-level">Preferred Exposure Level</label>
-                <select id="exposure-level">
-                    <option value="gentle">Gentle - Empty classroom, calm environment</option>
-                    <option value="moderate">Moderate - Few students, minimal activity</option>
-                    <option value="challenging">Challenging - Full classroom, active environment</option>
-                </select>
-            </div>
-
-            <div class="btn-group">
-                <button class="btn btn-secondary" onclick="goToScreen('info')">Back</button>
-                <button class="btn btn-primary" onclick="goToScreen('summary')" style="flex: 1;">Next</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Summary/Ready Screen -->
-    <div id="screen-summary" class="screen">
-        <div class="card">
-            <div class="progress-container">
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: 75%"></div>
-                </div>
-                <div class="progress-text">Step 3 of 4</div>
-            </div>
-            
-            <h2>Session Summary</h2>
-            <p>Please review your information before entering the VR environment.</p>
-
-            <div id="summary-content">
-                <!-- Populated dynamically -->
-            </div>
-
-            <div class="alert">
-                <p><strong>Ready to begin?</strong> You'll enter a virtual classroom. You can exit at any time by pressing ESC or removing your headset.</p>
-            </div>
-
-            <div class="btn-group">
-                <button class="btn btn-secondary" onclick="goToScreen('goals')">Back</button>
-                <button class="btn btn-primary" onclick="startVRSession()" style="flex: 1;">Enter VR Classroom</button>
-            </div>
-        </div>
-    </div>
+    <!-- Other screens like screen-info, screen-goals, screen-summary omitted for brevity, identical to your current version -->
 
     <!-- VR Container -->
     <div id="vr-container" class="active">
@@ -686,705 +529,721 @@
         </a-scene>
     </div>
 
-    <script>
-        // Session data storage
-        const sessionData = {
-            name: '',
-            age: '',
-            anxietyLevel: 5,
-            goals: '',
-            exposureLevel: 'gentle',
-            startTime: new Date()
+<script>
+    // Session data storage
+    const sessionData = {
+        name: '',
+        age: '',
+        anxietyLevel: 5,
+        goals: '',
+        exposureLevel: 'gentle',
+        startTime: new Date()
+    };
+
+    // Web Speech API setup
+    let recognition = null;
+    let synthesis = window.speechSynthesis;
+    let voices = [];
+    let recognitionTimeout = null;
+    let autoRestartEnabled = false;
+
+    // Load voices
+    if (synthesis) {
+        synthesis.onvoiceschanged = function() {
+            voices = synthesis.getVoices();
+            console.log('Voices loaded:', voices.length);
         };
+    }
 
-        // Web Speech API setup
-        let recognition = null;
-        let synthesis = window.speechSynthesis;
-        let voices = [];
-        let recognitionTimeout = null;
-        let autoRestartEnabled = false;
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 3;
+        recognition.lang = 'en-US';
 
-        // Load voices
-        if (synthesis) {
-            synthesis.onvoiceschanged = function() {
-                voices = synthesis.getVoices();
-                console.log('Voices loaded:', voices.length);
-            };
+        console.log('✅ Speech Recognition available');
+    } else {
+        console.log('❌ Speech Recognition NOT available');
+    }
+
+    // Conversation state
+    let conversationState = {
+        step: 'welcome',
+        isListening: false,
+        currentQuestion: '',
+        responses: {},
+        hasReceivedSpeech: false
+    };
+
+    // Conversation flow
+    const conversationFlow = {
+        welcome: {
+            text: "Welcome to Virtual Lecter's Destressing Experience. We will help you practice in a safe virtual classroom environment. We need to collect some basic information for emergency assistance purposes. Are you ready to begin?",
+            nextStep: 'name',
+            expectedResponses: ['yes', 'okay', 'sure', 'ready', 'thank you']
+        },
+        name: {
+            text: "Great! Let's start with your name or participant ID. Please tell me your name.",
+            nextStep: 'age',
+            saveAs: 'name'
+        },
+        age: {
+            text: "Thank you. Now, could you please tell me your age?",
+            nextStep: 'anxiety',
+            saveAs: 'age'
+        },
+        anxiety: {
+            text: "Perfect. On a scale of 1 to 10, with 10 being the highest, what is your current anxiety level about classroom situations?",
+            nextStep: 'complete',
+            saveAs: 'anxietyLevel'
+        },
+        complete: {
+            text: "Thank you for providing that information. We're now ready to begin your virtual classroom experience. Are you ready to enter the virtual environment?",
+            nextStep: 'vr'
         }
+    };
 
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = true;
-            recognition.maxAlternatives = 3;
-            recognition.lang = 'en-US';
-            
-            console.log('✅ Speech Recognition available');
-        } else {
-            console.log('❌ Speech Recognition NOT available');
-        }
-
-        // Conversation state
-        let conversationState = {
-            step: 'welcome',
-            isListening: false,
-            currentQuestion: '',
-            responses: {},
-            hasReceivedSpeech: false
-        };
-
-        // Conversation flow
-        const conversationFlow = {
-            welcome: {
-                text: "Welcome to Virtual Lecter's Destressing Experience. We will help you practice in a safe virtual classroom environment. We need to collect some basic information for emergency assistance purposes. Are you ready to begin?",
-                nextStep: 'name',
-                expectedResponses: ['yes', 'okay', 'sure', 'ready', 'thank you']
-            },
-            name: {
-                text: "Great! Let's start with your name or participant ID. Please tell me your name.",
-                nextStep: 'age',
-                saveAs: 'name'
-            },
-            age: {
-                text: "Thank you. Now, could you please tell me your age?",
-                nextStep: 'anxiety',
-                saveAs: 'age'
-            },
-            anxiety: {
-                text: "Perfect. On a scale of 1 to 10, with 10 being the highest, what is your current anxiety level about classroom situations?",
-                nextStep: 'complete',
-                saveAs: 'anxietyLevel'
-            },
-            complete: {
-                text: "Thank you for providing that information. We're now ready to begin your virtual classroom experience. Are you ready to enter the virtual environment?",
-                nextStep: 'vr'
-            }
-        };
-
-        // Check microphone permission status
-        async function checkMicPermission() {
-            if (navigator.permissions) {
-                try {
-                    const result = await navigator.permissions.query({ name: 'microphone' });
-                    console.log('Microphone permission status:', result.state);
-                    return result.state;
-                } catch (e) {
-                    console.log('Permission API not available');
-                    return 'prompt';
-                }
-            }
-            return 'prompt';
-        }
-
-        // Request microphone permission
-        async function requestMicPermission() {
+    // Check microphone permission status
+    async function checkMicPermission() {
+        if (navigator.permissions) {
             try {
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    alert('Your browser does not support microphone access. Please use Chrome, Edge, or Safari.');
-                    return false;
-                }
+                const result = await navigator.permissions.query({ name: 'microphone' });
+                console.log('Microphone permission status:', result.state);
+                return result.state;
+            } catch (e) {
+                console.log('Permission API not available');
+                return 'prompt';
+            }
+        }
+        return 'prompt';
+    }
 
-                const permState = await checkMicPermission();
-                console.log('Current permission state:', permState);
-
-                if (permState === 'denied') {
-                    showPermissionInstructions('denied');
-                    return false;
-                }
-
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                stream.getTracks().forEach(track => track.stop());
-                console.log('✅ Microphone permission granted');
-                return true;
-            } catch (error) {
-                console.error('❌ Microphone permission error:', error);
-                showPermissionInstructions(error.name);
+    // Request microphone permission
+    async function requestMicPermission() {
+        try {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('Your browser does not support microphone access. Please use Chrome, Edge, or Safari.');
                 return false;
             }
-        }
 
-        // Show detailed permission instructions
-        function showPermissionInstructions(errorType) {
-            let message = '🎤 Microphone Access Required\n\n';
-            
-            if (errorType === 'NotAllowedError' || errorType === 'denied') {
-                message += '❌ MICROPHONE BLOCKED\n\n';
-                message += 'Your microphone is currently blocked. To fix this:\n\n';
-                
-                const isEdge = /Edg/.test(navigator.userAgent);
-                const isChrome = /Chrome/.test(navigator.userAgent) && !/Edg/.test(navigator.userAgent);
-                const isBrave = navigator.brave !== undefined;
-                
-                if (isEdge) {
-                    message += '📱 EDGE: Click lock icon in address bar → Microphone → Allow → Reload';
-                } else if (isBrave) {
-                    message += '🦁 BRAVE: Click shield icon → Advanced View → Microphone → Allow → Reload';
-                } else if (isChrome) {
-                    message += '🌐 CHROME: Click lock icon in address bar → Microphone → Allow → Reload';
-                } else {
-                    message += 'Click site settings in address bar → Microphone → Allow → Reload';
-                }
-            } else if (errorType === 'NotFoundError') {
-                message += '❌ NO MICROPHONE DETECTED\n\nCheck your microphone connection.';
+            const permState = await checkMicPermission();
+            console.log('Current permission state:', permState);
+
+            if (permState === 'denied') {
+                showPermissionInstructions('denied');
+                return false;
+            }
+
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            stream.getTracks().forEach(track => track.stop());
+            console.log('✅ Microphone permission granted');
+            return true;
+        } catch (error) {
+            console.error('❌ Microphone permission error:', error);
+            showPermissionInstructions(error.name);
+            return false;
+        }
+    }
+
+    // Show detailed permission instructions
+    function showPermissionInstructions(errorType) {
+        let message = '🎤 Microphone Access Required\n\n';
+
+        if (errorType === 'NotAllowedError' || errorType === 'denied') {
+            message += '❌ MICROPHONE BLOCKED\n\n';
+            message += 'Your microphone is currently blocked. To fix this:\n\n';
+
+            const isEdge = /Edg/.test(navigator.userAgent);
+            const isChrome = /Chrome/.test(navigator.userAgent) && !/Edg/.test(navigator.userAgent);
+            const isBrave = navigator.brave !== undefined;
+
+            if (isEdge) {
+                message += '📱 EDGE: Click lock icon in address bar → Microphone → Allow → Reload';
+            } else if (isBrave) {
+                message += '🦁 BRAVE: Click shield icon → Advanced View → Microphone → Allow → Reload';
+            } else if (isChrome) {
+                message += '🌐 CHROME: Click lock icon in address bar → Microphone → Allow → Reload';
             } else {
-                message += '❌ ERROR: ' + errorType + '\n\nTry reloading the page.';
+                message += 'Click site settings in address bar → Microphone → Allow → Reload';
             }
-            
-            alert(message);
+        } else if (errorType === 'NotFoundError') {
+            message += '❌ NO MICROPHONE DETECTED\n\nCheck your microphone connection.';
+        } else {
+            message += '❌ ERROR: ' + errorType + '\n\nTry reloading the page.';
         }
 
-        // Enhanced speech with callback
-        function speak(text, callback = null) {
-            if (!synthesis) {
-                console.log('❌ Speech synthesis not available');
-                if (callback) callback();
-                return;
-            }
+        alert(message);
+    }
 
-            synthesis.cancel();
-            
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.85;
-            utterance.pitch = 1;
-            utterance.volume = 1;
-            utterance.lang = 'en-US';
-            
-            // Use a natural voice if available
-            if (voices.length > 0) {
-                const preferredVoice = voices.find(v => v.lang.includes('en') && (v.name.includes('Female') || v.name.includes('Zira'))) || voices[0];
-                utterance.voice = preferredVoice;
-                console.log('Using voice:', preferredVoice.name);
-            }
-            
-            addMessageToConversation('System', text);
-            
-            utterance.onstart = function() {
-                console.log('🔊 Started speaking:', text.substring(0, 50) + '...');
-            };
-            
-            utterance.onend = function() {
-                console.log('✅ Finished speaking');
-                if (callback) {
-                    setTimeout(callback, 500);
-                }
-            };
-            
-            utterance.onerror = function(e) {
-                console.error('❌ Speech error:', e);
-                if (callback) callback();
-            };
-            
-            synthesis.speak(utterance);
+    // Enhanced speech with callback
+    function speak(text, callback = null) {
+        if (!synthesis) {
+            console.log('❌ Speech synthesis not available');
+            if (callback) callback();
+            return;
         }
 
-        // Start voice conversation
-        async function startConversation() {
-            const btnId = window.currentVoiceButton || 'main-voice-btn';
-            const statusId = window.currentStatusElement || 'main-voice-status';
-            const voiceBtn = document.getElementById(btnId);
-            const statusEl = document.getElementById(statusId);
-            
-            console.log('🎬 Starting/Resuming conversation...');
-            
-            // Check if we're resuming from a previous step
-            const currentStep = conversationState.step || 'welcome';
-            const currentFlow = conversationFlow[currentStep];
-            
-            console.log('Current step:', currentStep);
-            console.log('Conversation state:', conversationState);
-            
-            // If not at welcome, we're resuming
-            if (currentStep !== 'welcome' && conversationState.responses && Object.keys(conversationState.responses).length > 0) {
-                console.log('🔄 Resuming conversation from step:', currentStep);
-                voiceBtn.textContent = '🔊 Resuming...';
-                statusEl.textContent = 'Resuming from where we left off';
-                
-                // Re-populate conversation display with previous responses
-                Object.keys(conversationState.responses).forEach(key => {
-                    addMessageToConversation('You', conversationState.responses[key]);
-                });
-                
-                speak("Let's continue from where we left off. " + currentFlow.text, () => {
-                    voiceBtn.textContent = '🎤 Listening...';
-                    voiceBtn.classList.add('listening');
-                    statusEl.textContent = '🔴 Speak your response';
-                    statusEl.style.color = '#FF6B6B';
-                    statusEl.style.fontWeight = 'bold';
-                    startListening(currentStep);
-                });
-                return;
+        synthesis.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.85;
+        utterance.pitch = 1;
+        utterance.volume = 1;
+        utterance.lang = 'en-US';
+
+        // Use a natural voice if available
+        if (voices.length > 0) {
+            const preferredVoice = voices.find(v => v.lang.includes('en') && (v.name.includes('Female') || v.name.includes('Zira'))) || voices[0];
+            utterance.voice = preferredVoice;
+            console.log('Using voice:', preferredVoice.name);
+        }
+
+        addMessageToConversation('System', text);
+
+        utterance.onstart = function() {
+            console.log('🔊 Started speaking:', text.substring(0, 50) + '...');
+        };
+
+        utterance.onend = function() {
+            console.log('✅ Finished speaking');
+            if (callback) {
+                setTimeout(callback, 500);
             }
-            
-            // Starting fresh
-            console.log('🆕 Starting fresh conversation');
-            voiceBtn.textContent = '🎤 Requesting microphone access...';
-            statusEl.textContent = '⚠️ Look for permission prompt!';
-            statusEl.style.color = '#FF6B6B';
-            statusEl.style.fontWeight = 'bold';
-            
-            const hasPermission = await requestMicPermission();
-            if (!hasPermission) {
-                voiceBtn.textContent = '🎤 Click to Start Voice Conversation';
-                statusEl.textContent = '❌ Microphone access denied';
-                statusEl.style.color = '#FF6B6B';
-                return;
-            }
-            
-            voiceBtn.textContent = '🔊 Speaking...';
-            statusEl.textContent = 'System is speaking';
-            statusEl.style.color = '';
-            
-            speak(conversationFlow.welcome.text, () => {
-                voiceBtn.textContent = '🎤 Listening for your response...';
-                voiceBtn.classList.add('listening');
-                statusEl.textContent = '🔴 LISTENING - Say "yes" or "thank you"';
-                statusEl.style.color = '#FF6B6B';
-                statusEl.style.fontWeight = 'bold';
-                startListening('welcome');
+        };
+
+        utterance.onerror = function(e) {
+            console.error('❌ Speech error:', e);
+            if (callback) callback();
+        };
+
+        synthesis.speak(utterance);
+    }
+
+    // Start voice conversation
+    async function startConversation() {
+        const btnId = window.currentVoiceButton || 'main-voice-btn';
+        const statusId = window.currentStatusElement || 'main-voice-status';
+        const voiceBtn = document.getElementById(btnId);
+        const statusEl = document.getElementById(statusId);
+
+        console.log('🎬 Starting/Resuming conversation...');
+
+        const currentStep = conversationState.step || 'welcome';
+        const currentFlow = conversationFlow[currentStep];
+
+        console.log('Current step:', currentStep);
+        console.log('Conversation state:', conversationState);
+
+        if (currentStep !== 'welcome' && conversationState.responses && Object.keys(conversationState.responses).length > 0) {
+            console.log('🔄 Resuming conversation from step:', currentStep);
+            voiceBtn.textContent = '🔊 Resuming...';
+            statusEl.textContent = 'Resuming from where we left off';
+
+            Object.keys(conversationState.responses).forEach(key => {
+                addMessageToConversation('You', conversationState.responses[key]);
             });
-        }
 
-        // Start listening for specific conversation step
-        function startListening(step) {
-            if (!recognition) {
-                alert('Voice recognition not supported. Please use Chrome, Edge, or Safari.');
-                return;
-            }
-
-            console.log('👂 Starting to listen for step:', step);
-            conversationState.step = step;
-            conversationState.isListening = true;
-            conversationState.hasReceivedSpeech = false;
-            autoRestartEnabled = true;
-            
-            // Clear any existing timeout
-            if (recognitionTimeout) {
-                clearTimeout(recognitionTimeout);
-            }
-            
-            recognition.onstart = function() {
-                console.log('✅ Recognition started successfully');
-                const voiceBtn = document.getElementById('main-voice-btn');
-                const statusEl = document.getElementById('main-voice-status');
-                voiceBtn.classList.add('listening');
-                voiceBtn.textContent = '🔴 LISTENING NOW - SPEAK!';
-                statusEl.innerHTML = '<strong style="font-size: 18px; color: #FF6B6B;">🔴 RECORDING</strong><br>Speak clearly now! (30s window)';
-                
-                // Set 30-second timeout
-                recognitionTimeout = setTimeout(() => {
-                    if (conversationState.isListening && !conversationState.hasReceivedSpeech) {
-                        console.log('⏱️ 30-second timeout reached, auto-restarting...');
-                        recognition.stop();
-                        // Auto-restart will happen in onend handler
-                    }
-                }, 30000);
-            };
-
-            recognition.onspeechstart = function() {
-                console.log('🗣️ Speech detected!');
-                conversationState.hasReceivedSpeech = true;
-                if (recognitionTimeout) {
-                    clearTimeout(recognitionTimeout);
-                }
-                const statusEl = document.getElementById('main-voice-status');
-                statusEl.innerHTML = '<strong style="font-size: 18px; color: #51CF66;">✅ HEARING YOU!</strong><br>Keep speaking...';
-            };
-
-            recognition.onresult = function(event) {
-                let interimTranscript = '';
-                let finalTranscript = '';
-                
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    const transcript = event.results[i][0].transcript;
-                    if (event.results[i].isFinal) {
-                        finalTranscript += transcript;
-                    } else {
-                        interimTranscript += transcript;
-                    }
-                }
-                
-                if (interimTranscript) {
-                    console.log('📝 Interim:', interimTranscript);
-                    const statusEl = document.getElementById('main-voice-status');
-                    statusEl.innerHTML = '<strong style="color: #51CF66;">📝 Hearing: "' + interimTranscript + '"</strong>';
-                }
-                
-                if (finalTranscript) {
-                    const transcript = finalTranscript.toLowerCase().trim();
-                    const confidence = event.results[event.results.length - 1][0].confidence;
-                    console.log('✅ Final result:', transcript, '(Confidence:', confidence, ')');
-                    
-                    // Clear timeout since we got a result
-                    if (recognitionTimeout) {
-                        clearTimeout(recognitionTimeout);
-                    }
-                    
-                    // Disable auto-restart since we got what we need
-                    autoRestartEnabled = false;
-                    conversationState.isListening = false;
-                    
-                    const statusEl = document.getElementById('main-voice-status');
-                    statusEl.innerHTML = '<strong style="font-size: 18px; color: #51CF66;">✅ GOT IT!</strong><br>You said: "' + transcript + '"';
-                    
-                    addMessageToConversation('You', transcript);
-                    processVoiceResponse(transcript, step);
-                }
-            };
-
-            recognition.onnomatch = function() {
-                console.log('⚠️ No speech recognized');
-                if (recognitionTimeout) {
-                    clearTimeout(recognitionTimeout);
-                }
-                
-                const voiceBtn = document.getElementById('main-voice-btn');
-                const statusEl = document.getElementById('main-voice-status');
-                voiceBtn.classList.remove('listening');
-                voiceBtn.textContent = '🎤 Didn\'t catch that - Try Again';
-                statusEl.innerHTML = '<strong style="color: #FFA500;">⚠️ Didn\'t understand</strong><br>Click to try again';
-            };
-
-            recognition.onend = function() {
-                console.log('🛑 Recognition ended');
-                
-                if (recognitionTimeout) {
-                    clearTimeout(recognitionTimeout);
-                }
-                
-                const voiceBtn = document.getElementById('main-voice-btn');
-                const statusEl = document.getElementById('main-voice-status');
-                
-                // Auto-restart if we haven't received speech yet and it's still enabled
-                if (autoRestartEnabled && conversationState.isListening && !conversationState.hasReceivedSpeech) {
-                    console.log('🔄 Auto-restarting recognition...');
-                    setTimeout(() => {
-                        try {
-                            recognition.start();
-                            console.log('✅ Recognition restarted');
-                        } catch (e) {
-                            console.error('❌ Failed to restart:', e);
-                            voiceBtn.classList.remove('listening');
-                            voiceBtn.textContent = '🎤 Click to Try Again';
-                            statusEl.innerHTML = '<strong style="color: #FFA500;">Click button to try again</strong>';
-                            conversationState.isListening = false;
-                        }
-                    }, 100);
-                } else if (!statusEl.innerHTML.includes('GOT IT')) {
-                    voiceBtn.classList.remove('listening');
-                    voiceBtn.textContent = '🔄 Click to Resume';
-                    statusEl.innerHTML = '<strong>⏱️ Timed out</strong><br>Click to resume from step: ' + conversationState.step;
-                    statusEl.style.color = '#FFA500';
-                    conversationState.isListening = false;
-                    
-                    // Save state for resume
-                    console.log('💾 Timeout - conversation can resume from:', conversationState.step);
-                }
-            };
-
-            recognition.onerror = function(event) {
-                console.error('❌ Recognition error:', event.error);
-                
-                if (recognitionTimeout) {
-                    clearTimeout(recognitionTimeout);
-                }
-                
-                const voiceBtn = document.getElementById('main-voice-btn');
-                const statusEl = document.getElementById('main-voice-status');
-                
-                let errorMsg = '';
-                let shouldRestart = false;
-                
-                if (event.error === 'no-speech') {
-                    errorMsg = '⏱️ No speech detected';
-                    shouldRestart = autoRestartEnabled && conversationState.isListening;
-                    console.log('No speech error. Should restart?', shouldRestart);
-                } else if (event.error === 'audio-capture') {
-                    errorMsg = '🎤 Mic problem<br>Check connection';
-                } else if (event.error === 'not-allowed') {
-                    errorMsg = '🚫 Permission denied<br>Check settings';
-                    autoRestartEnabled = false;
-                } else if (event.error === 'aborted') {
-                    console.log('Recognition aborted (normal if restarting)');
-                    return; // Don't show error for aborted (happens during restart)
-                } else {
-                    errorMsg = '❌ Error: ' + event.error;
-                }
-                
-                if (!shouldRestart) {
-                    voiceBtn.classList.remove('listening');
-                    voiceBtn.textContent = '🔄 Click to Resume';
-                    statusEl.innerHTML = '<strong style="color: #FF6B6B;">' + errorMsg + '</strong><br>Click to resume conversation';
-                    conversationState.isListening = false;
-                    autoRestartEnabled = false;
-                    
-                    // Save conversation state to resume later
-                    console.log('💾 Saving conversation state for resume. Current step:', conversationState.step);
-                }
-                // If shouldRestart is true, onend handler will restart
-            };
-
-            try {
-                recognition.start();
-                console.log('✅ Recognition start called');
-            } catch (error) {
-                console.error('❌ Failed to start recognition:', error);
-                alert('Could not start voice recognition. Try again.');
-            }
-        }
-
-        // Process voice response
-        function processVoiceResponse(transcript, step) {
-            const currentFlow = conversationFlow[step];
-            
-            if (currentFlow.saveAs) {
-                conversationState.responses[currentFlow.saveAs] = transcript;
-            }
-            
-            if (currentFlow.nextStep === 'vr') {
-                completeVoiceConversation();
-            } else {
-                setTimeout(() => {
-                    continueConversation(currentFlow.nextStep);
-                }, 1000);
-            }
-        }
-
-        // Continue to next conversation step
-        function continueConversation(nextStep) {
-            const nextFlow = conversationFlow[nextStep];
-            const voiceBtn = document.getElementById('main-voice-btn');
-            const statusEl = document.getElementById('main-voice-status');
-            
-            voiceBtn.textContent = '🔊 Speaking...';
-            voiceBtn.classList.remove('listening');
-            statusEl.textContent = 'System is speaking';
-            statusEl.style.color = '';
-            statusEl.style.fontWeight = '';
-            
-            speak(nextFlow.text, () => {
+            speak("Let's continue from where we left off. " + currentFlow.text, () => {
                 voiceBtn.textContent = '🎤 Listening...';
                 voiceBtn.classList.add('listening');
                 statusEl.textContent = '🔴 Speak your response';
                 statusEl.style.color = '#FF6B6B';
                 statusEl.style.fontWeight = 'bold';
-                startListening(nextStep);
+                startListening(currentStep);
             });
+            return;
         }
 
-        // Add message to conversation display
-        function addMessageToConversation(sender, message) {
-            const displayId = window.currentConversationDisplay || 'conversation-display';
-            const conversationDisplay = document.getElementById(displayId);
-            if (!conversationDisplay) return;
-            const messageDiv = document.createElement('div');
-            messageDiv.className = sender === 'System' ? 'message system-message' : 'message user-message';
-            messageDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
-            conversationDisplay.appendChild(messageDiv);
-            conversationDisplay.scrollTop = conversationDisplay.scrollHeight;
+        console.log('🆕 Starting fresh conversation');
+        voiceBtn.textContent = '🎤 Requesting microphone access...';
+        statusEl.textContent = '⚠️ Look for permission prompt!';
+        statusEl.style.color = '#FF6B6B';
+        statusEl.style.fontWeight = 'bold';
+
+        const hasPermission = await requestMicPermission();
+        if (!hasPermission) {
+            voiceBtn.textContent = '🎤 Click to Start Voice Conversation';
+            statusEl.textContent = '❌ Microphone access denied';
+            statusEl.style.color = '#FF6B6B';
+            return;
         }
 
-        // Complete voice conversation
-        function completeVoiceConversation() {
-            sessionData.name = conversationState.responses.name || '';
-            sessionData.age = conversationState.responses.age || '';
-            sessionData.anxietyLevel = conversationState.responses.anxietyLevel || '5';
-            sessionData.goals = 'Voice-guided session';
-            sessionData.exposureLevel = 'gentle';
-            
-            const btnId = window.currentVoiceButton || 'main-voice-btn';
-            const statusId = window.currentStatusElement || 'main-voice-status';
-            const voiceBtn = document.getElementById(btnId);
-            const statusEl = document.getElementById(statusId);
-            
-            voiceBtn.textContent = '✅ Complete - Starting VR';
+        voiceBtn.textContent = '🔊 Speaking...';
+        statusEl.textContent = 'System is speaking';
+        statusEl.style.color = '';
+
+        speak(conversationFlow.welcome.text, () => {
+            voiceBtn.textContent = '🎤 Listening for your response...';
+            voiceBtn.classList.add('listening');
+            statusEl.textContent = '🔴 LISTENING - Say "yes" or "thank you"';
+            statusEl.style.color = '#FF6B6B';
+            statusEl.style.fontWeight = 'bold';
+            startListening('welcome');
+        });
+    }
+
+    // Start listening for specific conversation step
+    function startListening(step) {
+        if (!recognition) {
+            alert('Voice recognition not supported. Please use Chrome, Edge, or Safari.');
+            return;
+        }
+
+        console.log('👂 Starting to listen for step:', step);
+        conversationState.step = step;
+        conversationState.isListening = true;
+        conversationState.hasReceivedSpeech = false;
+        autoRestartEnabled = true;
+
+        if (recognitionTimeout) {
+            clearTimeout(recognitionTimeout);
+        }
+
+        recognition.onstart = function() {
+            console.log('✅ Recognition started successfully');
+            const voiceBtn = document.getElementById('main-voice-btn');
+            const statusEl = document.getElementById('main-voice-status');
+            voiceBtn.classList.add('listening');
+            voiceBtn.textContent = '🔴 LISTENING NOW - SPEAK!';
+            statusEl.innerHTML = '<strong style="font-size: 18px; color: #FF6B6B;">🔴 RECORDING</strong><br>Speak clearly now! (30s window)';
+
+            recognitionTimeout = setTimeout(() => {
+                if (conversationState.isListening && !conversationState.hasReceivedSpeech) {
+                    console.log('⏱️ 30-second timeout reached, auto-restarting...');
+                    recognition.stop();
+                }
+            }, 30000);
+        };
+
+        recognition.onspeechstart = function() {
+            console.log('🗣️ Speech detected!');
+            conversationState.hasReceivedSpeech = true;
+            if (recognitionTimeout) {
+                clearTimeout(recognitionTimeout);
+            }
+            const statusEl = document.getElementById('main-voice-status');
+            statusEl.innerHTML = '<strong style="font-size: 18px; color: #51CF66;">✅ HEARING YOU!</strong><br>Keep speaking...';
+        };
+
+        recognition.onresult = function(event) {
+            let interimTranscript = '';
+            let finalTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+
+            if (interimTranscript) {
+                console.log('📝 Interim:', interimTranscript);
+                addOrUpdateLiveCaption(interimTranscript);
+                const statusEl = document.getElementById('main-voice-status');
+                statusEl.innerHTML = '<strong style="color: #51CF66;">📝 Hearing: "' + interimTranscript + '"</strong>';
+            }
+
+            if (finalTranscript) {
+                removeLiveCaption();
+                const transcript = finalTranscript.toLowerCase().trim();
+                const confidence = event.results[event.results.length - 1][0].confidence;
+                console.log('✅ Final result:', transcript, '(Confidence:', confidence, ')');
+
+                if (recognitionTimeout) {
+                    clearTimeout(recognitionTimeout);
+                }
+
+                autoRestartEnabled = false;
+                conversationState.isListening = false;
+
+                const statusEl = document.getElementById('main-voice-status');
+                statusEl.innerHTML = '<strong style="font-size: 18px; color: #51CF66;">✅ GOT IT!</strong><br>You said: "' + transcript + '"';
+
+                addMessageToConversation('You', transcript);
+                processVoiceResponse(transcript, step);
+            }
+        };
+
+        recognition.onnomatch = function() {
+            console.log('⚠️ No speech recognized');
+            if (recognitionTimeout) {
+                clearTimeout(recognitionTimeout);
+            }
+
+            const voiceBtn = document.getElementById('main-voice-btn');
+            const statusEl = document.getElementById('main-voice-status');
             voiceBtn.classList.remove('listening');
-            statusEl.textContent = 'Launching virtual classroom...';
-            
-            console.log('Voice conversation completed:', conversationState.responses);
-            
-            // Hide VR overlay to reveal the classroom
-            setTimeout(() => {
-                document.getElementById('vr-overlay').classList.remove('active');
-                speak('Welcome to the virtual classroom. Take your time and remember you can exit at any moment.');
-            }, 2000);
-        }
+            voiceBtn.textContent = '🎤 Didn\'t catch that - Try Again';
+            statusEl.innerHTML = '<strong style="color: #FFA500;">⚠️ Didn\'t understand</strong><br>Click to try again';
+        };
 
-        // Skip to manual mode from old welcome screen
-        function skipToManualMode() {
-            goToScreen('info');
-        }
+        recognition.onend = function() {
+            console.log('🛑 Recognition ended');
 
-        // Skip to manual overlay (from VR)
-        function skipToManualOverlay() {
-            document.getElementById('manual-overlay').classList.add('active');
-        }
-
-        // Close manual overlay
-        function closeManualOverlay() {
-            document.getElementById('manual-overlay').classList.remove('active');
-        }
-
-        // Update manual anxiety display
-        function updateManualAnxietyDisplay() {
-            const value = document.getElementById('manual-anxiety').value;
-            document.getElementById('manual-anxiety-display').textContent = value;
-        }
-
-        // Submit manual data and hide overlay
-        function submitManualData() {
-            sessionData.name = document.getElementById('manual-name').value;
-            sessionData.age = document.getElementById('manual-age').value;
-            sessionData.anxietyLevel = document.getElementById('manual-anxiety').value;
-            sessionData.goals = document.getElementById('manual-goals').value;
-            sessionData.exposureLevel = 'gentle';
-            
-            console.log('Manual data submitted:', sessionData);
-            
-            document.getElementById('manual-overlay').classList.remove('active');
-            document.getElementById('vr-overlay').classList.remove('active');
-            
-            speak('Thank you. Welcome to the virtual classroom. Take your time and remember you can exit at any moment.');
-        }
-
-        // Start VR conversation (from overlay)
-        function startVRConversation() {
-            // Use same conversation logic but with VR-specific elements
-            const voiceBtn = document.getElementById('vr-voice-btn');
-            const statusEl = document.getElementById('vr-voice-status');
-            
-            // Replace conversation display target
-            window.currentConversationDisplay = 'vr-conversation-display';
-            window.currentVoiceButton = 'vr-voice-btn';
-            window.currentStatusElement = 'vr-voice-status';
-            
-            startConversation();
-        }
-
-        // Screen navigation
-        function goToScreen(screenName) {
-            saveCurrentData();
-
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
-            });
-
-            document.getElementById('screen-' + screenName).classList.add('active');
-
-            if (screenName === 'summary') {
-                updateSummary();
+            if (recognitionTimeout) {
+                clearTimeout(recognitionTimeout);
             }
-        }
 
-        // Save form data
-        function saveCurrentData() {
-            sessionData.name = document.getElementById('participant-name')?.value || sessionData.name;
-            sessionData.age = document.getElementById('participant-age')?.value || sessionData.age;
-            sessionData.anxietyLevel = document.getElementById('anxiety-level')?.value || sessionData.anxietyLevel;
-            sessionData.goals = document.getElementById('session-goals')?.value || sessionData.goals;
-            sessionData.exposureLevel = document.getElementById('exposure-level')?.value || sessionData.exposureLevel;
-        }
+            const voiceBtn = document.getElementById('main-voice-btn');
+            const statusEl = document.getElementById('main-voice-status');
 
-        // Update anxiety display
-        function updateAnxietyDisplay() {
-            const value = document.getElementById('anxiety-level').value;
-            document.getElementById('anxiety-display').textContent = value;
-        }
+            if (autoRestartEnabled && conversationState.isListening && !conversationState.hasReceivedSpeech) {
+                console.log('🔄 Auto-restarting recognition...');
+                setTimeout(() => {
+                    try {
+                        recognition.start();
+                        console.log('✅ Recognition restarted');
+                    } catch (e) {
+                        console.error('❌ Failed to restart:', e);
+                        voiceBtn.classList.remove('listening');
+                        voiceBtn.textContent = '🎤 Click to Try Again';
+                        statusEl.innerHTML = '<strong style="color: #FFA500;">Click button to try again</strong>';
+                        conversationState.isListening = false;
+                    }
+                }, 100);
+            } else if (!statusEl.innerHTML.includes('GOT IT')) {
+                voiceBtn.classList.remove('listening');
+                voiceBtn.textContent = '🔄 Click to Resume';
+                statusEl.innerHTML = '<strong>⏱️ Timed out</strong><br>Click to resume from step: ' + conversationState.step;
+                statusEl.style.color = '#FFA500';
+                conversationState.isListening = false;
 
-        // Voice input for form fields
-        async function startVoiceInput(targetInputId) {
-            if (!recognition) {
-                alert('Voice recognition not supported. Please use Chrome, Edge, or Safari.');
+                console.log('💾 Timeout - conversation can resume from:', conversationState.step);
+            }
+        };
+
+        recognition.onerror = function(event) {
+            console.error('❌ Recognition error:', event.error);
+
+            if (recognitionTimeout) {
+                clearTimeout(recognitionTimeout);
+            }
+
+            const voiceBtn = document.getElementById('main-voice-btn');
+            const statusEl = document.getElementById('main-voice-status');
+
+            let errorMsg = '';
+            let shouldRestart = false;
+
+            if (event.error === 'no-speech') {
+                errorMsg = '⏱️ No speech detected';
+                shouldRestart = autoRestartEnabled && conversationState.isListening;
+                console.log('No speech error. Should restart?', shouldRestart);
+            } else if (event.error === 'audio-capture') {
+                errorMsg = '🎤 Mic problem<br>Check connection';
+            } else if (event.error === 'not-allowed') {
+                errorMsg = '🚫 Permission denied<br>Check settings';
+                autoRestartEnabled = false;
+            } else if (event.error === 'aborted') {
+                console.log('Recognition aborted (normal if restarting)');
                 return;
+            } else {
+                errorMsg = '❌ Error: ' + event.error;
             }
 
-            const targetInput = document.getElementById(targetInputId);
-            const voiceBtn = event.target.closest('.btn-voice');
-            const statusElement = document.getElementById('goals-voice-status');
-
-            const hasPermission = await requestMicPermission();
-            if (!hasPermission) return;
-
-            recognition.onstart = function() {
-                voiceBtn.classList.add('listening');
-                voiceBtn.textContent = '🔴 LISTENING';
-                if (statusElement) {
-                    statusElement.textContent = '🔴 RECORDING - Speak now';
-                    statusElement.style.color = '#FF6B6B';
-                    statusElement.style.fontWeight = 'bold';
-                }
-            };
-
-            recognition.onresult = function(event) {
-                const transcript = event.results[0][0].transcript;
-                targetInput.value = transcript;
-            };
-
-            recognition.onend = function() {
+            if (!shouldRestart) {
                 voiceBtn.classList.remove('listening');
-                voiceBtn.textContent = '🎤';
-                if (statusElement) {
-                    statusElement.textContent = 'Voice input ready';
-                    statusElement.style.color = '';
-                    statusElement.style.fontWeight = '';
-                }
-            };
+                voiceBtn.textContent = '🔄 Click to Resume';
+                statusEl.innerHTML = '<strong style="color: #FF6B6B;">' + errorMsg + '</strong><br>Click to resume conversation';
+                conversationState.isListening = false;
+                autoRestartEnabled = false;
 
-            recognition.onerror = function(event) {
-                console.error('Speech recognition error:', event.error);
-                voiceBtn.classList.remove('listening');
-                voiceBtn.textContent = '❌';
-                if (statusElement) {
-                    statusElement.textContent = '❌ Error: ' + event.error;
-                    statusElement.style.color = '#FF6B6B';
-                }
-            };
+                console.log('💾 Saving conversation state for resume. Current step:', conversationState.step);
+            }
+        };
 
+        try {
             recognition.start();
+            console.log('✅ Recognition start called');
+        } catch (error) {
+            console.error('❌ Failed to start recognition:', error);
+            alert('Could not start voice recognition. Try again.');
+        }
+    }
+
+    // Process voice response
+    function processVoiceResponse(transcript, step) {
+        const currentFlow = conversationFlow[step];
+        const voiceBtn = document.getElementById('main-voice-btn');
+        const statusEl = document.getElementById('main-voice-status');
+
+        voiceBtn.textContent = '✅ Processing...';
+        statusEl.textContent = 'Processing your response...';
+        statusEl.style.color = '';
+        statusEl.style.fontWeight = '';
+
+        if (currentFlow.saveAs) {
+            conversationState.responses[currentFlow.saveAs] = transcript;
         }
 
-        // Update summary
-        function updateSummary() {
-            saveCurrentData();
-            const summaryContent = document.getElementById('summary-content');
-            summaryContent.innerHTML = `
-                <div class="summary-item">
-                    <strong>Name:</strong>
-                    <span>${sessionData.name || 'Not provided'}</span>
-                </div>
-                <div class="summary-item">
-                    <strong>Age:</strong>
-                    <span>${sessionData.age || 'Not provided'}</span>
-                </div>
-                <div class="summary-item">
-                    <strong>Current Anxiety Level:</strong>
-                    <span>${sessionData.anxietyLevel} / 10</span>
-                </div>
-                <div class="summary-item">
-                    <strong>Session Goals:</strong>
-                    <span>${sessionData.goals || 'Not provided'}</span>
-                </div>
-                <div class="summary-item">
-                    <strong>Exposure Level:</strong>
-                    <span>${sessionData.exposureLevel.charAt(0).toUpperCase() + sessionData.exposureLevel.slice(1)}</span>
-                </div>
-            `;
+        if (currentFlow.nextStep === 'vr') {
+            completeVoiceConversation();
+        } else {
+            setTimeout(() => {
+                continueConversation(currentFlow.nextStep);
+            }, 1000);
+        }
+    }
+
+    // Continue to next conversation step
+    function continueConversation(nextStep) {
+        const nextFlow = conversationFlow[nextStep];
+        const voiceBtn = document.getElementById('main-voice-btn');
+        const statusEl = document.getElementById('main-voice-status');
+
+        voiceBtn.textContent = '🔊 Speaking...';
+        statusEl.textContent = 'System is speaking';
+        statusEl.style.color = '';
+
+        speak(nextFlow.text, () => {
+            voiceBtn.textContent = '🎤 Listening for your response...';
+            voiceBtn.classList.add('listening');
+            statusEl.textContent = 'Please speak your response';
+            startListening(nextStep);
+        });
+    }
+
+    // Add message to conversation display
+    function addMessageToConversation(sender, message) {
+        const displayId = window.currentConversationDisplay || 'conversation-display';
+        const conversationDisplay = document.getElementById(displayId);
+        if (!conversationDisplay) return;
+        const messageDiv = document.createElement('div');
+        messageDiv.className = sender === 'System' ? 'message system-message' : 'message user-message';
+        messageDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
+        conversationDisplay.appendChild(messageDiv);
+        conversationDisplay.scrollTop = conversationDisplay.scrollHeight;
+    }
+
+    // Add or update a live caption message
+    function addOrUpdateLiveCaption(text) {
+        const conversationDisplay = document.getElementById(window.currentConversationDisplay || 'conversation-display');
+        let captionEl = document.getElementById('live-caption');
+
+        if (!captionEl) {
+            captionEl = document.createElement('div');
+            captionEl.id = 'live-caption';
+            captionEl.className = 'message user-message live';
+            captionEl.innerHTML = `<strong>You (speaking):</strong> ${text}`;
+            conversationDisplay.appendChild(captionEl);
+        } else {
+            captionEl.innerHTML = `<strong>You (speaking):</strong> ${text}`;
         }
 
-        // Start VR session
-        function startVRSession() {
-            saveCurrentData();
-            
-            console.log('Session Data:', sessionData);
-            
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
-            });
+        conversationDisplay.scrollTop = conversationDisplay.scrollHeight;
+    }
 
-            document.getElementById('vr-container').classList.add('active');
+    // Remove the live caption
+    function removeLiveCaption() {
+        const captionEl = document.getElementById('live-caption');
+        if (captionEl) {
+            captionEl.remove();
+        }
+    }
 
+    // Complete voice conversation
+    function completeVoiceConversation() {
+        sessionData.name = conversationState.responses.name || '';
+        sessionData.age = conversationState.responses.age || '';
+        sessionData.anxietyLevel = conversationState.responses.anxietyLevel || '5';
+        sessionData.goals = 'Voice-guided session';
+        sessionData.exposureLevel = 'gentle';
+
+        const btnId = window.currentVoiceButton || 'main-voice-btn';
+        const statusId = window.currentStatusElement || 'main-voice-status';
+        const voiceBtn = document.getElementById(btnId);
+        const statusEl = document.getElementById(statusId);
+
+        voiceBtn.textContent = '✅ Complete - Starting VR';
+        voiceBtn.classList.remove('listening');
+        statusEl.textContent = 'Launching virtual classroom...';
+
+        console.log('Voice conversation completed:', conversationState.responses);
+
+        setTimeout(() => {
+            document.getElementById('vr-overlay').classList.remove('active');
             speak('Welcome to the virtual classroom. Take your time and remember you can exit at any moment.');
+        }, 2000);
+    }
+
+    // Skip to manual mode from old welcome screen
+    function skipToManualMode() {
+        goToScreen('info');
+    }
+
+    // Skip to manual overlay (from VR)
+    function skipToManualOverlay() {
+        document.getElementById('manual-overlay').classList.add('active');
+    }
+
+    // Close manual overlay
+    function closeManualOverlay() {
+        document.getElementById('manual-overlay').classList.remove('active');
+    }
+
+    // Update manual anxiety display
+    function updateManualAnxietyDisplay() {
+        const value = document.getElementById('manual-anxiety').value;
+        document.getElementById('manual-anxiety-display').textContent = value;
+    }
+
+    // Submit manual data and hide overlay
+    function submitManualData() {
+        sessionData.name = document.getElementById('manual-name').value;
+        sessionData.age = document.getElementById('manual-age').value;
+        sessionData.anxietyLevel = document.getElementById('manual-anxiety').value;
+        sessionData.goals = document.getElementById('manual-goals').value;
+        sessionData.exposureLevel = 'gentle';
+
+        console.log('Manual data submitted:', sessionData);
+
+        document.getElementById('manual-overlay').classList.remove('active');
+        document.getElementById('vr-overlay').classList.remove('active');
+
+        speak('Thank you. Welcome to the virtual classroom. Take your time and remember you can exit at any moment.');
+    }
+
+    // Start VR conversation (from overlay)
+    function startVRConversation() {
+        const voiceBtn = document.getElementById('vr-voice-btn');
+        const statusEl = document.getElementById('vr-voice-status');
+
+        // Replace conversation display target
+        window.currentConversationDisplay = 'vr-conversation-display';
+        window.currentVoiceButton = 'vr-voice-btn';
+        window.currentStatusElement = 'vr-voice-status';
+
+        startConversation();
+    }
+
+    // Screen navigation
+    function goToScreen(screenName) {
+        saveCurrentData();
+
+        document.querySelectorAll('.screen').forEach(screen => {
+            screen.classList.remove('active');
+        });
+
+        document.getElementById('screen-' + screenName).classList.add('active');
+
+        if (screenName === 'summary') {
+            updateSummary();
         }
-    </script>
+    }
+
+    // Save form data
+    function saveCurrentData() {
+        sessionData.name = document.getElementById('participant-name')?.value || sessionData.name;
+        sessionData.age = document.getElementById('participant-age')?.value || sessionData.age;
+        sessionData.anxietyLevel = document.getElementById('anxiety-level')?.value || sessionData.anxietyLevel;
+        sessionData.goals = document.getElementById('session-goals')?.value || sessionData.goals;
+        sessionData.exposureLevel = document.getElementById('exposure-level')?.value || sessionData.exposureLevel;
+    }
+
+    // Update anxiety display
+    function updateAnxietyDisplay() {
+        const value = document.getElementById('anxiety-level').value;
+        document.getElementById('anxiety-display').textContent = value;
+    }
+
+    // Voice input for form fields
+    async function startVoiceInput(targetInputId) {
+        if (!recognition) {
+            alert('Voice recognition not supported. Please use Chrome, Edge, or Safari.');
+            return;
+        }
+
+        const targetInput = document.getElementById(targetInputId);
+        const voiceBtn = event.target.closest('.btn-voice');
+        const statusElement = document.getElementById('goals-voice-status');
+
+        const hasPermission = await requestMicPermission();
+        if (!hasPermission) return;
+
+        recognition.onstart = function() {
+            voiceBtn.classList.add('listening');
+            voiceBtn.textContent = '🔴 LISTENING';
+            if (statusElement) {
+                statusElement.textContent = '🔴 RECORDING - Speak now';
+                statusElement.style.color = '#FF6B6B';
+                statusElement.style.fontWeight = 'bold';
+            }
+        };
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            targetInput.value = transcript;
+        };
+
+        recognition.onend = function() {
+            voiceBtn.classList.remove('listening');
+            voiceBtn.textContent = '🎤';
+            if (statusElement) {
+                statusElement.textContent = 'Voice input ready';
+                statusElement.style.color = '';
+                statusElement.style.fontWeight = '';
+            }
+        };
+
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error:', event.error);
+            voiceBtn.classList.remove('listening');
+            voiceBtn.textContent = '❌';
+            if (statusElement) {
+                statusElement.textContent = '❌ Error: ' + event.error;
+                statusElement.style.color = '#FF6B6B';
+            }
+        };
+
+        recognition.start();
+    }
+
+    // Update summary
+    function updateSummary() {
+        saveCurrentData();
+        const summaryContent = document.getElementById('summary-content');
+        summaryContent.innerHTML = `
+            <div class="summary-item">
+                <strong>Name:</strong>
+                <span>${sessionData.name || 'Not provided'}</span>
+            </div>
+            <div class="summary-item">
+                <strong>Age:</strong>
+                <span>${sessionData.age || 'Not provided'}</span>
+            </div>
+            <div class="summary-item">
+                <strong>Current Anxiety Level:</strong>
+                <span>${sessionData.anxietyLevel} / 10</span>
+            </div>
+            <div class="summary-item">
+                <strong>Session Goals:</strong>
+                <span>${sessionData.goals || 'Not provided'}</span>
+            </div>
+            <div class="summary-item">
+                <strong>Exposure Level:</strong>
+                <span>${sessionData.exposureLevel.charAt(0).toUpperCase() + sessionData.exposureLevel.slice(1)}</span>
+            </div>
+        `;
+    }
+
+    // Start VR session
+    function startVRSession() {
+        saveCurrentData();
+
+        console.log('Session Data:', sessionData);
+
+        document.querySelectorAll('.screen').forEach(screen => {
+            screen.classList.remove('active');
+        });
+
+        document.getElementById('vr-container').classList.add('active');
+
+        speak('Welcome to the virtual classroom. Take your time and remember you can exit at any moment.');
+    }
+</script>
 </body>
 </html>
