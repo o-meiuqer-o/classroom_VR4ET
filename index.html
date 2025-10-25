@@ -370,6 +370,78 @@
       <a-plane width="0.8" height="0.35" color="#21808D" opacity="0.95"></a-plane>
       <a-text value="Continue" align="center" position="0 0 0.01" width="1.8" color="#FCFCF9"></a-text>
     </a-entity>
+
+    <!-- Breathing Cube -->
+    <a-entity id="breathingCube" visible="false" position="0 1.6 -1.8">
+      <a-box id="breathingBox" width="0.5" height="0.5" depth="0.5" color="#21808D" opacity="0.7"></a-box>
+      <a-text id="breathingInstruction" value="" align="center" position="0 -0.5 0" width="2" color="#FCFCF9"></a-text>
+      <a-text id="roundCounter" value="" align="center" position="0 -0.7 0" width="1.5" color="#FCFCF9"></a-text>
+    </a-entity>
+
+    <!-- Hand Demonstration -->
+    <a-entity id="handDemo" visible="false" position="-0.8 1.3 -1.5">
+      <a-plane width="0.6" height="0.8" color="#FCFCF9" opacity="0.95"></a-plane>
+      <a-text value="👍\nFinger\nAnchors" align="center" position="0 0 0.01" width="1.2" color="#134252"></a-text>
+    </a-entity>
+
+    <!-- Anxiety Scale -->
+    <a-entity id="anxietyScale" visible="false" position="0 1.6 -1.5">
+      <a-plane width="2.8" height="0.6" color="#FCFCF9" opacity="0.95"></a-plane>
+      <a-text value="Anxiety Level: 1 - 10" align="center" position="0 0.2 0.01" width="2.5" color="#134252"></a-text>
+      <!-- Scale Numbers -->
+      <a-entity id="scale1" position="-1.2 -0.1 0.02" class="clickable scale-number">
+        <a-circle radius="0.08" color="#21808D" opacity="0.3"></a-circle>
+        <a-text value="1" align="center" position="0 0 0.01" width="0.4" color="#134252"></a-text>
+      </a-entity>
+      <a-entity id="scale2" position="-0.96 -0.1 0.02" class="clickable scale-number">
+        <a-circle radius="0.08" color="#21808D" opacity="0.3"></a-circle>
+        <a-text value="2" align="center" position="0 0 0.01" width="0.4" color="#134252"></a-text>
+      </a-entity>
+      <a-entity id="scale3" position="-0.72 -0.1 0.02" class="clickable scale-number">
+        <a-circle radius="0.08" color="#21808D" opacity="0.3"></a-circle>
+        <a-text value="3" align="center" position="0 0 0.01" width="0.4" color="#134252"></a-text>
+      </a-entity>
+      <a-entity id="scale4" position="-0.48 -0.1 0.02" class="clickable scale-number">
+        <a-circle radius="0.08" color="#21808D" opacity="0.3"></a-circle>
+        <a-text value="4" align="center" position="0 0 0.01" width="0.4" color="#134252"></a-text>
+      </a-entity>
+      <a-entity id="scale5" position="-0.24 -0.1 0.02" class="clickable scale-number">
+        <a-circle radius="0.08" color="#21808D" opacity="0.3"></a-circle>
+        <a-text value="5" align="center" position="0 0 0.01" width="0.4" color="#134252"></a-text>
+      </a-entity>
+      <a-entity id="scale6" position="0 -0.1 0.02" class="clickable scale-number">
+        <a-circle radius="0.08" color="#21808D" opacity="0.3"></a-circle>
+        <a-text value="6" align="center" position="0 0 0.01" width="0.4" color="#134252"></a-text>
+      </a-entity>
+      <a-entity id="scale7" position="0.24 -0.1 0.02" class="clickable scale-number">
+        <a-circle radius="0.08" color="#21808D" opacity="0.3"></a-circle>
+        <a-text value="7" align="center" position="0 0 0.01" width="0.4" color="#134252"></a-text>
+      </a-entity>
+      <a-entity id="scale8" position="0.48 -0.1 0.02" class="clickable scale-number">
+        <a-circle radius="0.08" color="#21808D" opacity="0.3"></a-circle>
+        <a-text value="8" align="center" position="0 0 0.01" width="0.4" color="#134252"></a-text>
+      </a-entity>
+      <a-entity id="scale9" position="0.72 -0.1 0.02" class="clickable scale-number">
+        <a-circle radius="0.08" color="#21808D" opacity="0.3"></a-circle>
+        <a-text value="9" align="center" position="0 0 0.01" width="0.4" color="#134252"></a-text>
+      </a-entity>
+      <a-entity id="scale10" position="0.96 -0.1 0.02" class="clickable scale-number">
+        <a-circle radius="0.08" color="#21808D" opacity="0.3"></a-circle>
+        <a-text value="10" align="center" position="0 0 0.01" width="0.4" color="#134252"></a-text>
+      </a-entity>
+    </a-entity>
+
+    <!-- Timer Display -->
+    <a-entity id="timerDisplay" visible="false" position="0 1.6 -1.5">
+      <a-plane width="1" height="0.5" color="#FCFCF9" opacity="0.95"></a-plane>
+      <a-text id="timerText" value="15" align="center" position="0 0 0.01" width="2" color="#21808D"></a-text>
+    </a-entity>
+
+    <!-- Checklist Display -->
+    <a-entity id="checklistDisplay" visible="false" position="0.5 1.6 -1.5">
+      <a-plane width="2" height="1.6" color="#FCFCF9" opacity="0.95"></a-plane>
+      <a-text id="checklistText" value="" align="left" position="-0.9 0.6 0.01" width="1.8" color="#134252" line-height="50"></a-text>
+    </a-entity>
   </a-scene>
 
   <!-- Voice Mode Overlay -->
@@ -440,12 +512,146 @@
     const sessionState = {
       active: false,
       currentPhase: 'grounding',
+      currentPhaseId: 1,
       currentStep: 0,
+      currentPart: null,
       responses: {
-        groundingFeedback: null
+        groundingFeedback: null,
+        breathingCheck: null,
+        anxietyBefore: null,
+        anxietyAfter: null
       },
+      breathingRound: 0,
       startTime: null,
       phaseStartTime: null
+    };
+
+    // Phase Data Structures
+    const phases = {
+      rapport: {
+        id: 2,
+        name: 'Rapport Building',
+        steps: [
+          {
+            id: 'normalize',
+            text: "So I know this isn't your first time feeling this way before an exam. Maybe you've had that chest-tightening moment mid-sentence or blanked out completely.",
+            duration: 7000
+          },
+          {
+            id: 'adhd_context',
+            text: "When you have ADHD, your working memory is already working harder than most people's just to keep up. Add panic on top of that? Your brain basically hits 'system overload.'",
+            duration: 8000
+          },
+          {
+            id: 'reframe',
+            text: "The times you've blanked out before? That wasn't a failure. That was your nervous system trying to protect you. But we can work with it differently.",
+            duration: 7000
+          }
+        ]
+      },
+      intervention: {
+        id: 3,
+        name: 'Layered Intervention',
+        parts: ['breathing', 'memoryWarmup', 'bodyGrounding']
+      },
+      dissociation: {
+        id: 4,
+        name: 'Dissociation Prevention',
+        steps: [
+          {
+            id: 'intro',
+            text: "Alright, we need to talk about panic during the exam. Because it might happen. And if it does, you need a plan.",
+            duration: 6000
+          },
+          {
+            id: 'warning_signs',
+            text: "First—early warning signs. Watch for these: tunnel vision, feeling floaty or far away, hands going numb, or thoughts getting scrambled.",
+            type: 'checklist',
+            items: [
+              'Tunnel vision or blurry edges',
+              'Feeling floaty or far away',
+              'Hands going numb or tingly',
+              'Thoughts getting scrambled',
+              'Time feeling weird'
+            ],
+            duration: 10000
+          },
+          {
+            id: 'protocol',
+            text: "If you notice ANY of these, act immediately. Stop writing. Press your feet into the floor. Look at something specific—a corner, a desk edge. Name three things you see out loud in your head.",
+            type: 'protocol',
+            items: [
+              'STOP writing immediately',
+              'Press feet hard into floor',
+              'Look at one specific object',
+              'Name 3 things you see',
+              'Take one slow breath'
+            ],
+            duration: 12000
+          },
+          {
+            id: 'permission',
+            text: "You have permission to take care of yourself. Even in an exam. Especially in an exam.",
+            duration: 5000
+          }
+        ]
+      },
+      confidence: {
+        id: 5,
+        name: 'Confidence Anchoring',
+        steps: [
+          {
+            id: 'scale_before',
+            text: "Okay. Let's do a reality check. On a scale of 1 to 10, where were you when we started? 1 is calm, 10 is full panic.",
+            type: 'scale',
+            duration: 5000
+          },
+          {
+            id: 'scale_now',
+            text: "And where are you now? Pick a number.",
+            type: 'scale_input',
+            duration: 5000
+          },
+          {
+            id: 'acknowledge',
+            text: "That's a shift. You did that. Not me, not luck. You.",
+            duration: 4000
+          },
+          {
+            id: 'visualization',
+            text: "Now, quick mental movie. Close your eyes for 15 seconds. Picture yourself in the exam hall, feeling this way. Not perfect, just steady.",
+            type: 'timer',
+            timer: 15,
+            duration: 20000
+          },
+          {
+            id: 'open_eyes',
+            text: "Open your eyes. Remember that feeling. You can access it again.",
+            duration: 4000
+          }
+        ]
+      },
+      close: {
+        id: 6,
+        name: 'Close',
+        steps: [
+          {
+            id: 'reality_check',
+            text: "Look—this isn't going to be your best exam performance. You're running on adrenaline and very little sleep.",
+            duration: 6000
+          },
+          {
+            id: 'reframe',
+            text: "But you don't need your best performance. You just need to show up, write something down, and not disappear mid-exam.",
+            duration: 6000
+          },
+          {
+            id: 'affirmation',
+            text: "You've got this. Not because you're ready. Because you're here anyway.",
+            duration: 5000
+          }
+        ]
+      }
     };
 
     // Grounding Phase Data
@@ -1027,7 +1233,6 @@
     // Handle Feedback Response
     function handleFeedbackResponse(isPositive) {
       console.log('📝 Feedback:', isPositive ? 'Positive' : 'Negative');
-      sessionState.responses.groundingFeedback = isPositive ? 'positive' : 'negative';
       
       // Hide feedback buttons
       const feedbackButtons = document.getElementById('feedbackButtons');
@@ -1035,45 +1240,516 @@
         feedbackButtons.setAttribute('visible', 'false');
       }
       
-      // Update text based on response
-      const step = groundingPhase.steps[sessionState.currentStep];
-      const responseText = isPositive ? step.text_positive : step.text_negative;
-      
-      const dialogueText = document.getElementById('dialogueText');
-      if (dialogueText) {
-        dialogueText.setAttribute('value', responseText);
-      }
-      
-      // Speak response and show continue button
-      speak(responseText, () => {
-        const continueBtn = document.getElementById('continueBtn');
-        if (continueBtn) {
-          continueBtn.setAttribute('visible', 'true');
-          continueBtn.setAttribute('animation', 'property: scale; from: 0.8 0.8 0.8; to: 1 1 1; dur: 300');
+      // Determine which phase we're in
+      if (sessionState.currentPhase === 'grounding') {
+        sessionState.responses.groundingFeedback = isPositive ? 'positive' : 'negative';
+        
+        // Update text based on response
+        const step = groundingPhase.steps[sessionState.currentStep];
+        const responseText = isPositive ? step.text_positive : step.text_negative;
+        
+        const dialogueText = document.getElementById('dialogueText');
+        if (dialogueText) {
+          dialogueText.setAttribute('value', responseText);
         }
-      });
+        
+        // Speak response and show continue button
+        speak(responseText, () => {
+          const continueBtn = document.getElementById('continueBtn');
+          if (continueBtn) {
+            continueBtn.setAttribute('visible', 'true');
+            continueBtn.setAttribute('animation', 'property: scale; from: 0.8 0.8 0.8; to: 1 1 1; dur: 300');
+          }
+        });
+      } else if (sessionState.currentPhase === 'intervention' && sessionState.currentPart === 'breathing') {
+        handleBreathingFeedback(isPositive);
+      }
     }
 
     // Complete Grounding Phase
     function completeGroundingPhase() {
       console.log('✅ Grounding phase complete');
+      sessionState.currentPhase = 'rapport';
+      sessionState.currentPhaseId = 2;
+      sessionState.currentStep = 0;
+      
+      setTimeout(() => {
+        startRapportPhase();
+      }, 1000);
+    }
+
+    // Start Rapport Phase
+    function startRapportPhase() {
+      console.log('🤝 Starting rapport phase');
+      const progressText = document.getElementById('progressText');
+      if (progressText) {
+        progressText.setAttribute('value', 'Phase 2 of 6: Rapport Building');
+      }
+      processRapportStep();
+    }
+
+    // Process Rapport Step
+    function processRapportStep() {
+      const step = phases.rapport.steps[sessionState.currentStep];
+      console.log(`📍 Rapport Step ${sessionState.currentStep + 1}/${phases.rapport.steps.length}:`, step.id);
       
       const dialogueText = document.getElementById('dialogueText');
+      const visualText = document.getElementById('visualText');
+      
+      if (visualText) visualText.setAttribute('visible', 'false');
+      if (dialogueText) dialogueText.setAttribute('value', step.text);
+      
+      speak(step.text, () => {
+        if (step.duration) {
+          setTimeout(() => {
+            advanceRapportStep();
+          }, step.duration);
+        }
+      });
+    }
+
+    // Advance Rapport Step
+    function advanceRapportStep() {
+      sessionState.currentStep++;
+      if (sessionState.currentStep < phases.rapport.steps.length) {
+        processRapportStep();
+      } else {
+        completeRapportPhase();
+      }
+    }
+
+    // Complete Rapport Phase
+    function completeRapportPhase() {
+      console.log('✅ Rapport phase complete');
+      sessionState.currentPhase = 'intervention';
+      sessionState.currentPhaseId = 3;
+      sessionState.currentStep = 0;
+      sessionState.currentPart = 'breathing';
+      
+      setTimeout(() => {
+        startInterventionPhase();
+      }, 1000);
+    }
+
+    // Start Intervention Phase
+    function startInterventionPhase() {
+      console.log('🧠 Starting intervention phase');
+      const progressText = document.getElementById('progressText');
+      if (progressText) {
+        progressText.setAttribute('value', 'Phase 3 of 6: Layered Intervention');
+      }
+      startBreathingPart();
+    }
+
+    // Breathing Part
+    function startBreathingPart() {
+      console.log('💨 Starting breathing exercise');
+      sessionState.breathingRound = 0;
+      
+      const dialogueText = document.getElementById('dialogueText');
+      const breathingCube = document.getElementById('breathingCube');
+      const handDemo = document.getElementById('handDemo');
+      
       if (dialogueText) {
-        dialogueText.setAttribute('value', 'Phase 1 complete. Phase 2 will continue with building rapport and understanding your specific concerns.');
+        dialogueText.setAttribute('value', "Alright, breathing exercise. We're adding physical anchors. Each breath gets a finger press.");
       }
       
-      speak('Phase 1 complete. Phase 2 will continue with building rapport and understanding your specific concerns.', () => {
-        // Show continue button to return to classroom
+      speak("Alright, breathing exercise. We're adding physical anchors. Each breath gets a finger press.", () => {
+        if (breathingCube) breathingCube.setAttribute('visible', 'true');
+        if (handDemo) handDemo.setAttribute('visible', 'true');
+        
         setTimeout(() => {
-          const dialoguePanel = document.getElementById('dialoguePanel');
-          if (dialoguePanel) {
-            dialoguePanel.setAttribute('visible', 'false');
+          explainBreathingTechnique();
+        }, 2000);
+      });
+    }
+
+    // Explain Breathing Technique
+    function explainBreathingTechnique() {
+      const text = "BREATHE IN → thumb and pointer finger together. HOLD → thumb and middle finger. BREATHE OUT → thumb and ring finger. HOLD → thumb and pinky. Let's practice once slowly first.";
+      
+      const dialogueText = document.getElementById('dialogueText');
+      if (dialogueText) dialogueText.setAttribute('value', text);
+      
+      speak(text, () => {
+        setTimeout(() => {
+          startBreathingRounds();
+        }, 2000);
+      });
+    }
+
+    // Start Breathing Rounds
+    function startBreathingRounds() {
+      sessionState.breathingRound = 1;
+      performBreathingRound();
+    }
+
+    // Perform Single Breathing Round
+    function performBreathingRound() {
+      console.log(`💨 Breathing round ${sessionState.breathingRound}/7`);
+      
+      const roundCounter = document.getElementById('roundCounter');
+      const breathingInstruction = document.getElementById('breathingInstruction');
+      const breathingBox = document.getElementById('breathingBox');
+      
+      if (roundCounter) {
+        roundCounter.setAttribute('value', `Round ${sessionState.breathingRound} of 7`);
+      }
+      
+      // Breathe In (4s)
+      if (breathingInstruction) breathingInstruction.setAttribute('value', 'Breathe IN');
+      if (breathingBox) {
+        breathingBox.setAttribute('animation', 'property: scale; from: 1 1 1; to: 1.5 1.5 1.5; dur: 4000; easing: easeInOutQuad');
+      }
+      
+      setTimeout(() => {
+        // Hold (2s)
+        if (breathingInstruction) breathingInstruction.setAttribute('value', 'HOLD');
+        
+        setTimeout(() => {
+          // Breathe Out (4s)
+          if (breathingInstruction) breathingInstruction.setAttribute('value', 'Breathe OUT');
+          if (breathingBox) {
+            breathingBox.setAttribute('animation', 'property: scale; from: 1.5 1.5 1.5; to: 1 1 1; dur: 4000; easing: easeInOutQuad');
           }
           
-          // Show begin button again for restart
-          showBeginSessionButton();
+          setTimeout(() => {
+            // Hold (2s)
+            if (breathingInstruction) breathingInstruction.setAttribute('value', 'HOLD');
+            
+            setTimeout(() => {
+              // Round complete
+              sessionState.breathingRound++;
+              
+              if (sessionState.breathingRound <= 7) {
+                performBreathingRound();
+              } else {
+                completeBreathingRounds();
+              }
+            }, 2000);
+          }, 4000);
+        }, 2000);
+      }, 4000);
+    }
+
+    // Complete Breathing Rounds
+    function completeBreathingRounds() {
+      console.log('✅ Breathing rounds complete');
+      
+      const breathingCube = document.getElementById('breathingCube');
+      const handDemo = document.getElementById('handDemo');
+      const feedbackButtons = document.getElementById('feedbackButtons');
+      const dialogueText = document.getElementById('dialogueText');
+      
+      if (breathingCube) breathingCube.setAttribute('visible', 'false');
+      if (handDemo) handDemo.setAttribute('visible', 'false');
+      
+      if (dialogueText) {
+        dialogueText.setAttribute('value', 'Nice. Check your body—shoulders probably dropped a little. Did they?');
+      }
+      
+      speak('Nice. Check your body—shoulders probably dropped a little. Did they?', () => {
+        if (feedbackButtons) {
+          feedbackButtons.setAttribute('visible', 'true');
+        }
+      });
+    }
+
+    // Handle Breathing Feedback
+    function handleBreathingFeedback(isPositive) {
+      console.log('📝 Breathing feedback:', isPositive ? 'Positive' : 'Negative');
+      sessionState.responses.breathingCheck = isPositive ? 'positive' : 'negative';
+      
+      const feedbackButtons = document.getElementById('feedbackButtons');
+      const dialogueText = document.getElementById('dialogueText');
+      
+      if (feedbackButtons) feedbackButtons.setAttribute('visible', 'false');
+      
+      if (isPositive) {
+        if (dialogueText) dialogueText.setAttribute('value', 'Good. Your body is listening. Moving on.');
+        speak('Good. Your body is listening. Moving on.', () => {
+          setTimeout(() => {
+            startMemoryWarmup();
+          }, 2000);
+        });
+      } else {
+        if (dialogueText) dialogueText.setAttribute('value', "That's okay. Sometimes it takes longer. Let's do one more round.");
+        speak("That's okay. Sometimes it takes longer. Let's do one more round.", () => {
+          sessionState.breathingRound = 0;
+          setTimeout(() => {
+            startBreathingRounds();
+          }, 2000);
+        });
+      }
+    }
+
+    // Memory Warmup
+    function startMemoryWarmup() {
+      console.log('🧠 Starting memory warmup');
+      
+      const dialogueText = document.getElementById('dialogueText');
+      const visualText = document.getElementById('visualText');
+      
+      if (dialogueText) {
+        dialogueText.setAttribute('value', "Okay, now we need to warm up your working memory. I'm going to show you 4 numbers. Look at them.");
+      }
+      
+      speak("Okay, now we need to warm up your working memory. I'm going to show you 4 numbers. Look at them.", () => {
+        if (visualText) {
+          visualText.setAttribute('value', '7 - 3 - 9 - 2');
+          visualText.setAttribute('visible', 'true');
+        }
+        
+        setTimeout(() => {
+          if (visualText) visualText.setAttribute('visible', 'false');
+          
+          const text = "Name 3 animals in your head... Think about your exam schedule today... Now tell me the numbers. See? Your memory isn't broken. It just needed a warmup.";
+          if (dialogueText) dialogueText.setAttribute('value', text);
+          
+          speak(text, () => {
+            setTimeout(() => {
+              startBodyGrounding();
+            }, 3000);
+          });
         }, 5000);
+      });
+    }
+
+    // Body Grounding
+    function startBodyGrounding() {
+      console.log('👐 Starting body grounding');
+      
+      const dialogueText = document.getElementById('dialogueText');
+      const text = "Last thing—quick body check. Feel your feet on the floor. Press them down. Shoulders—scrunch them up to your ears... Now drop them. Hands—make tight fists... Release. Good.";
+      
+      if (dialogueText) dialogueText.setAttribute('value', text);
+      
+      speak(text, () => {
+        setTimeout(() => {
+          completeInterventionPhase();
+        }, 3000);
+      });
+    }
+
+    // Complete Intervention Phase
+    function completeInterventionPhase() {
+      console.log('✅ Intervention phase complete');
+      sessionState.currentPhase = 'dissociation';
+      sessionState.currentPhaseId = 4;
+      sessionState.currentStep = 0;
+      
+      setTimeout(() => {
+        startDissociationPhase();
+      }, 1000);
+    }
+
+    // Start Dissociation Prevention Phase
+    function startDissociationPhase() {
+      console.log('🚨 Starting dissociation prevention phase');
+      const progressText = document.getElementById('progressText');
+      if (progressText) {
+        progressText.setAttribute('value', 'Phase 4 of 6: Dissociation Prevention');
+      }
+      processDissociationStep();
+    }
+
+    // Process Dissociation Step
+    function processDissociationStep() {
+      const step = phases.dissociation.steps[sessionState.currentStep];
+      console.log(`📍 Dissociation Step ${sessionState.currentStep + 1}/${phases.dissociation.steps.length}:`, step.id);
+      
+      const dialogueText = document.getElementById('dialogueText');
+      const checklistDisplay = document.getElementById('checklistDisplay');
+      const checklistText = document.getElementById('checklistText');
+      
+      if (dialogueText) dialogueText.setAttribute('value', step.text);
+      
+      speak(step.text, () => {
+        if (step.type === 'checklist' || step.type === 'protocol') {
+          // Show checklist
+          if (checklistDisplay && checklistText && step.items) {
+            let listText = step.items.map((item, i) => `• ${item}`).join('\n\n');
+            checklistText.setAttribute('value', listText);
+            checklistDisplay.setAttribute('visible', 'true');
+            
+            setTimeout(() => {
+              checklistDisplay.setAttribute('visible', 'false');
+              setTimeout(() => {
+                advanceDissociationStep();
+              }, 2000);
+            }, step.duration || 10000);
+          }
+        } else if (step.duration) {
+          setTimeout(() => {
+            advanceDissociationStep();
+          }, step.duration);
+        }
+      });
+    }
+
+    // Advance Dissociation Step
+    function advanceDissociationStep() {
+      sessionState.currentStep++;
+      if (sessionState.currentStep < phases.dissociation.steps.length) {
+        processDissociationStep();
+      } else {
+        completeDissociationPhase();
+      }
+    }
+
+    // Complete Dissociation Phase
+    function completeDissociationPhase() {
+      console.log('✅ Dissociation phase complete');
+      sessionState.currentPhase = 'confidence';
+      sessionState.currentPhaseId = 5;
+      sessionState.currentStep = 0;
+      
+      setTimeout(() => {
+        startConfidencePhase();
+      }, 1000);
+    }
+
+    // Start Confidence Anchoring Phase
+    function startConfidencePhase() {
+      console.log('💪 Starting confidence anchoring phase');
+      const progressText = document.getElementById('progressText');
+      if (progressText) {
+        progressText.setAttribute('value', 'Phase 5 of 6: Confidence Anchoring');
+      }
+      processConfidenceStep();
+    }
+
+    // Process Confidence Step
+    function processConfidenceStep() {
+      const step = phases.confidence.steps[sessionState.currentStep];
+      console.log(`📍 Confidence Step ${sessionState.currentStep + 1}/${phases.confidence.steps.length}:`, step.id);
+      
+      const dialogueText = document.getElementById('dialogueText');
+      const anxietyScale = document.getElementById('anxietyScale');
+      const timerDisplay = document.getElementById('timerDisplay');
+      
+      if (dialogueText) dialogueText.setAttribute('value', step.text);
+      
+      speak(step.text, () => {
+        if (step.type === 'scale_input') {
+          // Show anxiety scale for current rating
+          if (anxietyScale) {
+            anxietyScale.setAttribute('visible', 'true');
+          }
+        } else if (step.type === 'timer') {
+          // Show countdown timer
+          if (timerDisplay) {
+            timerDisplay.setAttribute('visible', 'true');
+            let timeLeft = step.timer;
+            const timerText = document.getElementById('timerText');
+            
+            const countdown = setInterval(() => {
+              timeLeft--;
+              if (timerText) timerText.setAttribute('value', timeLeft.toString());
+              
+              if (timeLeft <= 0) {
+                clearInterval(countdown);
+                timerDisplay.setAttribute('visible', 'false');
+                setTimeout(() => {
+                  advanceConfidenceStep();
+                }, 1000);
+              }
+            }, 1000);
+          }
+        } else if (step.duration) {
+          setTimeout(() => {
+            advanceConfidenceStep();
+          }, step.duration);
+        }
+      });
+    }
+
+    // Handle Anxiety Scale Selection
+    function handleAnxietyScaleSelection(value) {
+      console.log('📊 Anxiety scale selected:', value);
+      sessionState.responses.anxietyAfter = value;
+      
+      const anxietyScale = document.getElementById('anxietyScale');
+      if (anxietyScale) anxietyScale.setAttribute('visible', 'false');
+      
+      advanceConfidenceStep();
+    }
+
+    // Advance Confidence Step
+    function advanceConfidenceStep() {
+      sessionState.currentStep++;
+      if (sessionState.currentStep < phases.confidence.steps.length) {
+        processConfidenceStep();
+      } else {
+        completeConfidencePhase();
+      }
+    }
+
+    // Complete Confidence Phase
+    function completeConfidencePhase() {
+      console.log('✅ Confidence phase complete');
+      sessionState.currentPhase = 'close';
+      sessionState.currentPhaseId = 6;
+      sessionState.currentStep = 0;
+      
+      setTimeout(() => {
+        startClosePhase();
+      }, 1000);
+    }
+
+    // Start Close Phase
+    function startClosePhase() {
+      console.log('🎬 Starting close phase');
+      const progressText = document.getElementById('progressText');
+      if (progressText) {
+        progressText.setAttribute('value', 'Phase 6 of 6: Closing');
+      }
+      processCloseStep();
+    }
+
+    // Process Close Step
+    function processCloseStep() {
+      const step = phases.close.steps[sessionState.currentStep];
+      console.log(`📍 Close Step ${sessionState.currentStep + 1}/${phases.close.steps.length}:`, step.id);
+      
+      const dialogueText = document.getElementById('dialogueText');
+      if (dialogueText) dialogueText.setAttribute('value', step.text);
+      
+      speak(step.text, () => {
+        if (step.duration) {
+          setTimeout(() => {
+            advanceCloseStep();
+          }, step.duration);
+        }
+      });
+    }
+
+    // Advance Close Step
+    function advanceCloseStep() {
+      sessionState.currentStep++;
+      if (sessionState.currentStep < phases.close.steps.length) {
+        processCloseStep();
+      } else {
+        completeSession();
+      }
+    }
+
+    // Complete Entire Session
+    function completeSession() {
+      console.log('🎉 All phases complete!');
+      
+      const dialogueText = document.getElementById('dialogueText');
+      const dialoguePanel = document.getElementById('dialoguePanel');
+      const continueBtn = document.getElementById('continueBtn');
+      
+      if (dialogueText) {
+        dialogueText.setAttribute('value', 'Session complete. You can now explore the classroom or exit the experience.');
+      }
+      
+      speak('Session complete. You can now explore the classroom or exit the experience.', () => {
+        if (continueBtn) {
+          continueBtn.setAttribute('visible', 'true');
+        }
       });
     }
 
@@ -1104,7 +1780,11 @@
       manualInputOverlay.classList.remove('active');
       vrOverlay.classList.add('hidden');
       
-      speak('Welcome to your virtual classroom. Take your time to explore.', null);
+      speak('Welcome to your virtual classroom. Take your time to explore.', () => {
+        setTimeout(() => {
+          showBeginSessionButton();
+        }, 2000);
+      });
     }
 
     // Event Listeners
