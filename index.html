@@ -579,30 +579,38 @@
 
     // Conversation flow
     const conversationFlow = {
-        welcome: {
-            text: "Welcome to Virtual Lecter's Destressing Experience. We will help you practice in a safe virtual classroom environment. We need to collect some basic information for emergency assistance purposes. Are you ready to begin?",
-            nextStep: 'name',
-            expectedResponses: ['yes', 'okay', 'sure', 'ready', 'thank you']
-        },
-        name: {
-            text: "Great! Let's start with your name or participant ID. Please tell me your name.",
-            nextStep: 'age',
-            saveAs: 'name'
-        },
-        age: {
-            text: "Thank you. Now, could you please tell me your age?",
-            nextStep: 'anxiety',
-            saveAs: 'age'
-        },
-        anxiety: {
-            text: "Perfect. On a scale of 1 to 10, with 10 being the highest, what is your current anxiety level about classroom situations?",
-            nextStep: 'complete',
-            saveAs: 'anxietyLevel'
-        },
-        complete: {
-            text: "Thank you for providing that information. We're now ready to begin your virtual classroom experience. Are you ready to enter the virtual environment?",
-            nextStep: 'vr'
-        }
+        const conversationFlow = {
+    welcome: {
+        text: "Welcome to Virtual Lecter's Destressing Experience. We'll practice safely in a virtual classroom. Before we begin, I will ask a few questions to personalize your experience. Are you ready to start?",
+        nextStep: 'language',
+        expectedResponses: ['yes', 'okay', 'sure', 'ready', 'thank you']
+    },
+    language: {
+        text: "Which languages are you comfortable with? Feel free to mention one or more.",
+        nextStep: 'color',
+        saveAs: 'comfortableLanguages'
+    },
+    color: {
+        text: "What is your preferred color for the virtual environment?",
+        nextStep: 'emergencyContact',
+        saveAs: 'preferredColor'
+    },
+    emergencyContact: {
+        text: "For your safety, please provide the name and phone number of an emergency contact person.",
+        nextStep: 'goals',
+        saveAs: 'emergencyContact'
+    },
+    goals: {
+        text: "What would you like to work on today? For example, 'reduce anxiety when presenting' or 'feel comfortable in class'.",
+        nextStep: 'complete',
+        saveAs: 'goals'
+    },
+    complete: {
+        text: "Thank you for sharing. We're now ready to begin your virtual classroom experience. Are you ready to enter the virtual environment?",
+        nextStep: 'vr',
+        expectedResponses: ['yes', 'ready', 'let\'s go', 'thank you']
+    }
+};
     };
 
     // Check microphone permission status
