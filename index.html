@@ -801,7 +801,7 @@
             conversationState.isListening = true;
             
             // Configure for better recognition
-            recognition.continuous = false;
+            recognition.continuous = true; // CHANGED: Make the listener more "patient"
             recognition.interimResults = true; // Show partial results
             recognition.maxAlternatives = 3;
 
@@ -846,16 +846,9 @@
                 if (finalTranscript) {
                     console.log('Heard (final):', finalTranscript);
                     
-                    // NEW: Remove the live caption
-                    removeLiveCaption();
+                    // NEW: Stop the recognition now that we have a final result
+                    recognition.stop();
 
-                    // Add user message to conversation
-                    addMessageToConversation('You', finalTranscript);
-                    
-                    // We don't need to call recognition.stop()
-                    // continuous=false means it will stop automatically,
-                    // firing the 'onend' event.
-                    
                     // Process the response
                     processVoiceResponse(finalTranscript, step);
                 }
@@ -884,6 +877,7 @@
                 let errorMsg = event.error;
                 if (event.error === 'no-speech') {
                     errorMsg = 'No speech detected. Please try again.';
+                    console.log('DEBUG: "no-speech" error. Check microphone levels or background noise.');
                 } else if (event.error === 'audio-capture') {
                     errorMsg = 'Microphone error. Check connection.';
                 }
@@ -1079,7 +1073,7 @@
             // Use a temporary recognition handler for form fields
             const formRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
             formRecognition.lang = 'en-US';
-            formRecognition.continuous = false;
+            formRecognition.continuous = true; // CHANGED: Make the listener more "patient"
             formRecognition.interimResults = false;
 
             formRecognition.onstart = function() {
@@ -1097,6 +1091,8 @@
                 if (targetInput.tagName === 'TEXTAREA' || targetInput.tagName === 'INPUT') {
                     targetInput.value = transcript;
                 }
+                // NEW: Stop the recognition
+                formRecognition.stop();
             };
 
             formRecognition.onend = function() {
@@ -1185,5 +1181,6 @@
     </script>
 </body>
 </html>
+
 
 
