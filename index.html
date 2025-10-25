@@ -314,7 +314,7 @@
       display: block;
     }
 
-    /* Breathing circle - IMPROVED */
+    /* Breathing circle - FIXED ANIMATION */
     #breathingCircle {
       position: fixed;
       top: 50%;
@@ -328,32 +328,40 @@
       display: none;
       z-index: 997;
       box-shadow: 0 0 30px rgba(81, 207, 102, 0.3);
-      transition: transform 0.3s ease;
     }
 
     #breathingCircle.active {
       display: block;
     }
 
+    /* Breathing animations - maintains state */
     #breathingCircle.inhale {
-      animation: breatheIn 4s ease-in-out;
+      animation: breatheIn 4s ease-in-out forwards;
     }
 
     #breathingCircle.exhale {
-      animation: breatheOut 6s ease-in-out;
+      animation: breatheOut 6s ease-in-out forwards;
     }
 
-    #breathingCircle.hold {
-      animation: none;
+    #breathingCircle.hold-full {
+      transform: translate(-50%, -50%) scale(1.8);
+      border-color: #45b558;
+      box-shadow: 0 0 50px rgba(81, 207, 102, 0.5);
+    }
+
+    #breathingCircle.hold-empty {
+      transform: translate(-50%, -50%) scale(1);
+      border-color: #51CF66;
+      box-shadow: 0 0 30px rgba(81, 207, 102, 0.3);
     }
 
     @keyframes breatheIn {
-      0% { 
+      from { 
         transform: translate(-50%, -50%) scale(1); 
         border-color: #51CF66;
         box-shadow: 0 0 30px rgba(81, 207, 102, 0.3);
       }
-      100% { 
+      to { 
         transform: translate(-50%, -50%) scale(1.8); 
         border-color: #45b558;
         box-shadow: 0 0 50px rgba(81, 207, 102, 0.5);
@@ -361,12 +369,12 @@
     }
 
     @keyframes breatheOut {
-      0% { 
+      from { 
         transform: translate(-50%, -50%) scale(1.8); 
         border-color: #45b558;
         box-shadow: 0 0 50px rgba(81, 207, 102, 0.5);
       }
-      100% { 
+      to { 
         transform: translate(-50%, -50%) scale(1); 
         border-color: #51CF66;
         box-shadow: 0 0 30px rgba(81, 207, 102, 0.3);
@@ -529,7 +537,7 @@
   </a-scene>
 
   <script>
-    console.log('VR Classroom v33 - Smooth Breathing + Voice Fix + Phase 2 Conclusion - Initialized');
+    console.log('VR Classroom v34 - Fixed Breathing Animation Timing - Initialized');
 
     const sessionData = {
       comfortableLanguages: '',
@@ -563,21 +571,25 @@
       { text: "That's okay. Sometimes it takes a few tries. We can do it again later if needed.", duration: 4000, negative: true }
     ];
 
-    // Phase 2: Breathing exercises
+    // Phase 2: Breathing exercises - FIXED TIMING
     let breathingStep = 0;
     const breathingSteps = [
       { text: "Phase 2. Now we're going to regulate your nervous system with breathing. It's not just about calming down—it's about giving your body the signal that you're safe.", duration: 5000 },
       { text: "We'll do box breathing. In for four, hold for four, out for six, hold for two. I'll guide each one.", duration: 5000 },
-      { text: "Breathe in through your nose", duration: 4000, breathe: 'in', breathText: 'BREATHE IN' },
-      { text: "Hold", duration: 4000, breathe: 'hold', breathText: 'HOLD' },
-      { text: "Breathe out slowly through your mouth", duration: 6000, breathe: 'out', breathText: 'BREATHE OUT' },
-      { text: "Hold", duration: 2000, breathe: 'hold', breathText: 'HOLD' },
-      { text: "Again. Breathe in", duration: 4000, breathe: 'in', breathText: 'BREATHE IN' },
-      { text: "Hold", duration: 4000, breathe: 'hold', breathText: 'HOLD' },
-      { text: "Out", duration: 6000, breathe: 'out', breathText: 'BREATHE OUT' },
-      { text: "Last one. In", duration: 4000, breathe: 'in', breathText: 'BREATHE IN' },
-      { text: "Hold", duration: 4000, breathe: 'hold', breathText: 'HOLD' },
-      { text: "Out", duration: 6000, breathe: 'out', breathText: 'BREATHE OUT' },
+      // Cycle 1
+      { text: "Breathe in", duration: 0, animDuration: 4000, breathe: 'in', breathText: 'BREATHE IN' },
+      { text: "Hold", duration: 0, animDuration: 4000, breathe: 'hold-full', breathText: 'HOLD' },
+      { text: "Breathe out", duration: 0, animDuration: 6000, breathe: 'out', breathText: 'BREATHE OUT' },
+      { text: "Hold", duration: 0, animDuration: 2000, breathe: 'hold-empty', breathText: 'HOLD' },
+      // Cycle 2
+      { text: "Again. Breathe in", duration: 0, animDuration: 4000, breathe: 'in', breathText: 'BREATHE IN' },
+      { text: "Hold", duration: 0, animDuration: 4000, breathe: 'hold-full', breathText: 'HOLD' },
+      { text: "Out", duration: 0, animDuration: 6000, breathe: 'out', breathText: 'BREATHE OUT' },
+      { text: "Hold", duration: 0, animDuration: 2000, breathe: 'hold-empty', breathText: 'HOLD' },
+      // Cycle 3
+      { text: "Last one. In", duration: 0, animDuration: 4000, breathe: 'in', breathText: 'BREATHE IN' },
+      { text: "Hold", duration: 0, animDuration: 4000, breathe: 'hold-full', breathText: 'HOLD' },
+      { text: "Out", duration: 0, animDuration: 6000, breathe: 'out', breathText: 'BREATHE OUT' },
       { text: "Good. Notice your shoulders, your jaw. Are they a little looser? Did your heart rate drop even a bit? You don't have to feel perfect. You just have to feel present.", duration: 6000 },
       { text: "So. Phase 1 was grounding. That gets you here. Phase 2 was breathing. That tells your body you're safe. Together, these are your reset button.", duration: 6000, conclusion: true },
       { text: "You can do these anywhere. In the exam hall. Before bed. In a bathroom stall if you need to. No one even has to know.", duration: 5000, conclusion: true },
@@ -666,7 +678,7 @@
           isSpeaking = false;
           console.log('Speech completed');
           if (callback) {
-            setTimeout(callback, 800);
+            setTimeout(callback, 200);
           }
         }
       };
@@ -678,7 +690,7 @@
       };
 
       const wordCount = text.split(' ').length;
-      const estimatedDuration = (wordCount * 140) + 2000;
+      const estimatedDuration = (wordCount * 140) + 1000;
       setTimeout(finishSpeech, estimatedDuration);
 
       addMessage('System', text);
@@ -727,7 +739,7 @@
       }
     }
 
-    // Voice response listener for yes/no questions - FIXED
+    // Voice response listener for yes/no questions
     function startVoiceResponseListener(callback) {
       if (!recognition) {
         console.log('Voice recognition not available');
@@ -1168,6 +1180,8 @@
     function nextBreathingStep() {
       if (breathingStep >= breathingSteps.length) {
         console.log('Phase 2 complete');
+        document.getElementById('breathingCircle').classList.remove('active');
+        document.getElementById('breathingText').classList.remove('active');
         return;
       }
 
@@ -1177,21 +1191,14 @@
       const circle = document.getElementById('breathingCircle');
       const breathText = document.getElementById('breathingText');
       
-      // Update breathing visualization
-      if (step.breathe === 'in') {
-        circle.className = 'active inhale';
-        breathText.textContent = step.breathText || '';
-        breathText.classList.add('active');
-      } else if (step.breathe === 'out') {
-        circle.className = 'active exhale';
-        breathText.textContent = step.breathText || '';
-        breathText.classList.add('active');
-      } else if (step.breathe === 'hold') {
-        circle.className = 'active hold';
+      // Update breathing visualization - FIXED
+      if (step.breathe) {
+        circle.classList.remove('inhale', 'exhale', 'hold-full', 'hold-empty');
+        circle.classList.add('active', step.breathe);
         breathText.textContent = step.breathText || '';
         breathText.classList.add('active');
       } else {
-        circle.classList.remove('active', 'inhale', 'exhale', 'hold');
+        circle.classList.remove('active', 'inhale', 'exhale', 'hold-full', 'hold-empty');
         breathText.classList.remove('active');
       }
 
@@ -1206,12 +1213,24 @@
         return;
       }
 
-      speak(step.text, () => {
-        setTimeout(() => {
-          breathingStep++;
-          nextBreathingStep();
-        }, step.duration);
-      });
+      // For breathing steps: speak immediately, then wait for animation
+      if (step.animDuration) {
+        speak(step.text, () => {
+          // After speech completes (200ms delay), wait for animation
+          setTimeout(() => {
+            breathingStep++;
+            nextBreathingStep();
+          }, step.animDuration);
+        });
+      } else {
+        // Non-breathing steps
+        speak(step.text, () => {
+          setTimeout(() => {
+            breathingStep++;
+            nextBreathingStep();
+          }, step.duration);
+        });
+      }
     }
 
     // Event Listeners
@@ -1226,9 +1245,7 @@
 
     document.getElementById('mobileThumbsUp').addEventListener('click', () => {
       console.log('Thumbs up button clicked');
-      if (breathingStep > 0) {
-        // Not used in Phase 2 anymore
-      } else {
+      if (breathingStep === 0) {
         handleFeedback(true);
       }
     });
@@ -1242,9 +1259,7 @@
 
     document.getElementById('mobileThumbsDown').addEventListener('click', () => {
       console.log('Thumbs down button clicked');
-      if (breathingStep > 0) {
-        // Not used in Phase 2 anymore
-      } else {
+      if (breathingStep === 0) {
         handleFeedback(false);
       }
     });
