@@ -299,28 +299,49 @@
 
     <a-entity id="rig" position="-0.5 0.6 1.8">
       <a-camera look-controls wasd-controls>
-        <a-cursor color="#21808D"></a-cursor>
+        <a-cursor color="#21808D" raycaster="objects: .clickable"></a-cursor>
       </a-camera>
     </a-entity>
 
-    <!-- Session Start Button (hidden initially) -->
+    <!-- Session Start Button -->
     <a-entity id="sessionButton" 
               position="0 1.6 -2"
               visible="false"
               class="clickable">
-      <a-box width="1" height="0.4" depth="0.1" 
-             color="#21808D" 
-             opacity="0.9"></a-box>
+      <a-plane width="1.5" height="0.5" color="#21808D" opacity="0.95"></a-plane>
       <a-text value="Begin Guided Session" 
-              position="0 0 0.06" 
+              position="0 0 0.01" 
               align="center"
-              width="1.8"
-              color="#FFF"></a-text>
+              width="2.5"
+              color="#FFFFFF"
+              font="roboto"
+              wrap-count="30"></a-text>
     </a-entity>
+
+    <!-- Feedback Buttons (hidden initially) -->
+    <a-entity id="feedbackButtons" visible="false">
+      <a-entity id="thumbsUpBtn" position="-0.5 1.5 -1.8" class="clickable">
+        <a-plane width="0.6" height="0.4" color="#51CF66"></a-plane>
+        <a-text value="👍 Yes" position="0 0 0.01" align="center" width="1.2" color="#FFF"></a-text>
+      </a-entity>
+      
+      <a-entity id="thumbsDownBtn" position="0.5 1.5 -1.8" class="clickable">
+        <a-plane width="0.6" height="0.4" color="#FF6B6B"></a-plane>
+        <a-text value="👎 Not Really" position="0 0 0.01" align="center" width="1.2" color="#FFF"></a-text>
+      </a-entity>
+    </a-entity>
+
+    <!-- Text Display (for showing numbers 5-4-3-2-1) -->
+    <a-text id="displayText" 
+            position="0 2 -1.8" 
+            align="center" 
+            width="3"
+            color="#21808D"
+            visible="false"></a-text>
   </a-scene>
 
   <script>
-    console.log('VR Classroom v28 - Simplified Session - Initialized');
+    console.log('VR Classroom v29 - Grounding Exercise - Initialized');
 
     const sessionData = {
       comfortableLanguages: '',
@@ -335,6 +356,22 @@
     let voices = [];
     let recognitionTimeout = null;
     let isSpeaking = false;
+
+    // Grounding exercise state
+    let groundingStep = 0;
+    const groundingSteps = [
+      { text: "We're starting with a grounding exercise. This isn't about relaxation yet—this is about bringing you fully into the present moment so your brain knows where you are and what's real.", duration: 6000 },
+      { text: "It's called 5-4-3-2-1. We're going to use your senses. I'll guide you.", duration: 4000, showNumbers: true },
+      { text: "Look around. FIVE things you can SEE right now. Name them out loud or in your head.", duration: 8000 },
+      { text: "FOUR things you can TOUCH or feel right now. Actually reach out and touch them if you can. The chair under you? Your shirt? The floor under your feet? Your hair?", duration: 8000 },
+      { text: "THREE things you can HEAR right now. Could be my voice, background sounds, maybe your own breathing.", duration: 8000 },
+      { text: "TWO things you can SMELL. If you can't smell anything obvious, that's fine—just notice that.", duration: 5000 },
+      { text: "ONE thing you can TASTE. Maybe you brushed your teeth earlier, or had water. Or maybe you don't taste anything—that's fine too.", duration: 5000 },
+      { text: "Good. Now take one deep breath in... and out.", duration: 4000 },
+      { text: "Small check-in - do you feel a little more here? A little more solid?", duration: 3000, showFeedback: true },
+      { text: "Good. That grounding technique! You can use that in the exam hall if you start feeling spaced out. We'll come back to that.", duration: 5000, positive: true },
+      { text: "That's okay. Sometimes it takes a few tries. We can do it again later if needed.", duration: 4000, negative: true }
+    ];
 
     if (synthesis) {
       synthesis.onvoiceschanged = () => {
@@ -389,7 +426,6 @@
       }
     };
 
-    // FIXED: Better speech function with timeout
     function speak(text, callback) {
       console.log('Speaking:', text.substring(0, 40) + '...');
       
@@ -399,7 +435,6 @@
         return;
       }
 
-      // Cancel any ongoing speech
       synthesis.cancel();
       isSpeaking = true;
 
@@ -419,7 +454,7 @@
           isSpeaking = false;
           console.log('Speech completed');
           if (callback) {
-            setTimeout(callback, 2000); // 2-second delay
+            setTimeout(callback, 1000);
           }
         }
       };
@@ -430,9 +465,8 @@
         finishSpeech();
       };
 
-      // Safety timeout: force completion after estimated duration
       const wordCount = text.split(' ').length;
-      const estimatedDuration = (wordCount * 150) + 3000;
+      const estimatedDuration = (wordCount * 150) + 2000;
       setTimeout(finishSpeech, estimatedDuration);
 
       addMessage('System', text);
@@ -614,10 +648,7 @@
 
       setTimeout(() => {
         document.getElementById('vrOverlay').classList.add('hidden');
-        
-        // Show session button
         document.getElementById('sessionButton').setAttribute('visible', 'true');
-        
         speak('Welcome to the virtual classroom. When ready, click the Begin Guided Session button.');
       }, 2000);
     }
@@ -639,31 +670,69 @@
       console.log('Manual data submitted:', sessionData);
       closeManualInput();
       document.getElementById('vrOverlay').classList.add('hidden');
-      
-      // Show session button
       document.getElementById('sessionButton').setAttribute('visible', 'true');
-      
       speak('Welcome to the virtual classroom. When ready, click the Begin Guided Session button.');
     }
 
-    // Session button click handler
-    document.addEventListener('DOMContentLoaded', () => {
-      const sessionBtn = document.getElementById('sessionButton');
-      sessionBtn.addEventListener('click', () => {
-        console.log('Session button clicked!');
-        sessionBtn.setAttribute('visible', 'false');
-        startGuidedSession();
-      });
-    });
-
+    // Grounding Exercise Functions
     function startGuidedSession() {
-      console.log('Starting guided session - Phase 1');
-      speak('We are starting with a grounding exercise. This brings you fully into the present moment.');
-      // TODO: Add Phase 1 steps here
+      console.log('Starting guided session - Phase 1: Grounding');
+      groundingStep = 0;
+      document.getElementById('sessionButton').setAttribute('visible', 'false');
+      nextGroundingStep();
     }
 
+    function nextGroundingStep() {
+      if (groundingStep >= groundingSteps.length - 2) return;
+
+      const step = groundingSteps[groundingStep];
+      console.log('Grounding step', groundingStep, ':', step.text.substring(0, 40));
+
+      // Show numbers for step 1
+      if (step.showNumbers) {
+        document.getElementById('displayText').setAttribute('value', '5  4  3  2  1');
+        document.getElementById('displayText').setAttribute('visible', 'true');
+        setTimeout(() => {
+          document.getElementById('displayText').setAttribute('visible', 'false');
+        }, 3000);
+      }
+
+      // Show feedback buttons for step 8
+      if (step.showFeedback) {
+        speak(step.text, () => {
+          document.getElementById('feedbackButtons').setAttribute('visible', 'true');
+        });
+        return;
+      }
+
+      speak(step.text, () => {
+        setTimeout(() => {
+          groundingStep++;
+          nextGroundingStep();
+        }, step.duration);
+      });
+    }
+
+    function handleFeedback(isPositive) {
+      document.getElementById('feedbackButtons').setAttribute('visible', 'false');
+      const responseStep = isPositive ? 9 : 10;
+      speak(groundingSteps[responseStep].text, () => {
+        console.log('Grounding exercise complete');
+        speak('Phase 1 complete. The full session will continue in future updates.');
+      });
+    }
+
+    // Event Listeners
     document.getElementById('voiceBtn').addEventListener('click', startConversation);
     document.getElementById('skipBtn').addEventListener('click', showManualInput);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const sessionBtn = document.getElementById('sessionButton');
+      sessionBtn.addEventListener('click', startGuidedSession);
+
+      document.getElementById('thumbsUpBtn').addEventListener('click', () => handleFeedback(true));
+      document.getElementById('thumbsDownBtn').addEventListener('click', () => handleFeedback(false));
+    });
   </script>
 </body>
 </html>
