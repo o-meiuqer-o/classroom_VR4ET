@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>VR Classroom Exposure Therapy</title>
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   <style>
@@ -10,6 +10,7 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
@@ -232,6 +233,56 @@
       background: rgba(33, 128, 141, 1);
       color: white;
     }
+
+    /* Mobile Touch Buttons Overlay */
+    .mobile-controls {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      display: none;
+      gap: 15px;
+    }
+
+    .mobile-controls.active {
+      display: flex;
+    }
+
+    .mobile-btn {
+      padding: 15px 30px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      background: rgba(33, 128, 141, 1);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      transition: all 0.2s ease;
+      touch-action: manipulation;
+    }
+
+    .mobile-btn:active {
+      transform: scale(0.95);
+      background: rgba(29, 116, 128, 1);
+    }
+
+    .mobile-btn.thumbs-up {
+      background: #51CF66;
+    }
+
+    .mobile-btn.thumbs-up:active {
+      background: #45b558;
+    }
+
+    .mobile-btn.thumbs-down {
+      background: #FF6B6B;
+    }
+
+    .mobile-btn.thumbs-down:active {
+      background: #e85555;
+    }
   </style>
 </head>
 <body>
@@ -281,6 +332,13 @@
         <button class="btn-primary" onclick="submitManualData()">Start VR</button>
       </div>
     </div>
+  </div>
+
+  <!-- Mobile Touch Controls -->
+  <div id="mobileControls" class="mobile-controls">
+    <button id="mobileSessionBtn" class="mobile-btn" style="display: none;">Begin Guided Session</button>
+    <button id="mobileThumbsUp" class="mobile-btn thumbs-up" style="display: none;">👍 Yes</button>
+    <button id="mobileThumbsDown" class="mobile-btn thumbs-down" style="display: none;">👎 Not Really</button>
   </div>
 
   <a-scene>
@@ -341,7 +399,7 @@
   </a-scene>
 
   <script>
-    console.log('VR Classroom v29 - Grounding Exercise - Initialized');
+    console.log('VR Classroom v30 - Mobile Touch Support - Initialized');
 
     const sessionData = {
       comfortableLanguages: '',
@@ -648,8 +706,12 @@
 
       setTimeout(() => {
         document.getElementById('vrOverlay').classList.add('hidden');
+        
+        // Show VR button AND mobile button
         document.getElementById('sessionButton').setAttribute('visible', 'true');
-        speak('Welcome to the virtual classroom. When ready, click the Begin Guided Session button.');
+        showMobileSessionButton();
+        
+        speak('Welcome to the virtual classroom. When ready, tap or click the Begin Guided Session button.');
       }, 2000);
     }
 
@@ -670,8 +732,33 @@
       console.log('Manual data submitted:', sessionData);
       closeManualInput();
       document.getElementById('vrOverlay').classList.add('hidden');
+      
+      // Show VR button AND mobile button
       document.getElementById('sessionButton').setAttribute('visible', 'true');
-      speak('Welcome to the virtual classroom. When ready, click the Begin Guided Session button.');
+      showMobileSessionButton();
+      
+      speak('Welcome to the virtual classroom. When ready, tap or click the Begin Guided Session button.');
+    }
+
+    // Mobile Control Functions
+    function showMobileSessionButton() {
+      document.getElementById('mobileControls').classList.add('active');
+      document.getElementById('mobileSessionBtn').style.display = 'block';
+    }
+
+    function hideMobileSessionButton() {
+      document.getElementById('mobileSessionBtn').style.display = 'none';
+    }
+
+    function showMobileFeedbackButtons() {
+      document.getElementById('mobileControls').classList.add('active');
+      document.getElementById('mobileThumbsUp').style.display = 'block';
+      document.getElementById('mobileThumbsDown').style.display = 'block';
+    }
+
+    function hideMobileFeedbackButtons() {
+      document.getElementById('mobileThumbsUp').style.display = 'none';
+      document.getElementById('mobileThumbsDown').style.display = 'none';
     }
 
     // Grounding Exercise Functions
@@ -679,6 +766,7 @@
       console.log('Starting guided session - Phase 1: Grounding');
       groundingStep = 0;
       document.getElementById('sessionButton').setAttribute('visible', 'false');
+      hideMobileSessionButton();
       nextGroundingStep();
     }
 
@@ -701,6 +789,7 @@
       if (step.showFeedback) {
         speak(step.text, () => {
           document.getElementById('feedbackButtons').setAttribute('visible', 'true');
+          showMobileFeedbackButtons();
         });
         return;
       }
@@ -715,6 +804,8 @@
 
     function handleFeedback(isPositive) {
       document.getElementById('feedbackButtons').setAttribute('visible', 'false');
+      hideMobileFeedbackButtons();
+      
       const responseStep = isPositive ? 9 : 10;
       speak(groundingSteps[responseStep].text, () => {
         console.log('Grounding exercise complete');
@@ -726,6 +817,26 @@
     document.getElementById('voiceBtn').addEventListener('click', startConversation);
     document.getElementById('skipBtn').addEventListener('click', showManualInput);
 
+    // Mobile button listeners
+    document.getElementById('mobileSessionBtn').addEventListener('click', startGuidedSession);
+    document.getElementById('mobileSessionBtn').addEventListener('touchend', (e) => {
+      e.preventDefault();
+      startGuidedSession();
+    });
+
+    document.getElementById('mobileThumbsUp').addEventListener('click', () => handleFeedback(true));
+    document.getElementById('mobileThumbsUp').addEventListener('touchend', (e) => {
+      e.preventDefault();
+      handleFeedback(true);
+    });
+
+    document.getElementById('mobileThumbsDown').addEventListener('click', () => handleFeedback(false));
+    document.getElementById('mobileThumbsDown').addEventListener('touchend', (e) => {
+      e.preventDefault();
+      handleFeedback(false);
+    });
+
+    // VR button listeners (for desktop)
     document.addEventListener('DOMContentLoaded', () => {
       const sessionBtn = document.getElementById('sessionButton');
       sessionBtn.addEventListener('click', startGuidedSession);
