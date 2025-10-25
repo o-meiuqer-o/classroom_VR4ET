@@ -329,6 +329,47 @@
       rotation="0 180 0"
       scale="1.15 1.15 1.15">
     </a-entity>
+
+    <!-- VR UI Elements (hidden initially) -->
+    <!-- Begin Guided Session Button -->
+    <a-entity id="beginSessionBtn" visible="false" position="0 1.6 -2">
+      <a-plane width="1.2" height="0.4" color="#21808D" opacity="0.95" class="clickable"></a-plane>
+      <a-text value="Begin Guided Session" align="center" position="0 0 0.01" width="2" color="#FCFCF9"></a-text>
+    </a-entity>
+
+    <!-- Dialogue Panel -->
+    <a-entity id="dialoguePanel" visible="false" position="0 1.6 -1.5">
+      <!-- Background -->
+      <a-plane width="2.5" height="1.4" color="#FCFCF9" opacity="0.95" class="panel-bg">
+        <a-plane width="2.4" height="1.3" position="0 0 0.01" color="#E8F4F8" opacity="0.5"></a-plane>
+      </a-plane>
+      <!-- Progress Indicator -->
+      <a-text id="progressText" value="Phase 1 of 6: Grounding" align="center" position="0 0.6 0.02" width="2.2" color="#134252" font="roboto"></a-text>
+      <!-- Main Text -->
+      <a-text id="dialogueText" value="" align="center" position="0 0.1 0.02" width="2.2" color="#134252" wrap-count="40" baseline="center"></a-text>
+      <!-- Visual Text (for numbers like 5-4-3-2-1) -->
+      <a-text id="visualText" value="" align="center" position="0 -0.2 0.02" width="3" color="#21808D" wrap-count="40" visible="false"></a-text>
+    </a-entity>
+
+    <!-- Feedback Buttons -->
+    <a-entity id="feedbackButtons" visible="false">
+      <!-- Yes Button -->
+      <a-entity id="yesBtn" position="-0.5 1.3 -1.5" class="clickable">
+        <a-plane width="0.7" height="0.35" color="#51CF66" opacity="0.95"></a-plane>
+        <a-text value="👍 Yes" align="center" position="0 0 0.01" width="1.5" color="#FCFCF9"></a-text>
+      </a-entity>
+      <!-- No Button -->
+      <a-entity id="noBtn" position="0.5 1.3 -1.5" class="clickable">
+        <a-plane width="0.7" height="0.35" color="#FF6B6B" opacity="0.95"></a-plane>
+        <a-text value="👎 Not Really" align="center" position="0 0 0.01" width="1.5" color="#FCFCF9"></a-text>
+      </a-entity>
+    </a-entity>
+
+    <!-- Continue Button -->
+    <a-entity id="continueBtn" visible="false" position="0 1.3 -1.5" class="clickable">
+      <a-plane width="0.8" height="0.35" color="#21808D" opacity="0.95"></a-plane>
+      <a-text value="Continue" align="center" position="0 0 0.01" width="1.8" color="#FCFCF9"></a-text>
+    </a-entity>
   </a-scene>
 
   <!-- Voice Mode Overlay -->
@@ -395,6 +436,81 @@
   </div>
 
   <script>
+    // Session State Management
+    const sessionState = {
+      active: false,
+      currentPhase: 'grounding',
+      currentStep: 0,
+      responses: {
+        groundingFeedback: null
+      },
+      startTime: null,
+      phaseStartTime: null
+    };
+
+    // Grounding Phase Data
+    const groundingPhase = {
+      steps: [
+        {
+          id: 'intro',
+          text: "We're starting with a grounding exercise. This isn't about relaxation yet—this is about bringing you fully into the present moment so your brain knows where you are and what's real.",
+          duration: 5000
+        },
+        {
+          id: 'technique_name',
+          text: "It's called 5-4-3-2-1. We're going to use your senses. I'll guide you.",
+          duration: 3000,
+          visual: '5-4-3-2-1'
+        },
+        {
+          id: 'five_see',
+          text: 'Look around. FIVE things you can SEE right now. Name them out loud or in your head.',
+          duration: 8000
+        },
+        {
+          id: 'four_touch',
+          text: 'FOUR things you can TOUCH or feel right now. Actually reach out and touch them if you can.',
+          prompt: 'The chair under you? Your shirt? The floor under your feet? Your hair?',
+          duration: 8000
+        },
+        {
+          id: 'three_hear',
+          text: 'THREE things you can HEAR right now. Could be my voice, background sounds, maybe your own breathing.',
+          duration: 8000
+        },
+        {
+          id: 'two_smell',
+          text: "TWO things you can SMELL. If you can't smell anything obvious, that's fine—just notice that.",
+          duration: 5000
+        },
+        {
+          id: 'one_taste',
+          text: "ONE thing you can TASTE. Maybe you brushed your teeth earlier, or had water. Or maybe you don't taste anything—that's fine too.",
+          duration: 5000
+        },
+        {
+          id: 'breathing',
+          text: 'Good. Now take one deep breath in... and out.',
+          duration: 4000
+        },
+        {
+          id: 'checkin',
+          text: 'Small check-in - do you feel a little more here? A little more solid?',
+          type: 'feedback',
+          options: [
+            { label: '👍 Yes', value: 'positive' },
+            { label: '👎 Not Really', value: 'negative' }
+          ]
+        },
+        {
+          id: 'closing',
+          text_positive: "Good. That grounding technique! You can use that in the exam hall if you start feeling spaced out. We'll come back to that.",
+          text_negative: "That's okay. Sometimes it takes a few tries. We can do it again later if needed.",
+          duration: 4000
+        }
+      ]
+    };
+
     // Session Data Storage
     const sessionData = {
       comfortableLanguages: '',
@@ -788,11 +904,177 @@
       }
     }
 
-    // Complete Session
+    // Complete Session (Onboarding)
     function completeSession() {
       console.log('Session Data:', sessionData);
       vrOverlay.classList.add('hidden');
       updateStatus('Welcome to your virtual classroom!');
+      
+      // Show "Begin Guided Session" button after 2 seconds
+      setTimeout(() => {
+        showBeginSessionButton();
+      }, 2000);
+    }
+
+    // Show Begin Session Button
+    function showBeginSessionButton() {
+      const beginBtn = document.getElementById('beginSessionBtn');
+      if (beginBtn) {
+        beginBtn.setAttribute('visible', 'true');
+        beginBtn.setAttribute('animation', 'property: scale; from: 0.5 0.5 0.5; to: 1 1 1; dur: 300; easing: easeOutQuad');
+        console.log('✅ Begin Session button shown');
+      }
+    }
+
+    // Start Guided Session
+    function startGuidedSession() {
+      console.log('🎬 Starting guided session');
+      sessionState.active = true;
+      sessionState.startTime = new Date().toISOString();
+      sessionState.phaseStartTime = new Date().toISOString();
+      
+      // Hide begin button
+      const beginBtn = document.getElementById('beginSessionBtn');
+      if (beginBtn) {
+        beginBtn.setAttribute('visible', 'false');
+      }
+      
+      // Show dialogue panel
+      const dialoguePanel = document.getElementById('dialoguePanel');
+      if (dialoguePanel) {
+        dialoguePanel.setAttribute('visible', 'true');
+        dialoguePanel.setAttribute('animation', 'property: opacity; from: 0; to: 1; dur: 300');
+      }
+      
+      // Start grounding phase
+      startGroundingPhase();
+    }
+
+    // Start Grounding Phase
+    function startGroundingPhase() {
+      console.log('🧘 Starting grounding phase');
+      sessionState.currentPhase = 'grounding';
+      sessionState.currentStep = 0;
+      processGroundingStep();
+    }
+
+    // Process Grounding Step
+    function processGroundingStep() {
+      const step = groundingPhase.steps[sessionState.currentStep];
+      console.log(`📍 Step ${sessionState.currentStep + 1}/${groundingPhase.steps.length}:`, step.id);
+      
+      const dialogueText = document.getElementById('dialogueText');
+      const visualText = document.getElementById('visualText');
+      const feedbackButtons = document.getElementById('feedbackButtons');
+      const continueBtn = document.getElementById('continueBtn');
+      
+      // Hide all interactive elements first
+      if (feedbackButtons) feedbackButtons.setAttribute('visible', 'false');
+      if (continueBtn) continueBtn.setAttribute('visible', 'false');
+      if (visualText) visualText.setAttribute('visible', 'false');
+      
+      // Update dialogue text
+      let displayText = step.text || '';
+      if (step.prompt) {
+        displayText += '\n\n' + step.prompt;
+      }
+      
+      if (dialogueText) {
+        dialogueText.setAttribute('value', displayText);
+      }
+      
+      // Show visual if present (like "5-4-3-2-1")
+      if (step.visual && visualText) {
+        visualText.setAttribute('value', step.visual);
+        visualText.setAttribute('visible', 'true');
+      }
+      
+      // Speak the text
+      speak(step.text, () => {
+        // After speaking, handle step type
+        if (step.type === 'feedback') {
+          // Show feedback buttons
+          if (feedbackButtons) {
+            feedbackButtons.setAttribute('visible', 'true');
+            feedbackButtons.setAttribute('animation', 'property: scale; from: 0.8 0.8 0.8; to: 1 1 1; dur: 300');
+          }
+        } else if (step.duration) {
+          // Timed step - auto-advance after duration
+          setTimeout(() => {
+            advanceGroundingStep();
+          }, step.duration);
+        } else {
+          // Manual advance with continue button
+          if (continueBtn) {
+            continueBtn.setAttribute('visible', 'true');
+            continueBtn.setAttribute('animation', 'property: scale; from: 0.8 0.8 0.8; to: 1 1 1; dur: 300');
+          }
+        }
+      });
+    }
+
+    // Advance Grounding Step
+    function advanceGroundingStep() {
+      sessionState.currentStep++;
+      
+      if (sessionState.currentStep < groundingPhase.steps.length) {
+        processGroundingStep();
+      } else {
+        completeGroundingPhase();
+      }
+    }
+
+    // Handle Feedback Response
+    function handleFeedbackResponse(isPositive) {
+      console.log('📝 Feedback:', isPositive ? 'Positive' : 'Negative');
+      sessionState.responses.groundingFeedback = isPositive ? 'positive' : 'negative';
+      
+      // Hide feedback buttons
+      const feedbackButtons = document.getElementById('feedbackButtons');
+      if (feedbackButtons) {
+        feedbackButtons.setAttribute('visible', 'false');
+      }
+      
+      // Update text based on response
+      const step = groundingPhase.steps[sessionState.currentStep];
+      const responseText = isPositive ? step.text_positive : step.text_negative;
+      
+      const dialogueText = document.getElementById('dialogueText');
+      if (dialogueText) {
+        dialogueText.setAttribute('value', responseText);
+      }
+      
+      // Speak response and show continue button
+      speak(responseText, () => {
+        const continueBtn = document.getElementById('continueBtn');
+        if (continueBtn) {
+          continueBtn.setAttribute('visible', 'true');
+          continueBtn.setAttribute('animation', 'property: scale; from: 0.8 0.8 0.8; to: 1 1 1; dur: 300');
+        }
+      });
+    }
+
+    // Complete Grounding Phase
+    function completeGroundingPhase() {
+      console.log('✅ Grounding phase complete');
+      
+      const dialogueText = document.getElementById('dialogueText');
+      if (dialogueText) {
+        dialogueText.setAttribute('value', 'Phase 1 complete. Phase 2 will continue with building rapport and understanding your specific concerns.');
+      }
+      
+      speak('Phase 1 complete. Phase 2 will continue with building rapport and understanding your specific concerns.', () => {
+        // Show continue button to return to classroom
+        setTimeout(() => {
+          const dialoguePanel = document.getElementById('dialoguePanel');
+          if (dialoguePanel) {
+            dialoguePanel.setAttribute('visible', 'false');
+          }
+          
+          // Show begin button again for restart
+          showBeginSessionButton();
+        }, 5000);
+      });
     }
 
     // Switch to Manual Input
@@ -831,9 +1113,89 @@
     backButton.addEventListener('click', backToVoiceMode);
     manualForm.addEventListener('submit', handleManualSubmit);
 
+    // Setup VR Click Handlers
+    function setupVRClickHandlers() {
+      // Begin Session Button
+      const beginBtn = document.getElementById('beginSessionBtn');
+      if (beginBtn) {
+        beginBtn.addEventListener('click', () => {
+          console.log('🖱️ Begin Session clicked');
+          startGuidedSession();
+        });
+        
+        // Hover effect
+        beginBtn.addEventListener('mouseenter', () => {
+          beginBtn.setAttribute('scale', '1.1 1.1 1.1');
+        });
+        beginBtn.addEventListener('mouseleave', () => {
+          beginBtn.setAttribute('scale', '1 1 1');
+        });
+      }
+      
+      // Yes Button
+      const yesBtn = document.getElementById('yesBtn');
+      if (yesBtn) {
+        yesBtn.addEventListener('click', () => {
+          console.log('🖱️ Yes button clicked');
+          handleFeedbackResponse(true);
+        });
+        
+        yesBtn.addEventListener('mouseenter', () => {
+          yesBtn.setAttribute('scale', '1.1 1.1 1.1');
+        });
+        yesBtn.addEventListener('mouseleave', () => {
+          yesBtn.setAttribute('scale', '1 1 1');
+        });
+      }
+      
+      // No Button
+      const noBtn = document.getElementById('noBtn');
+      if (noBtn) {
+        noBtn.addEventListener('click', () => {
+          console.log('🖱️ No button clicked');
+          handleFeedbackResponse(false);
+        });
+        
+        noBtn.addEventListener('mouseenter', () => {
+          noBtn.setAttribute('scale', '1.1 1.1 1.1');
+        });
+        noBtn.addEventListener('mouseleave', () => {
+          noBtn.setAttribute('scale', '1 1 1');
+        });
+      }
+      
+      // Continue Button
+      const continueBtn = document.getElementById('continueBtn');
+      if (continueBtn) {
+        continueBtn.addEventListener('click', () => {
+          console.log('🖱️ Continue button clicked');
+          advanceGroundingStep();
+        });
+        
+        continueBtn.addEventListener('mouseenter', () => {
+          continueBtn.setAttribute('scale', '1.1 1.1 1.1');
+        });
+        continueBtn.addEventListener('mouseleave', () => {
+          continueBtn.setAttribute('scale', '1 1 1');
+        });
+      }
+    }
+
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
       console.log('VR Classroom Exposure Therapy Initialized');
+      
+      // Wait for A-Frame to load, then setup VR handlers
+      const scene = document.querySelector('a-scene');
+      if (scene) {
+        if (scene.hasLoaded) {
+          setupVRClickHandlers();
+        } else {
+          scene.addEventListener('loaded', () => {
+            setupVRClickHandlers();
+          });
+        }
+      }
     });
   </script>
 </body>
