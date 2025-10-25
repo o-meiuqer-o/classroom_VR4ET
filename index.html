@@ -9,158 +9,1009 @@
         :root {
             --color-text: rgba(19, 52, 59, 1);
             --color-background: rgba(252, 252, 249, 1);
+            --color-primary: rgba(33, 128, 141, 1);
+            --color-primary-hover: rgba(29, 116, 128, 1);
+            --color-secondary: rgba(94, 82, 64, 0.12);
+            --color-border: rgba(94, 82, 64, 0.2);
             --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         body {
             margin: 0;
             font-family: var(--font-family-base);
-            background-color: var(--color-background);
+            background: linear-gradient(135deg, #E8F4F8 0%, #F0F8FA 100%);
             color: var(--color-text);
+            min-height: 100vh;
         }
 
-        #info-panel {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            z-index: 1000;
+        /* Screen Container */
+        .screen {
+            display: none;
+            min-height: 100vh;
+            padding: 40px 20px;
+            animation: fadeIn 0.5s ease-in-out;
         }
 
-        #info-panel h2 {
-            margin: 0 0 10px 0;
-            font-size: 20px;
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Card Container */
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 32px;
+            margin: 0 0 16px 0;
+            color: var(--color-text);
             font-weight: 600;
         }
 
-        #info-panel p {
-            margin: 8px 0;
-            font-size: 14px;
-            line-height: 1.5;
+        h2 {
+            font-size: 24px;
+            margin: 0 0 12px 0;
+            color: var(--color-text);
+            font-weight: 600;
         }
 
-        #enter-vr-btn {
-            margin-top: 15px;
-            padding: 12px 24px;
-            background: rgba(33, 128, 141, 1);
-            color: white;
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: rgba(19, 52, 59, 0.8);
+            margin: 0 0 20px 0;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--color-secondary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--color-primary);
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: rgba(19, 52, 59, 0.6);
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--color-text);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: var(--font-family-base);
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 14px 28px;
             border: none;
             border-radius: 8px;
             font-size: 16px;
             font-weight: 500;
             cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font-family-base);
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .btn-secondary {
+            background: var(--color-secondary);
+            color: var(--color-text);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(94, 82, 64, 0.2);
+        }
+
+        .btn-voice {
+            background: #FF6B6B;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-voice:hover {
+            background: #EE5A5A;
+        }
+
+        .btn-voice.listening {
+            background: #51CF66;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn-full {
             width: 100%;
-            transition: background 0.2s;
         }
 
-        #enter-vr-btn:hover {
-            background: rgba(29, 116, 128, 1);
+        /* Voice Conversation */
+        .voice-conversation {
+            text-align: center;
         }
 
-        .controls {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid rgba(94, 82, 64, 0.2);
-            font-size: 13px;
-            line-height: 1.6;
+        .conversation-display {
+            background: var(--color-secondary);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            text-align: left;
         }
 
-        .controls strong {
+        .message {
+            margin-bottom: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            animation: messageSlideIn 0.3s ease-out;
+        }
+
+        .system-message {
+            background: rgba(33, 128, 141, 0.1);
+            border-left: 4px solid var(--color-primary);
+        }
+
+        .user-message {
+            background: rgba(94, 82, 64, 0.1);
+            border-left: 4px solid rgba(94, 82, 64, 0.8);
+        }
+
+        @keyframes messageSlideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .voice-controls {
+            margin: 20px 0;
+        }
+
+        .conversation-info {
+            background: rgba(33, 128, 141, 0.05);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        /* Voice Input Section */
+        .voice-section {
+            background: var(--color-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .voice-status {
+            font-size: 14px;
+            color: rgba(19, 52, 59, 0.7);
+            margin-top: 8px;
+        }
+
+        /* Session Summary */
+        .summary-item {
+            padding: 12px;
+            background: var(--color-secondary);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .summary-item strong {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .summary-item span {
+            font-size: 16px;
+            color: var(--color-text);
+        }
+
+        /* VR Scene (hidden initially) */
+        #vr-container {
+            display: none;
+        }
+
+        #vr-container.active {
+            display: block;
+        }
+
+        /* Icons */
+        .icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        /* Alert */
+        .alert {
+            background: rgba(33, 128, 141, 0.1);
+            border-left: 4px solid var(--color-primary);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert p {
+            margin: 0;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
-    <div id="info-panel">
-        <h2>🎓 VR Classroom - Exposure Therapy</h2>
-        <p>An empty classroom environment for therapeutic VR exposure.</p>
-        <p><strong>Current View:</strong> Desktop Preview</p>
-        <button id="enter-vr-btn">Enter VR Mode</button>
-        <div class="controls">
-            <strong>Desktop Controls:</strong>
-            • WASD or Arrow Keys: Move around<br>
-            • Mouse: Look around<br>
-            <br>
-            <strong>VR Controls:</strong><br>
-            • Use your headset to look around<br>
-            • Use thumbsticks/touchpad to move
+    <!-- Welcome Screen -->
+    <div id="screen-welcome" class="screen active">
+        <div class="card">
+            <div class="icon">🎓</div>
+            <h1>Virtual Lecturer's Destressing Experience</h1>
+            
+            <div class="voice-conversation">
+                <div class="conversation-display" id="conversation-display">
+                    <div class="message system-message">
+                        <strong>System:</strong> Welcome to Virtual Lecturer's Destressing Experience
+                    </div>
+                </div>
+                
+                <div class="voice-controls">
+                    <button class="btn btn-voice btn-full" id="main-voice-btn" onclick="startConversation()">
+                        🎤 Click to Start Voice Conversation
+                    </button>
+                    <div class="voice-status" id="main-voice-status">Ready to begin</div>
+                </div>
+                
+                <div class="conversation-info">
+                    <p><strong>How this works:</strong></p>
+                    <ul style="text-align: left; line-height: 1.6;">
+                        <li>The system will speak to you</li>
+                        <li>You respond with your voice</li>
+                        <li>Say "yes" or "thank you" to continue</li>
+                        <li>We'll collect basic information for safety</li>
+                    </ul>
+                    
+                    <div style="background: rgba(255, 107, 107, 0.1); padding: 12px; border-radius: 6px; margin-top: 16px;">
+                        <p style="margin: 0; font-size: 14px;"><strong>⚠️ Microphone Permission Required:</strong></p>
+                        <p style="margin: 8px 0 0 0; font-size: 13px;">
+                            When you click the button, your browser will ask for microphone access. 
+                            Look for a popup near the address bar and click "Allow".
+                        </p>
+                    </div>
+                </div>
+                
+                <button class="btn btn-secondary btn-full" onclick="skipToManualMode()" style="margin-top: 20px;">
+                    Skip Voice Mode (Use Manual Input)
+                </button>
+            </div>
         </div>
     </div>
 
-    <a-scene>
-        <!-- Sky and lighting -->
-        <a-sky color="#E8F4F8"></a-sky>
-        <a-entity light="type: ambient; color: #BBB; intensity: 0.8"></a-entity>
-        <a-entity light="type: directional; color: #FFF; intensity: 0.6" position="5 10 7"></a-entity>
-        <a-entity light="type: point; color: #FFF; intensity: 0.4" position="0 3.5 0"></a-entity>
+    <!-- Information Collection Screen -->
+    <div id="screen-info" class="screen">
+        <div class="card">
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 25%"></div>
+                </div>
+                <div class="progress-text">Step 1 of 4</div>
+            </div>
+            
+            <h2>Basic Information</h2>
+            <p>Let's collect some basic information to personalize your experience.</p>
 
-        <!-- Complete Classroom GLB Model -->
-        <a-entity id="classroom-model" 
-                  gltf-model="https://raw.githubusercontent.com/o-meiuqer-o/classroom_VR4ET/main/assets/models/classroom.glb" 
-                  position="0 0 0" 
-                  rotation="0 180 0" 
-                  scale="1.15 1.15 1.15"
-                  shadow="cast: true; receive: true"></a-entity>
+            <div class="form-group">
+                <label for="participant-name">Your Name (or Participant ID)</label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="participant-name" placeholder="Enter your name">
+                    <button class="btn btn-voice" onclick="startVoiceInput('participant-name')">
+                        🎤
+                    </button>
+                </div>
+            </div>
 
-        <!-- Camera rig with VR controls - positioned inside classroom -->
-        <a-entity id="rig" position="-0.5 0.6 1.8">
-            <a-camera id="camera" look-controls wasd-controls>
-                <a-cursor color="#21808D"></a-cursor>
-            </a-camera>
-        </a-entity>
-    </a-scene>
+            <div class="form-group">
+                <label for="participant-age">Age</label>
+                <input type="number" id="participant-age" placeholder="Enter your age" min="5" max="100">
+            </div>
+
+            <div class="form-group">
+                <label for="anxiety-level">Current Anxiety Level (1-10)</label>
+                <input type="range" id="anxiety-level" min="1" max="10" value="5" oninput="updateAnxietyDisplay()">
+                <div style="text-align: center; font-size: 18px; margin-top: 8px;">
+                    <strong id="anxiety-display">5</strong> / 10
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToScreen('welcome')">Back</button>
+                <button class="btn btn-primary" onclick="goToScreen('goals')" style="flex: 1;">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Session Goals Screen -->
+    <div id="screen-goals" class="screen">
+        <div class="card">
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 50%"></div>
+                </div>
+                <div class="progress-text">Step 2 of 4</div>
+            </div>
+            
+            <h2>Session Goals</h2>
+            <p>What would you like to work on today? You can type or use voice input.</p>
+
+            <div class="voice-section">
+                <button class="btn btn-voice" id="goals-voice-btn" onclick="startVoiceInput('session-goals')">
+                    🎤 Click to Speak
+                </button>
+                <div class="voice-status" id="goals-voice-status">Voice input ready</div>
+            </div>
+
+            <div class="form-group">
+                <label for="session-goals">Your Goals (e.g., "reduce anxiety when presenting", "feel comfortable in classroom")</label>
+                <textarea id="session-goals" placeholder="Describe what you want to achieve..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="exposure-level">Preferred Exposure Level</label>
+                <select id="exposure-level">
+                    <option value="gentle">Gentle - Empty classroom, calm environment</option>
+                    <option value="moderate">Moderate - Few students, minimal activity</option>
+                    <option value="challenging">Challenging - Full classroom, active environment</option>
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToScreen('info')">Back</button>
+                <button class="btn btn-primary" onclick="goToScreen('summary')" style="flex: 1;">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary/Ready Screen -->
+    <div id="screen-summary" class="screen">
+        <div class="card">
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 75%"></div>
+                </div>
+                <div class="progress-text">Step 3 of 4</div>
+            </div>
+            
+            <h2>Session Summary</h2>
+            <p>Please review your information before entering the VR environment.</p>
+
+            <div id="summary-content">
+                <!-- Populated dynamically -->
+            </div>
+
+            <div class="alert">
+                <p><strong>Ready to begin?</strong> You'll enter a virtual classroom. You can exit at any time by pressing ESC or removing your headset.</p>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToScreen('goals')">Back</button>
+                <button class="btn btn-primary" onclick="startVRSession()" style="flex: 1;">Enter VR Classroom</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VR Container -->
+    <div id="vr-container">
+        <a-scene>
+            <a-sky color="#E8F4F8"></a-sky>
+            <a-entity light="type: ambient; color: #BBB; intensity: 0.8"></a-entity>
+            <a-entity light="type: directional; color: #FFF; intensity: 0.6" position="5 10 7"></a-entity>
+            <a-entity light="type: point; color: #FFF; intensity: 0.4" position="0 3.5 0"></a-entity>
+
+            <a-entity id="classroom-model" 
+                      gltf-model="https://raw.githubusercontent.com/o-meiuqer-o/classroom_VR4ET/main/assets/models/classroom.glb" 
+                      position="0 0 0" 
+                      rotation="0 180 0" 
+                      scale="1.15 1.15 1.15"
+                      shadow="cast: true; receive: true"></a-entity>
+
+            <a-entity id="rig" position="-0.5 0.6 1.8">
+                <a-camera id="camera" look-controls wasd-controls>
+                    <a-cursor color="#21808D"></a-cursor>
+                </a-camera>
+            </a-entity>
+        </a-scene>
+    </div>
 
     <script>
-        // Debug: Check if GLB is loading
-        AFRAME.registerComponent('model-debug', {
-            init: function() {
-                this.el.addEventListener('model-loaded', () => {
-                    console.log('✅ Classroom model loaded successfully!');
-                    console.log('Model element:', this.el);
-                });
-                this.el.addEventListener('model-error', (error) => {
-                    console.error('❌ Error loading classroom model:', error);
-                });
-            }
-        });
+        // Session data storage
+        const sessionData = {
+            name: '',
+            age: '',
+            anxietyLevel: 5,
+            goals: '',
+            exposureLevel: 'gentle',
+            startTime: new Date()
+        };
 
-        // Apply debug component
-        document.addEventListener('DOMContentLoaded', function() {
-            const model = document.getElementById('classroom-model');
-            if (model) {
-                model.setAttribute('model-debug', '');
-            }
-        });
+        // Web Speech API setup
+        let recognition = null;
+        let synthesis = window.speechSynthesis;
 
-        // VR button handler
-        document.getElementById('enter-vr-btn').addEventListener('click', function() {
-            const scene = document.querySelector('a-scene');
-            if (scene) {
-                scene.enterVR();
-            }
-        });
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+        }
 
-        // Update info panel based on VR state
-        const scene = document.querySelector('a-scene');
-        if (scene) {
-            scene.addEventListener('enter-vr', function() {
-                const infoPanel = document.getElementById('info-panel');
-                if (infoPanel) {
-                    infoPanel.style.display = 'none';
+        // Conversation state
+        let conversationState = {
+            step: 'welcome',
+            isListening: false,
+            currentQuestion: '',
+            responses: {}
+        };
+
+        // Conversation flow
+        const conversationFlow = {
+            welcome: {
+                text: "Welcome to Virtual Lecturer's Destressing Experience. We will help you practice in a safe virtual classroom environment. We need to collect some basic information for emergency assistance purposes. Are you ready to begin?",
+                nextStep: 'name',
+                expectedResponses: ['yes', 'okay', 'sure', 'ready', 'thank you']
+            },
+            name: {
+                text: "Great! Let's start with your name or participant ID. Please tell me your name.",
+                nextStep: 'age',
+                saveAs: 'name'
+            },
+            age: {
+                text: "Thank you. Now, could you please tell me your age?",
+                nextStep: 'anxiety',
+                saveAs: 'age'
+            },
+            anxiety: {
+                text: "Perfect. On a scale of 1 to 10, with 10 being the highest, what is your current anxiety level about classroom situations?",
+                nextStep: 'complete',
+                saveAs: 'anxietyLevel'
+            },
+            complete: {
+                text: "Thank you for providing that information. We're now ready to begin your virtual classroom experience. Are you ready to enter the virtual environment?",
+                nextStep: 'vr'
+            }
+        };
+
+        // Check microphone permission status
+        async function checkMicPermission() {
+            if (navigator.permissions) {
+                try {
+                    const result = await navigator.permissions.query({ name: 'microphone' });
+                    console.log('Microphone permission status:', result.state);
+                    return result.state;
+                } catch (e) {
+                    console.log('Permission API not available');
+                    return 'prompt';
                 }
+            }
+            return 'prompt';
+        }
+
+        // Request microphone permission
+        async function requestMicPermission() {
+            try {
+                // Check if mediaDevices is supported
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    alert('Your browser does not support microphone access. Please use Chrome, Edge, or Safari.');
+                    return false;
+                }
+
+                // Check current permission state
+                const permState = await checkMicPermission();
+                console.log('Current permission state:', permState);
+
+                if (permState === 'denied') {
+                    showPermissionInstructions('denied');
+                    return false;
+                }
+
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                // Stop the stream immediately - we just needed permission
+                stream.getTracks().forEach(track => track.stop());
+                console.log('Microphone permission granted');
+                return true;
+            } catch (error) {
+                console.error('Microphone permission error:', error);
+                showPermissionInstructions(error.name);
+                return false;
+            }
+        }
+
+        // Show detailed permission instructions
+        function showPermissionInstructions(errorType) {
+            let message = '🎤 Microphone Access Required\n\n';
+            
+            if (errorType === 'NotAllowedError' || errorType === 'denied') {
+                message += '❌ MICROPHONE BLOCKED\n\n';
+                message += 'Your microphone is currently blocked. To fix this:\n\n';
+                
+                // Detect browser
+                const isEdge = /Edg/.test(navigator.userAgent);
+                const isChrome = /Chrome/.test(navigator.userAgent) && !/Edg/.test(navigator.userAgent);
+                const isBrave = navigator.brave !== undefined;
+                const isFirefox = /Firefox/.test(navigator.userAgent);
+                const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+                
+                if (isEdge) {
+                    message += '📱 EDGE INSTRUCTIONS:\n';
+                    message += '1. Look at the address bar (top)\n';
+                    message += '2. Click the lock 🔒 or camera icon\n';
+                    message += '3. Find "Microphone" and change to "Allow"\n';
+                    message += '4. Click "Refresh" or reload this page\n';
+                } else if (isBrave) {
+                    message += '🦁 BRAVE INSTRUCTIONS:\n';
+                    message += '1. Click the Brave shield icon (right side of address bar)\n';
+                    message += '2. Click "Advanced View"\n';
+                    message += '3. Find "Microphone" and set to "Allow"\n';
+                    message += '4. Reload this page\n';
+                } else if (isChrome) {
+                    message += '🌐 CHROME INSTRUCTIONS:\n';
+                    message += '1. Click the lock icon in address bar\n';
+                    message += '2. Find "Microphone" and change to "Allow"\n';
+                    message += '3. Reload the page\n';
+                } else if (isFirefox) {
+                    message += '🦊 FIREFOX INSTRUCTIONS:\n';
+                    message += '1. Click the crossed-out microphone icon in address bar\n';
+                    message += '2. Click settings icon (gear)\n';
+                    message += '3. Remove the blocked site\n';
+                    message += '4. Reload and allow when prompted\n';
+                } else {
+                    message += 'GENERAL INSTRUCTIONS:\n';
+                    message += '1. Click the site settings icon in address bar\n';
+                    message += '2. Find "Microphone" permission\n';
+                    message += '3. Change to "Allow"\n';
+                    message += '4. Reload this page\n';
+                }
+                
+                message += '\n💡 After changing settings, RELOAD the page!';
+                
+            } else if (errorType === 'NotFoundError') {
+                message += '❌ NO MICROPHONE DETECTED\n\n';
+                message += '• Make sure your microphone is connected\n';
+                message += '• Check if other apps can use your microphone\n';
+                message += '• Try restarting your browser\n';
+            } else if (errorType === 'NotReadableError') {
+                message += '❌ MICROPHONE IN USE\n\n';
+                message += '• Close other apps using your microphone\n';
+                message += '• Try restarting your browser\n';
+            } else {
+                message += '❌ PERMISSION ERROR\n\n';
+                message += 'Error: ' + errorType + '\n\n';
+                message += 'Try:\n';
+                message += '1. Reload the page\n';
+                message += '2. Check browser settings\n';
+                message += '3. Try a different browser\n';
+            }
+            
+            alert(message);
+        }
+
+        // Start voice conversation
+        async function startConversation() {
+            const voiceBtn = document.getElementById('main-voice-btn');
+            const statusEl = document.getElementById('main-voice-status');
+            
+            // Check permission status first
+            const permState = await checkMicPermission();
+            console.log('Permission state:', permState);
+            
+            // Request microphone permission first
+            voiceBtn.textContent = '🎤 Requesting microphone access...';
+            statusEl.textContent = permState === 'denied' ? 
+                '⚠️ Microphone blocked - check address bar!' : 
+                '⚠️ Look for permission prompt in your browser!';
+            statusEl.style.color = '#FF6B6B';
+            statusEl.style.fontWeight = 'bold';
+            
+            const hasPermission = await requestMicPermission();
+            if (!hasPermission) {
+                voiceBtn.textContent = '🎤 Click to Start Voice Conversation';
+                statusEl.textContent = 'Microphone access denied';
+                return;
+            }
+            
+            voiceBtn.textContent = '🔊 Speaking...';
+            statusEl.textContent = 'System is speaking';
+            
+            // Speak the welcome message
+            speak(conversationFlow.welcome.text, () => {
+                // After speaking, start listening
+                voiceBtn.textContent = '🎤 Listening for your response...';
+                voiceBtn.classList.add('listening');
+                statusEl.textContent = '🔴 LISTENING - Say "yes" or "thank you" to continue';
+                startListening('welcome');
+            });
+        }
+
+        // Enhanced speech with callback
+        function speak(text, callback = null) {
+            if (synthesis) {
+                // Stop any ongoing speech
+                synthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.8;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                
+                // Add message to conversation display
+                addMessageToConversation('System', text);
+                
+                utterance.onend = function() {
+                    if (callback) callback();
+                };
+                
+                synthesis.speak(utterance);
+            } else if (callback) {
+                callback();
+            }
+        }
+
+        // Start listening for specific conversation step
+        function startListening(step) {
+            if (!recognition) {
+                alert('Voice recognition not supported. Please use a compatible browser (Chrome, Edge, Safari).');
+                return;
+            }
+
+            conversationState.step = step;
+            conversationState.isListening = true;
+
+            recognition.onstart = function() {
+                const voiceBtn = document.getElementById('main-voice-btn');
+                const statusEl = document.getElementById('main-voice-status');
+                voiceBtn.classList.add('listening');
+                voiceBtn.textContent = '🎤 LISTENING NOW';
+                statusEl.textContent = '🔴 RECORDING - Speak clearly into your microphone';
+                statusEl.style.color = '#FF6B6B';
+                statusEl.style.fontWeight = 'bold';
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript.toLowerCase().trim();
+                console.log('Heard:', transcript);
+                
+                // Add user message to conversation
+                addMessageToConversation('You', transcript);
+                
+                // Process the response
+                processVoiceResponse(transcript, step);
+            };
+
+            recognition.onend = function() {
+                conversationState.isListening = false;
+                const voiceBtn = document.getElementById('main-voice-btn');
+                const statusEl = document.getElementById('main-voice-status');
+                voiceBtn.classList.remove('listening');
+                voiceBtn.textContent = '✅ Processing...';
+                statusEl.textContent = 'Processing your response...';
+                statusEl.style.color = '';
+                statusEl.style.fontWeight = '';
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                const voiceBtn = document.getElementById('main-voice-btn');
+                const statusEl = document.getElementById('main-voice-status');
+                voiceBtn.classList.remove('listening');
+                voiceBtn.textContent = '❌ Error - Click to Retry';
+                statusEl.textContent = '❌ Error: ' + event.error + ' - Click button to try again';
+                statusEl.style.color = '#FF6B6B';
+                conversationState.isListening = false;
+            };
+
+            recognition.start();
+        }
+
+        // Process voice response
+        function processVoiceResponse(transcript, step) {
+            const currentFlow = conversationFlow[step];
+            
+            if (currentFlow.saveAs) {
+                // Save the response
+                conversationState.responses[currentFlow.saveAs] = transcript;
+            }
+            
+            // Move to next step
+            if (currentFlow.nextStep === 'vr') {
+                // Complete conversation, start VR
+                completeVoiceConversation();
+            } else {
+                setTimeout(() => {
+                    continueConversation(currentFlow.nextStep);
+                }, 1000);
+            }
+        }
+
+        // Continue to next conversation step
+        function continueConversation(nextStep) {
+            const nextFlow = conversationFlow[nextStep];
+            const voiceBtn = document.getElementById('main-voice-btn');
+            const statusEl = document.getElementById('main-voice-status');
+            
+            voiceBtn.textContent = '🔊 Speaking...';
+            statusEl.textContent = 'System is speaking';
+            
+            speak(nextFlow.text, () => {
+                voiceBtn.textContent = '🎤 Listening for your response...';
+                statusEl.textContent = 'Please speak your response';
+                startListening(nextStep);
+            });
+        }
+
+        // Add message to conversation display
+        function addMessageToConversation(sender, message) {
+            const conversationDisplay = document.getElementById('conversation-display');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = sender === 'System' ? 'message system-message' : 'message user-message';
+            messageDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
+            conversationDisplay.appendChild(messageDiv);
+            conversationDisplay.scrollTop = conversationDisplay.scrollHeight;
+        }
+
+        // Complete voice conversation and start VR
+        function completeVoiceConversation() {
+            // Transfer voice responses to session data
+            sessionData.name = conversationState.responses.name || '';
+            sessionData.age = conversationState.responses.age || '';
+            sessionData.anxietyLevel = conversationState.responses.anxietyLevel || '5';
+            sessionData.goals = 'Voice-guided session';
+            sessionData.exposureLevel = 'gentle';
+            
+            const voiceBtn = document.getElementById('main-voice-btn');
+            const statusEl = document.getElementById('main-voice-status');
+            
+            voiceBtn.textContent = '✅ Complete - Starting VR';
+            statusEl.textContent = 'Launching virtual classroom...';
+            
+            // Log collected data
+            console.log('Voice conversation completed:', conversationState.responses);
+            
+            setTimeout(() => {
+                startVRSession();
+            }, 2000);
+        }
+
+        // Skip to manual mode (original flow)
+        function skipToManualMode() {
+            goToScreen('info');
+        }
+
+        // Screen navigation
+        function goToScreen(screenName) {
+            // Save current data
+            saveCurrentData();
+
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
             });
 
-            scene.addEventListener('exit-vr', function() {
-                const infoPanel = document.getElementById('info-panel');
-                if (infoPanel) {
-                    infoPanel.style.display = 'block';
+            // Show target screen
+            document.getElementById('screen-' + screenName).classList.add('active');
+
+            // Update summary if going to summary screen
+            if (screenName === 'summary') {
+                updateSummary();
+            }
+        }
+
+        // Save form data
+        function saveCurrentData() {
+            sessionData.name = document.getElementById('participant-name')?.value || sessionData.name;
+            sessionData.age = document.getElementById('participant-age')?.value || sessionData.age;
+            sessionData.anxietyLevel = document.getElementById('anxiety-level')?.value || sessionData.anxietyLevel;
+            sessionData.goals = document.getElementById('session-goals')?.value || sessionData.goals;
+            sessionData.exposureLevel = document.getElementById('exposure-level')?.value || sessionData.exposureLevel;
+        }
+
+        // Update anxiety display
+        function updateAnxietyDisplay() {
+            const value = document.getElementById('anxiety-level').value;
+            document.getElementById('anxiety-display').textContent = value;
+        }
+
+        // Voice input
+        async function startVoiceInput(targetInputId) {
+            if (!recognition) {
+                alert('Voice recognition not supported in this browser. Please use Chrome, Edge, or Safari.');
+                return;
+            }
+
+            const targetInput = document.getElementById(targetInputId);
+            const voiceBtn = event.target.closest('.btn-voice');
+            const statusElement = document.getElementById('goals-voice-status');
+
+            // Request microphone permission
+            const hasPermission = await requestMicPermission();
+            if (!hasPermission) {
+                return;
+            }
+
+            recognition.onstart = function() {
+                voiceBtn.classList.add('listening');
+                voiceBtn.textContent = '🔴 LISTENING';
+                if (statusElement) {
+                    statusElement.textContent = '🔴 RECORDING - Speak now';
+                    statusElement.style.color = '#FF6B6B';
+                    statusElement.style.fontWeight = 'bold';
                 }
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                if (targetInput.tagName === 'TEXTAREA' || targetInput.tagName === 'INPUT') {
+                    targetInput.value = transcript;
+                }
+            };
+
+            recognition.onend = function() {
+                voiceBtn.classList.remove('listening');
+                voiceBtn.textContent = '🎤 Click to Speak';
+                if (statusElement) {
+                    statusElement.textContent = 'Voice input ready';
+                    statusElement.style.color = '';
+                    statusElement.style.fontWeight = '';
+                }
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                voiceBtn.classList.remove('listening');
+                voiceBtn.textContent = '❌ Try Again';
+                if (statusElement) {
+                    statusElement.textContent = '❌ Error: ' + event.error;
+                    statusElement.style.color = '#FF6B6B';
+                }
+            };
+
+            recognition.start();
+        }
+
+        // Text-to-speech
+        function speak(text) {
+            if (synthesis) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                synthesis.speak(utterance);
+            }
+        }
+
+        // Update summary
+        function updateSummary() {
+            saveCurrentData();
+            const summaryContent = document.getElementById('summary-content');
+            summaryContent.innerHTML = `
+                <div class="summary-item">
+                    <strong>Name:</strong>
+                    <span>${sessionData.name || 'Not provided'}</span>
+                </div>
+                <div class="summary-item">
+                    <strong>Age:</strong>
+                    <span>${sessionData.age || 'Not provided'}</span>
+                </div>
+                <div class="summary-item">
+                    <strong>Current Anxiety Level:</strong>
+                    <span>${sessionData.anxietyLevel} / 10</span>
+                </div>
+                <div class="summary-item">
+                    <strong>Session Goals:</strong>
+                    <span>${sessionData.goals || 'Not provided'}</span>
+                </div>
+                <div class="summary-item">
+                    <strong>Exposure Level:</strong>
+                    <span>${sessionData.exposureLevel.charAt(0).toUpperCase() + sessionData.exposureLevel.slice(1)}</span>
+                </div>
+            `;
+        }
+
+        // Start VR session
+        function startVRSession() {
+            saveCurrentData();
+            
+            // Log session data (in production, send to server)
+            console.log('Session Data:', sessionData);
+            
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
             });
+
+            // Show VR container
+            document.getElementById('vr-container').classList.add('active');
+
+            // Optional: Speak welcome message
+            speak('Welcome to the virtual classroom. Take your time and remember you can exit at any moment.');
+        }
+
+        // Export session data (for therapist review)
+        function downloadSessionData() {
+            const dataStr = JSON.stringify(sessionData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `vr-therapy-session-${Date.now()}.json`;
+            link.click();
         }
     </script>
 </body>
