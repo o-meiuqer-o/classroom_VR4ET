@@ -314,19 +314,21 @@
       display: block;
     }
 
-    /* Breathing circle */
+    /* Breathing circle - IMPROVED */
     #breathingCircle {
       position: fixed;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%);
-      width: 150px;
-      height: 150px;
+      transform: translate(-50%, -50%) scale(1);
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
-      background: rgba(81, 207, 102, 0.3);
-      border: 4px solid #51CF66;
+      background: radial-gradient(circle, rgba(81, 207, 102, 0.4), rgba(81, 207, 102, 0.1));
+      border: 3px solid #51CF66;
       display: none;
       z-index: 997;
+      box-shadow: 0 0 30px rgba(81, 207, 102, 0.3);
+      transition: transform 0.3s ease;
     }
 
     #breathingCircle.active {
@@ -334,21 +336,59 @@
     }
 
     #breathingCircle.inhale {
-      animation: breatheIn 4s ease-in;
+      animation: breatheIn 4s ease-in-out;
     }
 
     #breathingCircle.exhale {
-      animation: breatheOut 6s ease-out;
+      animation: breatheOut 6s ease-in-out;
+    }
+
+    #breathingCircle.hold {
+      animation: none;
     }
 
     @keyframes breatheIn {
-      from { transform: translate(-50%, -50%) scale(1); }
-      to { transform: translate(-50%, -50%) scale(1.5); }
+      0% { 
+        transform: translate(-50%, -50%) scale(1); 
+        border-color: #51CF66;
+        box-shadow: 0 0 30px rgba(81, 207, 102, 0.3);
+      }
+      100% { 
+        transform: translate(-50%, -50%) scale(1.8); 
+        border-color: #45b558;
+        box-shadow: 0 0 50px rgba(81, 207, 102, 0.5);
+      }
     }
 
     @keyframes breatheOut {
-      from { transform: translate(-50%, -50%) scale(1.5); }
-      to { transform: translate(-50%, -50%) scale(1); }
+      0% { 
+        transform: translate(-50%, -50%) scale(1.8); 
+        border-color: #45b558;
+        box-shadow: 0 0 50px rgba(81, 207, 102, 0.5);
+      }
+      100% { 
+        transform: translate(-50%, -50%) scale(1); 
+        border-color: #51CF66;
+        box-shadow: 0 0 30px rgba(81, 207, 102, 0.3);
+      }
+    }
+
+    /* Breathing instruction text */
+    #breathingText {
+      position: fixed;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      font-weight: 600;
+      color: #21808D;
+      display: none;
+      z-index: 998;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    #breathingText.active {
+      display: block;
     }
   </style>
 </head>
@@ -405,6 +445,7 @@
   <div id="voiceIndicator">🎤 Listening...</div>
 
   <!-- Breathing Circle -->
+  <div id="breathingText"></div>
   <div id="breathingCircle"></div>
 
   <!-- Mobile Touch Controls -->
@@ -488,7 +529,7 @@
   </a-scene>
 
   <script>
-    console.log('VR Classroom v32 - Voice Fix + Phase 2 - Initialized');
+    console.log('VR Classroom v33 - Smooth Breathing + Voice Fix + Phase 2 Conclusion - Initialized');
 
     const sessionData = {
       comfortableLanguages: '',
@@ -527,18 +568,20 @@
     const breathingSteps = [
       { text: "Phase 2. Now we're going to regulate your nervous system with breathing. It's not just about calming down—it's about giving your body the signal that you're safe.", duration: 5000 },
       { text: "We'll do box breathing. In for four, hold for four, out for six, hold for two. I'll guide each one.", duration: 5000 },
-      { text: "Breathe in through your nose... two... three... four.", duration: 5000, breathe: 'in' },
-      { text: "Hold... two... three... four.", duration: 5000, breathe: 'hold' },
-      { text: "Breathe out slowly through your mouth... two... three... four... five... six.", duration: 7000, breathe: 'out' },
-      { text: "Hold... two.", duration: 3000, breathe: 'hold' },
-      { text: "Again. Breathe in... two... three... four.", duration: 5000, breathe: 'in' },
-      { text: "Hold... two... three... four.", duration: 5000, breathe: 'hold' },
-      { text: "Out... two... three... four... five... six.", duration: 7000, breathe: 'out' },
-      { text: "Last one. In... two... three... four.", duration: 5000, breathe: 'in' },
-      { text: "Hold... two... three... four.", duration: 5000, breathe: 'hold' },
-      { text: "Out... two... three... four... five... six.", duration: 7000, breathe: 'out' },
+      { text: "Breathe in through your nose", duration: 4000, breathe: 'in', breathText: 'BREATHE IN' },
+      { text: "Hold", duration: 4000, breathe: 'hold', breathText: 'HOLD' },
+      { text: "Breathe out slowly through your mouth", duration: 6000, breathe: 'out', breathText: 'BREATHE OUT' },
+      { text: "Hold", duration: 2000, breathe: 'hold', breathText: 'HOLD' },
+      { text: "Again. Breathe in", duration: 4000, breathe: 'in', breathText: 'BREATHE IN' },
+      { text: "Hold", duration: 4000, breathe: 'hold', breathText: 'HOLD' },
+      { text: "Out", duration: 6000, breathe: 'out', breathText: 'BREATHE OUT' },
+      { text: "Last one. In", duration: 4000, breathe: 'in', breathText: 'BREATHE IN' },
+      { text: "Hold", duration: 4000, breathe: 'hold', breathText: 'HOLD' },
+      { text: "Out", duration: 6000, breathe: 'out', breathText: 'BREATHE OUT' },
       { text: "Good. Notice your shoulders, your jaw. Are they a little looser? Did your heart rate drop even a bit? You don't have to feel perfect. You just have to feel present.", duration: 6000 },
-      { text: "Would you like to continue to Phase 3?", duration: 2000, showFeedback: true }
+      { text: "So. Phase 1 was grounding. That gets you here. Phase 2 was breathing. That tells your body you're safe. Together, these are your reset button.", duration: 6000, conclusion: true },
+      { text: "You can do these anywhere. In the exam hall. Before bed. In a bathroom stall if you need to. No one even has to know.", duration: 5000, conclusion: true },
+      { text: "In the next phase, we'll build on this foundation. But for now, take a moment. You just gave yourself a real tool.", duration: 5000, conclusion: true }
     ];
 
     if (synthesis) {
@@ -607,7 +650,8 @@
       isSpeaking = true;
 
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.85;
+      utterance.rate = 0.9;
+      utterance.pitch = 1.0;
       utterance.lang = 'en-US';
 
       if (voices.length > 0) {
@@ -622,7 +666,7 @@
           isSpeaking = false;
           console.log('Speech completed');
           if (callback) {
-            setTimeout(callback, 1000);
+            setTimeout(callback, 800);
           }
         }
       };
@@ -634,7 +678,7 @@
       };
 
       const wordCount = text.split(' ').length;
-      const estimatedDuration = (wordCount * 150) + 2000;
+      const estimatedDuration = (wordCount * 140) + 2000;
       setTimeout(finishSpeech, estimatedDuration);
 
       addMessage('System', text);
@@ -683,14 +727,14 @@
       }
     }
 
-    // Voice response listener for yes/no questions
+    // Voice response listener for yes/no questions - FIXED
     function startVoiceResponseListener(callback) {
       if (!recognition) {
         console.log('Voice recognition not available');
         return;
       }
 
-      console.log('Starting voice response listener');
+      console.log('Starting voice response listener, callback:', typeof callback);
       isListeningForResponse = true;
       responseCallback = callback;
 
@@ -700,10 +744,10 @@
       recognitionTimeout = setTimeout(() => {
         console.log('Voice response timeout');
         stopVoiceResponseListener();
-      }, 30000);
+      }, 45000);
 
       recognition.onstart = () => {
-        console.log('Voice recognition started');
+        console.log('Voice recognition started for response');
       };
 
       recognition.onresult = (event) => {
@@ -725,29 +769,36 @@
 
         if (finalTranscript) {
           const transcript = finalTranscript.trim().toLowerCase();
-          console.log('Voice response:', transcript);
+          console.log('Voice response detected:', transcript);
           removeLiveCaption();
 
           const isYes = transcript.includes('yes') || transcript.includes('yeah') || 
                         transcript.includes('yep') || transcript.includes('sure') ||
-                        transcript.includes('okay') || transcript.includes('ok');
+                        transcript.includes('okay') || transcript.includes('ok') ||
+                        transcript.includes('fine');
           
           const isNo = transcript.includes('no') || transcript.includes('nope') || 
-                       transcript.includes('not really') || transcript.includes('nah');
+                       transcript.includes('not really') || transcript.includes('nah') ||
+                       transcript.includes('not yet');
 
           const isContinue = transcript.includes('continue') || transcript.includes('next') ||
-                             transcript.includes('proceed') || transcript.includes('go ahead');
+                             transcript.includes('proceed') || transcript.includes('go ahead') ||
+                             transcript.includes('let\'s go');
+
+          console.log('Detected - Yes:', isYes, 'No:', isNo, 'Continue:', isContinue);
 
           if (isYes || isNo || isContinue) {
+            console.log('Response recognized, calling callback with:', (isContinue || isYes));
+            
             if (recognitionTimeout) clearTimeout(recognitionTimeout);
             stopVoiceResponseListener();
             
-            if (responseCallback) {
-              if (isContinue || isYes) {
-                responseCallback(true);
-              } else {
-                responseCallback(false);
-              }
+            if (responseCallback && typeof responseCallback === 'function') {
+              const result = (isContinue || isYes);
+              console.log('Executing callback with result:', result);
+              responseCallback(result);
+            } else {
+              console.error('No valid callback found!');
             }
           }
         }
@@ -757,15 +808,17 @@
         console.error('Voice response error:', event.error);
         removeLiveCaption();
         
-        if (event.error !== 'no-speech') {
+        if (event.error !== 'no-speech' && event.error !== 'aborted') {
           stopVoiceResponseListener();
         }
       };
 
       recognition.onend = () => {
+        console.log('Recognition ended, isListening:', isListeningForResponse);
         if (isListeningForResponse) {
           setTimeout(() => {
             try {
+              console.log('Restarting recognition');
               recognition.start();
             } catch (e) {
               console.error('Voice response restart failed:', e);
@@ -782,6 +835,7 @@
     }
 
     function stopVoiceResponseListener() {
+      console.log('Stopping voice response listener');
       isListeningForResponse = false;
       responseCallback = null;
       document.getElementById('voiceIndicator').classList.remove('active');
@@ -1050,7 +1104,10 @@
         speak(step.text, () => {
           document.getElementById('feedbackButtons').setAttribute('visible', 'true');
           showMobileFeedbackButtons();
+          
+          console.log('Setting up voice listener for grounding feedback');
           startVoiceResponseListener((response) => {
+            console.log('Grounding feedback callback received:', response);
             handleFeedback(response);
           });
         });
@@ -1066,6 +1123,7 @@
     }
 
     function handleFeedback(isPositive) {
+      console.log('handleFeedback called with:', isPositive);
       stopVoiceResponseListener();
       document.getElementById('feedbackButtons').setAttribute('visible', 'false');
       hideMobileFeedbackButtons();
@@ -1081,54 +1139,69 @@
       speak('Would you like to continue to Phase 2: Breathing exercises? You can say yes, or tap the button.', () => {
         document.getElementById('continueButton').setAttribute('visible', 'true');
         showMobileContinueButton();
+        
+        console.log('Setting up voice listener for phase 2 continuation');
         startVoiceResponseListener((response) => {
+          console.log('Phase 2 continuation callback received:', response);
           if (response) {
             startPhase2();
+          } else {
+            stopVoiceResponseListener();
+            document.getElementById('continueButton').setAttribute('visible', 'false');
+            hideMobileContinueButton();
+            speak('That\'s okay. Take your time. You can restart whenever you\'re ready.');
           }
         });
       });
     }
 
     function startPhase2() {
+      console.log('Starting Phase 2');
       stopVoiceResponseListener();
       document.getElementById('continueButton').setAttribute('visible', 'false');
       hideMobileContinueButton();
       
-      console.log('Starting Phase 2: Breathing');
       breathingStep = 0;
       nextBreathingStep();
     }
 
     function nextBreathingStep() {
-      if (breathingStep >= breathingSteps.length - 1) return;
+      if (breathingStep >= breathingSteps.length) {
+        console.log('Phase 2 complete');
+        return;
+      }
 
       const step = breathingSteps[breathingStep];
       console.log('Breathing step', breathingStep, ':', step.text.substring(0, 40));
 
-      // Show breathing circle animation
       const circle = document.getElementById('breathingCircle');
+      const breathText = document.getElementById('breathingText');
+      
+      // Update breathing visualization
       if (step.breathe === 'in') {
-        circle.classList.add('active', 'inhale');
-        circle.classList.remove('exhale');
+        circle.className = 'active inhale';
+        breathText.textContent = step.breathText || '';
+        breathText.classList.add('active');
       } else if (step.breathe === 'out') {
-        circle.classList.add('active', 'exhale');
-        circle.classList.remove('inhale');
+        circle.className = 'active exhale';
+        breathText.textContent = step.breathText || '';
+        breathText.classList.add('active');
       } else if (step.breathe === 'hold') {
-        circle.classList.add('active');
-        circle.classList.remove('inhale', 'exhale');
+        circle.className = 'active hold';
+        breathText.textContent = step.breathText || '';
+        breathText.classList.add('active');
       } else {
-        circle.classList.remove('active', 'inhale', 'exhale');
+        circle.classList.remove('active', 'inhale', 'exhale', 'hold');
+        breathText.classList.remove('active');
       }
 
-      // Show feedback at end
-      if (step.showFeedback) {
-        circle.classList.remove('active');
+      // Handle conclusion steps
+      if (step.conclusion) {
         speak(step.text, () => {
-          document.getElementById('feedbackButtons').setAttribute('visible', 'true');
-          showMobileFeedbackButtons();
-          startVoiceResponseListener((response) => {
-            handlePhase2Feedback(response);
-          });
+          setTimeout(() => {
+            breathingStep++;
+            nextBreathingStep();
+          }, step.duration || 3000);
         });
         return;
       }
@@ -1139,19 +1212,6 @@
           nextBreathingStep();
         }, step.duration);
       });
-    }
-
-    function handlePhase2Feedback(wantsContinue) {
-      stopVoiceResponseListener();
-      document.getElementById('feedbackButtons').setAttribute('visible', 'false');
-      hideMobileFeedbackButtons();
-      document.getElementById('breathingCircle').classList.remove('active');
-      
-      if (wantsContinue) {
-        speak('Great! Phase 3 will be implemented in the next update. For now, you can explore the virtual classroom.');
-      } else {
-        speak('That\'s okay. Take your time to practice these techniques. You can restart whenever you\'re ready.');
-      }
     }
 
     // Event Listeners
@@ -1165,40 +1225,44 @@
     });
 
     document.getElementById('mobileThumbsUp').addEventListener('click', () => {
+      console.log('Thumbs up button clicked');
       if (breathingStep > 0) {
-        handlePhase2Feedback(true);
+        // Not used in Phase 2 anymore
       } else {
         handleFeedback(true);
       }
     });
     document.getElementById('mobileThumbsUp').addEventListener('touchend', (e) => {
       e.preventDefault();
-      if (breathingStep > 0) {
-        handlePhase2Feedback(true);
-      } else {
+      console.log('Thumbs up touch');
+      if (breathingStep === 0) {
         handleFeedback(true);
       }
     });
 
     document.getElementById('mobileThumbsDown').addEventListener('click', () => {
+      console.log('Thumbs down button clicked');
       if (breathingStep > 0) {
-        handlePhase2Feedback(false);
+        // Not used in Phase 2 anymore
       } else {
         handleFeedback(false);
       }
     });
     document.getElementById('mobileThumbsDown').addEventListener('touchend', (e) => {
       e.preventDefault();
-      if (breathingStep > 0) {
-        handlePhase2Feedback(false);
-      } else {
+      console.log('Thumbs down touch');
+      if (breathingStep === 0) {
         handleFeedback(false);
       }
     });
 
-    document.getElementById('mobileContinue').addEventListener('click', () => startPhase2());
+    document.getElementById('mobileContinue').addEventListener('click', () => {
+      console.log('Continue button clicked');
+      startPhase2();
+    });
     document.getElementById('mobileContinue').addEventListener('touchend', (e) => {
       e.preventDefault();
+      console.log('Continue touch');
       startPhase2();
     });
 
@@ -1207,16 +1271,12 @@
       sessionBtn.addEventListener('click', startGuidedSession);
 
       document.getElementById('thumbsUpBtn').addEventListener('click', () => {
-        if (breathingStep > 0) {
-          handlePhase2Feedback(true);
-        } else {
+        if (breathingStep === 0) {
           handleFeedback(true);
         }
       });
       document.getElementById('thumbsDownBtn').addEventListener('click', () => {
-        if (breathingStep > 0) {
-          handlePhase2Feedback(false);
-        } else {
+        if (breathingStep === 0) {
           handleFeedback(false);
         }
       });
