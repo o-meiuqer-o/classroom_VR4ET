@@ -243,6 +243,9 @@
       z-index: 999;
       display: none;
       gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 90%;
     }
 
     .mobile-controls.active {
@@ -282,6 +285,35 @@
 
     .mobile-btn.thumbs-down:active {
       background: #e85555;
+    }
+
+    .mobile-btn.continue {
+      background: rgba(33, 128, 141, 1);
+    }
+
+    .mobile-btn.continue:active {
+      background: rgba(29, 116, 128, 1);
+    }
+
+    /* Voice indicator overlay */
+    #voiceIndicator {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 998;
+      padding: 10px 20px;
+      background: rgba(81, 207, 102, 0.9);
+      color: white;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      display: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      animation: pulse 1.5s infinite;
+    }
+
+    #voiceIndicator.active {
+      display: block;
     }
   </style>
 </head>
@@ -334,11 +366,15 @@
     </div>
   </div>
 
+  <!-- Voice Listening Indicator -->
+  <div id="voiceIndicator">🎤 Listening...</div>
+
   <!-- Mobile Touch Controls -->
   <div id="mobileControls" class="mobile-controls">
     <button id="mobileSessionBtn" class="mobile-btn" style="display: none;">Begin Guided Session</button>
     <button id="mobileThumbsUp" class="mobile-btn thumbs-up" style="display: none;">👍 Yes</button>
     <button id="mobileThumbsDown" class="mobile-btn thumbs-down" style="display: none;">👎 Not Really</button>
+    <button id="mobileContinue" class="mobile-btn continue" style="display: none;">Continue to Phase 2</button>
   </div>
 
   <a-scene>
@@ -389,6 +425,21 @@
       </a-entity>
     </a-entity>
 
+    <!-- Continue Button (hidden initially) -->
+    <a-entity id="continueButton" 
+              position="0 1.6 -2"
+              visible="false"
+              class="clickable">
+      <a-plane width="1.8" height="0.5" color="#21808D" opacity="0.95"></a-plane>
+      <a-text value="Continue to Phase 2" 
+              position="0 0 0.01" 
+              align="center"
+              width="2.8"
+              color="#FFFFFF"
+              font="roboto"
+              wrap-count="30"></a-text>
+    </a-entity>
+
     <!-- Text Display (for showing numbers 5-4-3-2-1) -->
     <a-text id="displayText" 
             position="0 2 -1.8" 
@@ -399,7 +450,7 @@
   </a-scene>
 
   <script>
-    console.log('VR Classroom v30 - Mobile Touch Support - Initialized');
+    console.log('VR Classroom v31 - Voice Response + Confirmation - Initialized');
 
     const sessionData = {
       comfortableLanguages: '',
@@ -414,6 +465,8 @@
     let voices = [];
     let recognitionTimeout = null;
     let isSpeaking = false;
+    let isListeningForResponse = false;
+    let responseCallback = null;
 
     // Grounding exercise state
     let groundingStep = 0;
@@ -426,7 +479,7 @@
       { text: "TWO things you can SMELL. If you can't smell anything obvious, that's fine—just notice that.", duration: 5000 },
       { text: "ONE thing you can TASTE. Maybe you brushed your teeth earlier, or had water. Or maybe you don't taste anything—that's fine too.", duration: 5000 },
       { text: "Good. Now take one deep breath in... and out.", duration: 4000 },
-      { text: "Small check-in - do you feel a little more here? A little more solid?", duration: 3000, showFeedback: true },
+      { text: "Small check-in - do you feel a little more here? A little more solid? You can say yes or no, or tap a button.", duration: 3000, showFeedback: true },
       { text: "Good. That grounding technique! You can use that in the exam hall if you start feeling spaced out. We'll come back to that.", duration: 5000, positive: true },
       { text: "That's okay. Sometimes it takes a few tries. We can do it again later if needed.", duration: 4000, negative: true }
     ];
@@ -550,6 +603,102 @@
         console.error('Microphone permission denied:', error);
         alert('Please allow microphone access.');
         return false;
+      }
+    }
+
+    // Voice response listener for yes/no questions
+    function startVoiceResponseListener(callback) {
+      if (!recognition) {
+        console.log('Voice recognition not available');
+        return;
+      }
+
+      console.log('Starting voice response listener');
+      isListeningForResponse = true;
+      responseCallback = callback;
+
+      document.getElementById('voiceIndicator').classList.add('active');
+
+      if (recognitionTimeout) clearTimeout(recognitionTimeout);
+      recognitionTimeout = setTimeout(() => {
+        console.log('Voice response timeout');
+        stopVoiceResponseListener();
+      }, 30000); // 30 second timeout for response
+
+      recognition.onresult = (event) => {
+        let finalTranscript = '';
+        
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          }
+        }
+
+        if (finalTranscript) {
+          const transcript = finalTranscript.trim().toLowerCase();
+          console.log('Voice response:', transcript);
+
+          // Check for yes/no/continue responses
+          const isYes = transcript.includes('yes') || transcript.includes('yeah') || 
+                        transcript.includes('yep') || transcript.includes('sure') ||
+                        transcript.includes('okay') || transcript.includes('ok');
+          
+          const isNo = transcript.includes('no') || transcript.includes('nope') || 
+                       transcript.includes('not really') || transcript.includes('nah');
+
+          const isContinue = transcript.includes('continue') || transcript.includes('next') ||
+                             transcript.includes('proceed') || transcript.includes('go ahead');
+
+          if (isYes || isNo || isContinue) {
+            if (recognitionTimeout) clearTimeout(recognitionTimeout);
+            stopVoiceResponseListener();
+            
+            if (responseCallback) {
+              if (isContinue) {
+                responseCallback('continue');
+              } else {
+                responseCallback(isYes);
+              }
+            }
+          }
+        }
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Voice response error:', event.error);
+        stopVoiceResponseListener();
+      };
+
+      recognition.onend = () => {
+        if (isListeningForResponse) {
+          setTimeout(() => {
+            try {
+              recognition.start();
+            } catch (e) {
+              console.error('Voice response restart failed:', e);
+            }
+          }, 100);
+        }
+      };
+
+      try {
+        recognition.start();
+      } catch (error) {
+        console.error('Failed to start voice response:', error);
+      }
+    }
+
+    function stopVoiceResponseListener() {
+      isListeningForResponse = false;
+      responseCallback = null;
+      document.getElementById('voiceIndicator').classList.remove('active');
+      
+      if (recognition) {
+        try {
+          recognition.stop();
+        } catch (e) {
+          console.log('Recognition already stopped');
+        }
       }
     }
 
@@ -761,6 +910,15 @@
       document.getElementById('mobileThumbsDown').style.display = 'none';
     }
 
+    function showMobileContinueButton() {
+      document.getElementById('mobileControls').classList.add('active');
+      document.getElementById('mobileContinue').style.display = 'block';
+    }
+
+    function hideMobileContinueButton() {
+      document.getElementById('mobileContinue').style.display = 'none';
+    }
+
     // Grounding Exercise Functions
     function startGuidedSession() {
       console.log('Starting guided session - Phase 1: Grounding');
@@ -790,6 +948,11 @@
         speak(step.text, () => {
           document.getElementById('feedbackButtons').setAttribute('visible', 'true');
           showMobileFeedbackButtons();
+          
+          // Start voice listener for yes/no
+          startVoiceResponseListener((response) => {
+            handleFeedback(response);
+          });
         });
         return;
       }
@@ -803,14 +966,37 @@
     }
 
     function handleFeedback(isPositive) {
+      stopVoiceResponseListener();
       document.getElementById('feedbackButtons').setAttribute('visible', 'false');
       hideMobileFeedbackButtons();
       
       const responseStep = isPositive ? 9 : 10;
       speak(groundingSteps[responseStep].text, () => {
         console.log('Grounding exercise complete');
-        speak('Phase 1 complete. The full session will continue in future updates.');
+        askToContinue();
       });
+    }
+
+    function askToContinue() {
+      speak('Would you like to continue to Phase 2? You can say continue, or tap the button.', () => {
+        document.getElementById('continueButton').setAttribute('visible', 'true');
+        showMobileContinueButton();
+        
+        // Start voice listener for continue
+        startVoiceResponseListener((response) => {
+          if (response === 'continue' || response === true) {
+            continueToPhase2();
+          }
+        });
+      });
+    }
+
+    function continueToPhase2() {
+      stopVoiceResponseListener();
+      document.getElementById('continueButton').setAttribute('visible', 'false');
+      hideMobileContinueButton();
+      
+      speak('Great! Phase 2 will be implemented in the next update. For now, you can explore the virtual classroom.');
     }
 
     // Event Listeners
@@ -836,6 +1022,12 @@
       handleFeedback(false);
     });
 
+    document.getElementById('mobileContinue').addEventListener('click', () => continueToPhase2());
+    document.getElementById('mobileContinue').addEventListener('touchend', (e) => {
+      e.preventDefault();
+      continueToPhase2();
+    });
+
     // VR button listeners (for desktop)
     document.addEventListener('DOMContentLoaded', () => {
       const sessionBtn = document.getElementById('sessionButton');
@@ -843,6 +1035,8 @@
 
       document.getElementById('thumbsUpBtn').addEventListener('click', () => handleFeedback(true));
       document.getElementById('thumbsDownBtn').addEventListener('click', () => handleFeedback(false));
+      
+      document.getElementById('continueButton').addEventListener('click', () => continueToPhase2());
     });
   </script>
 </body>
